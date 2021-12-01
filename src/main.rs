@@ -60,15 +60,15 @@ fn main() {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
     use test_case::test_case;
 
     #[test_case(&vec![199, 200, 208, 210, 200, 207, 240, 269, 260, 263] => Some(7); "sample")]
     #[test_case(&Vec::<i32>::new() => None; "no items")]
     #[test_case(&vec![1] => Some(0); "Just one item")]
-    fn part1_sample(data: &Vec<i32>) -> Option<i32> {
-        part1(data)
+    fn part1(data: &Vec<i32>) -> Option<i32> {
+        super::part1(data)
     }
 
     #[test_case(&vec![199, 200, 208, 210, 200, 207, 240, 269, 260, 263] => Some(5); "sample")]
@@ -76,7 +76,7 @@ mod test {
     #[test_case(&vec![1] => None; "Just one item")]
     #[test_case(&vec![1, 2] => None; "two items")]
     #[test_case(&vec![1, 2, 3] => Some(0); "three items")]
-    fn part2_sample(data: &Vec<i32>) -> Option<i32> {
-        part2(data)
+    fn part2(data: &Vec<i32>) -> Option<i32> {
+        super::part2(data)
     }
 }
