@@ -74,12 +74,7 @@ fn main() {
         if let Some(captures) = matcher.captures(line.trim()) {
             // will panic if the "amount" is greater than an i32
             data.push((
-                Command::try_from(
-                    captures.name("cmd")
-                    .unwrap()
-                    .as_str()
-                )
-                .unwrap(),
+                Command::try_from(captures.name("cmd").unwrap().as_str()).unwrap(),
                 captures
                     .name("amount")
                     .unwrap()
@@ -91,9 +86,15 @@ fn main() {
     }
 
     let (h1, d1) = data.iter().fold((0, 0), act);
-    let (h2, d2, aim) = data.iter().fold((0,0,0), act_with_aim);
+    let (h2, d2, aim) = data.iter().fold((0, 0, 0), act_with_aim);
     println!("Day 2 results:");
-    
+
     println!("Part 1: H: {}, D: {}; result: {}", h1, d1, h1 * d1);
-    println!("Part 2: H: {}, D: {}, aim: {}, result: {}", h2, d2, aim, h2 * d2);
+    println!(
+        "Part 2: H: {}, D: {}, aim: {}, result: {}",
+        h2,
+        d2,
+        aim,
+        h2 * d2
+    );
 }
