@@ -43,11 +43,8 @@ fn main() {
         if bytes_read == 0 {
             break;
         }
-        match line.trim().parse::<i32>() {
-            Ok(val) => {
-                data.push(val);
-            }
-            Err(_) => {}
+        if let Ok(val) = line.trim().parse::<i32>() {
+            data.push(val);
         }
     }
 
