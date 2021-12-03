@@ -15,8 +15,8 @@ fn choose_smaller(number_zeroes: u32, number_ones: u32) -> u32 {
     }
 }
 
-fn digit_at_idx(line: &str, idx: usize) -> u8 {
-    line.as_bytes()[idx]
+fn digit_at_idx(line: &str, idx: usize) -> i32 {
+    line.as_bytes()[idx] as i32 - 0x30
 }
 
 fn digit_counts(lines: &[String], column: usize) -> (u32, u32) {
@@ -25,8 +25,8 @@ fn digit_counts(lines: &[String], column: usize) -> (u32, u32) {
         .map(|s| digit_at_idx(s, column))
         .fold((0_u32, 0_u32), |(nz, no), ch| {
             (
-                if ch == 0x30 { nz + 1 } else { nz },
-                if ch == 0x31 { no + 1 } else { no },
+                if ch == 0 { nz + 1 } else { nz },
+                if ch == 1 { no + 1 } else { no },
             )
         })
 }
@@ -50,10 +50,10 @@ fn value_reducer(lines: &[String], starting_index: usize, chooser: fn(u32, u32) 
 
     // More than one line, so filter.
     let (nz, no) = digit_counts(lines, starting_index);
-    let digit = (chooser(nz, no) + 0x30) as u8;
+    let digit = chooser(nz, no);
     let new_lines = lines
         .iter()
-        .filter(|p| digit_at_idx(*p, starting_index) == digit)
+        .filter(|p| digit_at_idx(*p, starting_index) as i64 == digit as i64)
         .cloned()
         .collect::<Vec<String>>();
 
