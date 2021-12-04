@@ -75,12 +75,7 @@ fn main() {
             // will panic if the "amount" is greater than an i32
             data.push((
                 Command::try_from(captures.name("cmd").unwrap().as_str()).unwrap(),
-                captures
-                    .name("amount")
-                    .unwrap()
-                    .as_str()
-                    .parse::<i32>()
-                    .unwrap(),
+                captures.name("amount").unwrap().as_str().parse::<i32>().unwrap(),
             ));
         }
     }
@@ -90,11 +85,5 @@ fn main() {
     println!("Day 2 results:");
 
     println!("Part 1: H: {}, D: {}; result: {}", h1, d1, h1 * d1);
-    println!(
-        "Part 2: H: {}, D: {}, aim: {}, result: {}",
-        h2,
-        d2,
-        aim,
-        h2 * d2
-    );
+    println!("Part 2: H: {}, D: {}, aim: {}, result: {}", h2, d2, aim, h2 * d2);
 }

@@ -24,10 +24,7 @@ fn digit_counts(lines: &[String], column: usize) -> (u32, u32) {
         .iter()
         .map(|s| digit_at_idx(s, column))
         .fold((0_u32, 0_u32), |(nz, no), ch| {
-            (
-                if ch == 0 { nz + 1 } else { nz },
-                if ch == 1 { no + 1 } else { no },
-            )
+            (if ch == 0 { nz + 1 } else { nz }, if ch == 1 { no + 1 } else { no })
         })
 }
 
@@ -100,8 +97,7 @@ mod tests {
     use super::*;
 
     static LINES: &[&str] = &[
-        "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001",
-        "00010", "01010",
+        "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001", "00010", "01010",
     ];
 
     #[test]
