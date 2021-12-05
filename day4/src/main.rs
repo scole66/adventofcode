@@ -70,16 +70,10 @@ impl Board {
 
             // See if this board is now a winner
             if (0..5).all(|r| {
-                let scan = Position {
-                    row: r,
-                    column: loc.column,
-                };
+                let scan = Position { row: r, column: loc.column };
                 self[&scan].marked
             }) || (0..5).all(|c| {
-                let scan = Position {
-                    row: loc.row,
-                    column: c,
-                };
+                let scan = Position { row: loc.row, column: c };
                 self[&scan].marked
             }) {
                 self.winning_call = Some(id);
