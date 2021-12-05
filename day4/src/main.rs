@@ -137,11 +137,11 @@ fn process_input(lines: &[String]) -> Result<(Vec<Identifier>, Vec<Board>), anyh
 }
 
 fn play_games(boards: &mut Vec<Board>, guesses: Vec<Identifier>) -> Option<(&Board, &Board)> {
-    let mut winners: Vec<usize> = vec![];
+    let mut winners: Vec<usize> = Vec::with_capacity(boards.len());
     for guess in guesses {
         for (idx, board) in boards.iter_mut().enumerate() {
             let won = board.mark(guess);
-            if won && !winners.contains(&idx) {
+            if won {
                 winners.push(idx);
             }
         }
