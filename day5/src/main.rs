@@ -100,7 +100,7 @@ impl Iterator for Walker {
             let result = self.pos;
             self.pos = Position { row: result.row + self.dy, col: result.col + self.dx };
             self.remaining -= 1;
-            return Some(result);
+            Some(result)
         }
     }
 }
