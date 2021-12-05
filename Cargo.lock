@@ -132,6 +132,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxv_day5"
+version = "0.1.0"
+dependencies = [
+ "test-case",
+]
+
+[[package]]
 name = "mmxxi_day1"
 version = "0.1.0"
 dependencies = [
