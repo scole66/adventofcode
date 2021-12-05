@@ -1,11 +1,9 @@
 [package]
-name = "mmxxi_day1"
+name = "mmxv_day4"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-[dev-dependencies]
-test-case = "1.2"
+md-5 = "0.9.1"
