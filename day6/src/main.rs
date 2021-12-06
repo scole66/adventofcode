@@ -15,10 +15,13 @@ impl School {
     fn new(lines: &[String]) -> Self {
         let mut school = Self::default();
         for line in lines {
-            line.split(',')
-                .filter_map(|item| item.parse::<u8>().ok())
-                .filter(|num| *num <= 8)
-                .for_each(|num| school.num_fish_at_stage[num as usize] += 1)
+            for fish in line
+                .split(',')
+                .filter_map(|item| item.parse::<usize>().ok())
+                .filter(|&num| num <= 8)
+            {
+                school.num_fish_at_stage[fish] += 1;
+            }
         }
 
         school
@@ -31,20 +34,15 @@ impl School {
 
     /// Run the school through one generation of life
     fn generation(&mut self) {
-        let mut next_generation = School::default();
+        let fish_giving_birth = self.num_fish_at_stage[0];
         for stage in 0..=7 {
             // Most stages just move on to the next stage
-            next_generation.num_fish_at_stage[stage] = self.num_fish_at_stage[stage + 1];
+            self.num_fish_at_stage[stage] = self.num_fish_at_stage[stage + 1];
         }
-        // But stage zero moves to stage six, as well as all the ones from stage 7.
-        next_generation.num_fish_at_stage[6] += self.num_fish_at_stage[0];
-        // And also, new fish are spawned in stage eight, equal to the number of fish in (previous) stage 0
-        next_generation.num_fish_at_stage[8] = self.num_fish_at_stage[0];
-
-        // Now copy back, replacing the previous generation with this new generation.
-        for idx in 0..=8 {
-            self.num_fish_at_stage[idx] = next_generation.num_fish_at_stage[idx];
-        }
+        // The fish that have given birth re-enter the sequence at stage 6.
+        self.num_fish_at_stage[6] += fish_giving_birth;
+        // And, of course, the fish giving birth have made copies of themselves, who start at stage 8.
+        self.num_fish_at_stage[8] = fish_giving_birth;
     }
 }
 
