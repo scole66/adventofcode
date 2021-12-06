@@ -5,6 +5,7 @@ members = [
     "2015/day2",
     "2015/day3",
     "2015/day4",
+    "2015/day5",
     "day1",
     "day2",
     "day3",
