@@ -34,7 +34,6 @@ impl School {
 
     /// Run the school through one generation of life
     fn generation(&mut self) {
-        //let mut next_generation = School::default();
         let fish_giving_birth = self.num_fish_at_stage[0];
         for stage in 0..=7 {
             // Most stages just move on to the next stage
