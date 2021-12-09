@@ -62,26 +62,6 @@ fn decode(patterns: &[SegmentPattern], values: &[OutputValue]) -> u32 {
     // .    #  #    #  .    #  #    #  .    #
     //  ####    ####    ....    ####    ####
 
-    // Cell indexes:
-    //
-    //  0
-    // 1 2
-    //  3
-    // 4 5
-    //  6
-
-    // Digit   |   Number of lit segments
-    //   0     |    6
-    //   1     |    2
-    //   2     |    5
-    //   3     |    5
-    //   4     |    4
-    //   5     |    5
-    //   6     |    6
-    //   7     |    3
-    //   8     |    7
-    //   9     |    6
-
     // Pattern Length   | Possible number
     //    2             |    1
     //    3             |    7
@@ -89,13 +69,6 @@ fn decode(patterns: &[SegmentPattern], values: &[OutputValue]) -> u32 {
     //    5             |    2, 3, 5
     //    6             |    0, 6, 9
     //    7             |    8
-
-    let mut potentials: [AHashSet<char>; 7] = Default::default();
-    for set in potentials.iter_mut() {
-        for ch in 'a'..='g' {
-            set.insert(ch);
-        }
-    }
 
     let mut pats = Vec::from(patterns);
     pats.sort_by_key(|s| s.len());
@@ -109,12 +82,7 @@ fn decode(patterns: &[SegmentPattern], values: &[OutputValue]) -> u32 {
         AHashSet::from_iter(pats[4].chars()),
         AHashSet::from_iter(pats[5].chars()),
     ];
-    let threes = two_three_five
-        .iter()
-        .filter(|set| one.is_subset(set))
-        .collect::<Vec<_>>();
-    assert_eq!(threes.len(), 1);
-    let three = threes[0];
+    let three = two_three_five.iter().find(|set| one.is_subset(set)).unwrap();
     let two_five = two_three_five.iter().filter(|&set| set != three).collect::<Vec<_>>();
     assert_eq!(two_five.len(), 2);
     let zero_six_nine: [AHashSet<char>; 3] = [
@@ -122,12 +90,7 @@ fn decode(patterns: &[SegmentPattern], values: &[OutputValue]) -> u32 {
         AHashSet::from_iter(pats[7].chars()),
         AHashSet::from_iter(pats[8].chars()),
     ];
-    let sixes = zero_six_nine
-        .iter()
-        .filter(|set| !set.is_superset(&one))
-        .collect::<Vec<_>>();
-    assert_eq!(sixes.len(), 1);
-    let six = sixes[0];
+    let six = zero_six_nine.iter().find(|set| !set.is_superset(&one)).unwrap();
     let (five, two) = if six.is_superset(two_five[0]) {
         (two_five[0], two_five[1])
     } else {
