@@ -155,6 +155,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxi_day10"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "lazy_static",
+ "regex",
+ "test-case",
+]
+
+[[package]]
 name = "mmxxi_day2"
 version = "0.1.0"
 dependencies = [
