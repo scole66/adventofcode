@@ -124,7 +124,7 @@ mod tests {
     }
     #[test]
     fn parsing() {
-        let results: Vec<LineResult> = SAMPLE.iter().map(|s| parse_line(s)).collect();
+        let results: Vec<LineResult> = SAMPLE.iter().map(parse_line).collect();
         assert_eq!(
             results,
             vec![
