@@ -91,7 +91,8 @@ fn main() -> io::Result<()> {
     let r = (1..)
         .map(|step| (step, energy_map.run_step()))
         .find(|&(_, flashes)| flashes >= 100)
-        .unwrap().0;
+        .unwrap()
+        .0;
     println!("Part 2: All flash after step {}", r);
 
     Ok(())
