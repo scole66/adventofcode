@@ -1,15 +1,12 @@
-//! # Solution for Advent of Code 2021 Day 12
+//! # Solution for Advent of Code 2021 Day 13
 //!
-//! Ref: [Advent of Code 2021 Day 12](https://adventofcode.com/2021/day/12)
+//! Ref: [Advent of Code 2021 Day 13](https://adventofcode.com/2021/day/13)
 //!
-#![allow(unused_imports, dead_code, unused_variables)]
 
-use ahash::AHashMap;
 use ahash::AHashSet;
 use anyhow::{self, Context};
 use lazy_static::lazy_static;
 use regex::Regex;
-use std::error::Error;
 use std::fmt;
 use std::io::{self, BufRead};
 
@@ -237,33 +234,4 @@ fn main() -> Result<(), anyhow::Error> {
     println!("Part 2:\n{}", work_grid);
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    static SAMPLE: &[&str] = &[
-        "6,10",
-        "0,14",
-        "9,10",
-        "0,3",
-        "10,4",
-        "4,11",
-        "6,0",
-        "6,12",
-        "4,1",
-        "0,13",
-        "10,12",
-        "3,4",
-        "3,0",
-        "8,4",
-        "1,10",
-        "2,14",
-        "8,10",
-        "9,0",
-        "",
-        "fold along y=7",
-        "fold along x=5",
-    ];
-
-    // Well, this is just embarrassing. :(
 }
