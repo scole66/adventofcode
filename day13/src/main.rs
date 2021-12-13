@@ -105,21 +105,21 @@ impl Grid {
 
 impl fmt::Display for Grid {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        if self.0.len() == 0 {
-            f.write_str("[empty]")
-        } else {
-            let (col_min, col_max, row_min, row_max) = self.extents().unwrap();
-            for row in row_min..=row_max {
-                for col in col_min..=col_max {
-                    if self.0.contains(&Position((col, row))) {
-                        f.write_str("\u{2588}")?;
-                    } else {
-                        f.write_str(" ")?;
+        match self.extents() {
+            None => f.write_str("[empty]"),
+            Some((col_min, col_max, row_min, row_max)) => {
+                for row in row_min..=row_max {
+                    for col in col_min..=col_max {
+                        if self.0.contains(&Position((col, row))) {
+                            f.write_str("\u{2588}")?;
+                        } else {
+                            f.write_str(" ")?;
+                        }
                     }
+                    writeln!(f)?;
                 }
-                writeln!(f)?;
+                Ok(())
             }
-            Ok(())
         }
     }
 }
