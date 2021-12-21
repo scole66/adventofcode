@@ -43,14 +43,7 @@ impl From<GoodString> for String {
 
 impl From<GoodString> for BitStream {
     fn from(src: GoodString) -> Self {
-        BitStream {
-            bits: String::from(src)
-                .chars()
-                .map(char_to_bits)
-                .flatten()
-                .collect::<Vec<u8>>(),
-            current: 0,
-        }
+        BitStream { bits: String::from(src).chars().flat_map(char_to_bits).collect::<Vec<u8>>(), current: 0 }
     }
 }
 impl BitStream {
