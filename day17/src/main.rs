@@ -3,8 +3,6 @@
 //! Ref: [Advent of Code 2021 Day 17](https://adventofcode.com/2021/day/17)
 //!
 
-#![allow(dead_code, unused_imports, unused_variables)]
-
 use anyhow::{self, Context};
 use lazy_static::lazy_static;
 use regex::Regex;
