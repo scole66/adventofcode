@@ -3,14 +3,10 @@
 //! Ref: [Advent of Code 2021 Day 16](https://adventofcode.com/2021/day/16)
 //!
 
-#![allow(dead_code, unused_variables, unused_imports)]
-
-use ahash::AHashMap;
 use anyhow::{self, Context};
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::io::{self, BufRead};
-use std::str::Chars;
 
 #[derive(Debug)]
 struct BitStream {
