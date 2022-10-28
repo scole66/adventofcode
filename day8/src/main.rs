@@ -141,7 +141,7 @@ fn main() -> io::Result<()> {
 
     // Part 2: Sum the decoded values
     let answer: u32 = input.iter().map(|(patterns, values)| decode(patterns, values)).sum();
-    println!("Part 2: Sum of decoded values: {}", answer);
+    println!("Part 2: Sum of decoded values: {answer}");
 
     Ok(())
 }
