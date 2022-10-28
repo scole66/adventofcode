@@ -95,7 +95,7 @@ impl PairCounts {
     /// ```
     /// let pairs = PairCounts::from("NNBNCS");
     /// let counts = pairs.counts();
-    /// assert_eq!(counts.0, AHashMap::from([('N', 3]), ('B', 1), ('C', 1), ('S', 1)]));
+    /// assert_eq!(counts.0, AHashMap::from([('N', 3), ('B', 1), ('C', 1), ('S', 1)]));
     /// ```
     fn counts(&self) -> LetterCounts {
         let mut map = AHashMap::<char, i64>::new();

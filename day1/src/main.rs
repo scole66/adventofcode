@@ -1,7 +1,7 @@
 use std::io;
 
 fn part1(data: &[i32]) -> Option<i32> {
-    let first = *data.get(0)?;
+    let first = *data.first()?;
     Some(
         data[1..]
             .iter()
@@ -14,7 +14,7 @@ fn part1(data: &[i32]) -> Option<i32> {
 }
 
 fn part2(data: &[i32]) -> Option<i32> {
-    let first = *data.get(0)?;
+    let first = *data.first()?;
     let second = *data.get(1)?;
     let third = *data.get(2)?;
     Some(

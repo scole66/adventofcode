@@ -225,7 +225,7 @@ fn main() -> Result<(), anyhow::Error> {
         .collect::<anyhow::Result<Vec<_>>>()
         .context("Failed to parse puzzle input from stdin")?;
 
-    let first_line = input.first().ok_or(anyhow::anyhow!("Need one line"))?;
+    let first_line = input.first().ok_or_else(|| anyhow::anyhow!("Need one line"))?;
 
     println!("Part 1: Sum of versions: {}", version_sum(first_line.clone())?);
 
