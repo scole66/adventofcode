@@ -92,27 +92,9 @@ impl Packet {
                 1 => sub_packets.iter().map(|p| p.evaluate()).product::<u64>(),
                 2 => sub_packets.iter().map(|p| p.evaluate()).min().unwrap(),
                 3 => sub_packets.iter().map(|p| p.evaluate()).max().unwrap(),
-                5 => {
-                    if sub_packets[0].evaluate() > sub_packets[1].evaluate() {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                6 => {
-                    if sub_packets[0].evaluate() < sub_packets[1].evaluate() {
-                        1
-                    } else {
-                        0
-                    }
-                }
-                _ => {
-                    if sub_packets[0].evaluate() == sub_packets[1].evaluate() {
-                        1
-                    } else {
-                        0
-                    }
-                }
+                5 => u64::from(sub_packets[0].evaluate() > sub_packets[1].evaluate()),
+                6 => u64::from(sub_packets[0].evaluate() < sub_packets[1].evaluate()),
+                _ => u64::from(sub_packets[0].evaluate() == sub_packets[1].evaluate()),
             },
         }
     }
@@ -225,7 +207,7 @@ fn main() -> Result<(), anyhow::Error> {
         .collect::<anyhow::Result<Vec<_>>>()
         .context("Failed to parse puzzle input from stdin")?;
 
-    let first_line = input.first().ok_or(anyhow::anyhow!("Need one line"))?;
+    let first_line = input.first().ok_or_else(|| anyhow::anyhow!("Need one line"))?;
 
     println!("Part 1: Sum of versions: {}", version_sum(first_line.clone())?);
 

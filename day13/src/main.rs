@@ -231,7 +231,7 @@ fn main() -> Result<(), anyhow::Error> {
     for i in &input.instructions[1..] {
         work_grid.apply_instruction(i);
     }
-    println!("Part 2:\n{}", work_grid);
+    println!("Part 2:\n{work_grid}");
 
     Ok(())
 }

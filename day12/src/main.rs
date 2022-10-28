@@ -265,11 +265,11 @@ fn main() -> Result<(), anyhow::Error> {
 
     // part1: how many paths?
     let path_count = network.figure_paths(1, false).1;
-    println!("Part 1: There are {} paths through the caverns", path_count);
+    println!("Part 1: There are {path_count} paths through the caverns");
 
     // part2: how many paths with max 2 visits to small caverns?
     let path_count = network.figure_paths(2, false).1;
-    println!("Part 2: There are {} paths through the caverns", path_count);
+    println!("Part 2: There are {path_count} paths through the caverns");
 
     Ok(())
 }

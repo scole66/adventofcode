@@ -1,18 +1,10 @@
 use std::io;
 
 fn choose_greater(number_zeroes: u32, number_ones: u32) -> u32 {
-    if number_zeroes > number_ones {
-        0
-    } else {
-        1
-    }
+    u32::from(number_zeroes <= number_ones)
 }
 fn choose_smaller(number_zeroes: u32, number_ones: u32) -> u32 {
-    if number_zeroes <= number_ones {
-        0
-    } else {
-        1
-    }
+    u32::from(number_zeroes > number_ones)
 }
 
 fn digit_at_idx(line: &str, idx: usize) -> i32 {
@@ -50,7 +42,7 @@ fn value_reducer(lines: &[String], starting_index: usize, chooser: fn(u32, u32) 
     let digit = chooser(nz, no);
     let new_lines = lines
         .iter()
-        .filter(|p| digit_at_idx(*p, starting_index) as i64 == digit as i64)
+        .filter(|p| digit_at_idx(p, starting_index) as i64 == digit as i64)
         .cloned()
         .collect::<Vec<String>>();
 
@@ -86,7 +78,7 @@ fn main() {
     std::process::exit(match run_app() {
         Ok(_) => 0,
         Err(err) => {
-            eprintln!("error: {:?}", err);
+            eprintln!("error: {err:?}");
             1
         }
     });

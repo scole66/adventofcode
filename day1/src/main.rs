@@ -1,20 +1,20 @@
 use std::io;
 
 fn part1(data: &[i32]) -> Option<i32> {
-    let first = *data.get(0)?;
+    let first = *data.first()?;
     Some(
         data[1..]
             .iter()
             .fold((0, first), |accum, val| {
                 let (counter, prev) = accum;
-                (counter + (if *val > prev { 1 } else { 0 }), *val)
+                (counter + i32::from(*val > prev), *val)
             })
             .0,
     )
 }
 
 fn part2(data: &[i32]) -> Option<i32> {
-    let first = *data.get(0)?;
+    let first = *data.first()?;
     let second = *data.get(1)?;
     let third = *data.get(2)?;
     Some(
@@ -23,12 +23,7 @@ fn part2(data: &[i32]) -> Option<i32> {
             .fold((0, first + second + third, second, third), |accum, val| {
                 let (counter, previous_sum, spot0, spot1) = accum;
                 let new_sum = spot0 + spot1 + *val;
-                (
-                    counter + (if new_sum > previous_sum { 1 } else { 0 }),
-                    new_sum,
-                    spot1,
-                    *val,
-                )
+                (counter + i32::from(new_sum > previous_sum), new_sum, spot1, *val)
             })
             .0,
     )

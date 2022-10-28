@@ -33,7 +33,7 @@ impl Display for SeaFloor {
                             }
                         })
                         .collect::<String>();
-                    writeln!(f, "{}", x)?;
+                    writeln!(f, "{x}")?;
                 }
                 Ok(())
             }

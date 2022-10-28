@@ -100,7 +100,7 @@ fn main() -> io::Result<()> {
         .map(|&(row, col)| height_map.risk_level(row, col))
         .sum();
 
-    println!("Part 1: Total Risk: {}", total_risk);
+    println!("Part 1: Total Risk: {total_risk}");
 
     let mut all_basin_sizes: Vec<usize> = height_map
         .low_points()

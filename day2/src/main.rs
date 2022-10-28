@@ -84,6 +84,6 @@ fn main() {
     let (h2, d2, aim) = data.iter().fold((0, 0, 0), act_with_aim);
     println!("Day 2 results:");
 
-    println!("Part 1: H: {}, D: {}; result: {}", h1, d1, h1 * d1);
-    println!("Part 2: H: {}, D: {}, aim: {}, result: {}", h2, d2, aim, h2 * d2);
+    println!("Part 1: H: {h1}, D: {d1}; result: {}", h1 * d1);
+    println!("Part 2: H: {h2}, D: {d2}, aim: {aim}, result: {}", h2 * d2);
 }

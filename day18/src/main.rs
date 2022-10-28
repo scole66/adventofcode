@@ -53,8 +53,8 @@ impl PairValue {
 impl fmt::Display for PairValue {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            PairValue::Number(x) => write!(f, "{}", x),
-            PairValue::Pair(p) => write!(f, "{}", p),
+            PairValue::Number(x) => write!(f, "{x}"),
+            PairValue::Pair(p) => write!(f, "{p}"),
         }
     }
 }
@@ -111,7 +111,7 @@ impl From<Pair2> for Pair {
 }
 impl From<&Pair2> for Pair {
     fn from(src: &Pair2) -> Self {
-        let repr = format!("{}", src);
+        let repr = format!("{src}");
         Self::try_from(repr.as_str()).unwrap()
     }
 }
@@ -132,7 +132,7 @@ impl fmt::Display for PairPart {
         match self {
             PairPart::Open => write!(f, "["),
             PairPart::Close => write!(f, "]"),
-            PairPart::Number(n) => write!(f, "{}", n),
+            PairPart::Number(n) => write!(f, "{n}"),
         }
     }
 }
@@ -299,7 +299,7 @@ impl fmt::Display for Pair2 {
                 }
                 PairPart::Close => {}
             }
-            write!(f, "{}", item)?;
+            write!(f, "{item}")?;
             previous = Some(item);
         }
         Ok(())
@@ -346,7 +346,7 @@ fn main() -> Result<(), anyhow::Error> {
             }
         }
     }
-    println!("Part 2: pairwise largest magnitude: {}", max_magnitude);
+    println!("Part 2: pairwise largest magnitude: {max_magnitude}");
 
     Ok(())
 }
@@ -364,7 +364,7 @@ mod tests {
     fn reduce(src: &str) -> String {
         let mut input = Pair2::try_from(src).unwrap();
         input.reduce();
-        format!("{}", input)
+        format!("{input}")
     }
 
     #[test_case(&["[1,1]","[2,2]","[3,3]","[4,4]"] => "[[[[1,1],[2,2]],[3,3]],[4,4]]"; "add example 1")]
@@ -399,6 +399,6 @@ mod tests {
         for other in src[1..].iter() {
             sn.add(Pair2::try_from(*other).unwrap());
         }
-        format!("{}", sn)
+        format!("{sn}")
     }
 }

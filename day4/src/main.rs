@@ -96,7 +96,7 @@ impl Board {
 
 fn process_input(lines: &[String]) -> Result<(Vec<Identifier>, Vec<Board>), anyhow::Error> {
     let mut input = lines.iter();
-    let guess_line = input.next().ok_or(anyhow!("truncated input"))?;
+    let guess_line = input.next().ok_or_else(|| anyhow!("truncated input"))?;
     let guesses: Vec<Identifier> = guess_line
         .split(',')
         .filter_map(|n| n.parse::<u32>().ok())
@@ -161,7 +161,8 @@ fn main() -> Result<(), anyhow::Error> {
 
     let (guesses, mut boards) = process_input(&lines)?;
 
-    let (winner, loser) = play_games(&mut boards, guesses).ok_or(anyhow!("No winners at the end of the round!"))?;
+    let (winner, loser) =
+        play_games(&mut boards, guesses).ok_or_else(|| anyhow!("No winners at the end of the round!"))?;
 
     println!("Part1: Score: {}", winner.tally());
     println!("Part2: Score: {}", loser.tally());

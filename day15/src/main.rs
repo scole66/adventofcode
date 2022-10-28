@@ -219,10 +219,10 @@ fn main() -> Result<(), anyhow::Error> {
         .context("Failed to parse puzzle input from stdin")?;
 
     let (_cheapest_path, total_risk) = input.find_path(input.top_left(), input.bottom_right()?)?.unwrap();
-    println!("Part 1: Lowest risk path has risk value {}", total_risk);
+    println!("Part 1: Lowest risk path has risk value {total_risk}");
 
     input.expand(5);
     let (_cheapest_path, total_risk) = input.find_path(input.top_left(), input.bottom_right()?)?.unwrap();
-    println!("Part 2: Expanded map, lowest risk path has value {}", total_risk);
+    println!("Part 2: Expanded map, lowest risk path has value {total_risk}");
     Ok(())
 }
