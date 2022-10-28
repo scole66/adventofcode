@@ -11,7 +11,7 @@ fn five_zeroes(a: u8, b: u8, c: u8) -> bool {
 }
 
 fn hashok(key: &str, number: i64, check: fn(u8, u8, u8) -> bool) -> bool {
-    let input = format!("{}{}", key, number);
+    let input = format!("{key}{number}");
     let mut hasher = Md5::new();
     hasher.update(input);
     let result = hasher.finalize();
