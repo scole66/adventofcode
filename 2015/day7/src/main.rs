@@ -30,25 +30,25 @@ impl TryFrom<&str> for Gate {
     fn try_from(src: &str) -> Result<Self, Self::Error> {
         lazy_static! {
             static ref GATE_PATTERN: Regex = {
-                let id_pattern = |s| format!("(?P<{}_id>[a-z]+)", s);
-                let number_pattern = |s| format!("(?P<{}_num>0|[1-9][0-9]*)", s);
+                let id_pattern = |s| format!("(?P<{s}_id>[a-z]+)");
+                let number_pattern = |s| format!("(?P<{s}_num>0|[1-9][0-9]*)");
                 let input_pattern = |s| format!("(?:{}|{})", id_pattern(s), number_pattern(s));
                 let input_part: String = format!("(?:(?P<lone_identifier>{})|(?P<two_arg_insn>{} (?P<insn>AND|OR|LSHIFT|RSHIFT) {})|(?:NOT (?P<complement>{})))", input_pattern("lone"), input_pattern("left"), input_pattern("right"), input_pattern("not"));
-                let gate_pattern: String = format!("(?:{} -> (?P<output>{}))", input_part, id_pattern("output"));
+                let gate_pattern: String = format!("(?:{input_part} -> (?P<output>{}))", id_pattern("output"));
                 Regex::new(&gate_pattern).unwrap()
             };
         }
 
         let captures = GATE_PATTERN
             .captures(src)
-            .ok_or_else(|| anyhow::anyhow!("Cannot parse ‘{}’ as a valid gate description", src))?;
+            .ok_or_else(|| anyhow::anyhow!("Cannot parse ‘{src}’ as a valid gate description"))?;
 
         fn parse_value(captures: &Captures, id: &str) -> anyhow::Result<Value> {
-            if let Some(id_val) = captures.name(&format!("{}_id", id)) {
+            if let Some(id_val) = captures.name(&format!("{id}_id")) {
                 Ok(Value::Identifier(id_val.as_str().to_string()))
             } else {
                 let num = captures
-                    .name(&format!("{}_num", id))
+                    .name(&format!("{id}_num"))
                     .unwrap()
                     .as_str()
                     .parse::<u64>()
@@ -404,9 +404,9 @@ fn main() -> anyhow::Result<()> {
     let a_signal = *circuit.signals.get(&"a".to_string()).unwrap();
     let a_repr = match a_signal {
         None => "--".to_string(),
-        Some(x) => format!("{}", x),
+        Some(x) => format!("{x}"),
     };
-    println!("Part 1: Value of signal \"a\": {}", a_repr);
+    println!("Part 1: Value of signal \"a\": {a_repr}");
 
     let mut overrides = AHashMap::new();
     overrides.insert("b".to_string(), a_signal.unwrap());
@@ -416,9 +416,9 @@ fn main() -> anyhow::Result<()> {
     let a_signal = *circuit.signals.get(&"a".to_string()).unwrap();
     let a_repr = match a_signal {
         None => "--".to_string(),
-        Some(x) => format!("{}", x),
+        Some(x) => format!("{x}"),
     };
-    println!("Part 2: Value of signal \"a\": {}", a_repr);
+    println!("Part 2: Value of signal \"a\": {a_repr}");
 
     Ok(())
 }
@@ -432,6 +432,6 @@ mod tests {
     #[test_case("NOT 10 -> b" => Ok(Gate::Not(Value::Number(10), "b".to_string())); "NOT num")]
     #[test_case("NOT 19999999999999999999999999999999999999999999999990 -> b" => Err("This integer is too large for a gate description".to_string()); "NOT invalid")]
     fn gate_try_from(s: &str) -> Result<Gate, String> {
-        Gate::try_from(s).map_err(|e| format!("{}", e))
+        Gate::try_from(s).map_err(|e| format!("{e}"))
     }
 }

@@ -85,7 +85,7 @@ fn main() -> io::Result<()> {
     let mut energy_map = lines.iter().collect::<EnergyMap>();
 
     let flashes = (0..100).map(|_| energy_map.run_step() as u64).sum::<u64>();
-    println!("Part 1: {} flashes", flashes);
+    println!("Part 1: {flashes} flashes");
 
     let mut energy_map = lines.iter().collect::<EnergyMap>();
     let r = (1..)
@@ -93,7 +93,7 @@ fn main() -> io::Result<()> {
         .find(|&(_, flashes)| flashes >= 100)
         .unwrap()
         .0;
-    println!("Part 2: All flash after step {}", r);
+    println!("Part 2: All flash after step {r}");
 
     Ok(())
 }

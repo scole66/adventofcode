@@ -42,9 +42,9 @@ fn run_app() -> io::Result<()> {
     }
 
     let part1_result = part1(&lines);
-    println!("Part 1: Santa ends up on floor {}.", part1_result);
+    println!("Part 1: Santa ends up on floor {part1_result}.");
     let part2_result = part2(&lines);
-    println!("Part 2: Santa enters the basement at step {:?}.", part2_result);
+    println!("Part 2: Santa enters the basement at step {part2_result:?}.");
 
     Ok(())
 }
@@ -53,7 +53,7 @@ fn main() {
     std::process::exit(match run_app() {
         Ok(_) => 0,
         Err(err) => {
-            eprintln!("error: {:?}", err);
+            eprintln!("error: {err:?}");
             1
         }
     });

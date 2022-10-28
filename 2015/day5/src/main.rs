@@ -91,7 +91,7 @@ fn is_nice(word: &str) -> bool {
 /// Given a list of strings, answer the question posed in Part 1.
 fn part1(lines: &[String]) {
     let num_nice = lines.iter().filter(|&line| is_nice(line)).count();
-    println!("Part1: There are {} nice strings.", num_nice);
+    println!("Part1: There are {num_nice} nice strings.");
 }
 
 /// Determine whether a word is nice or not, based on the Part 2 rules.
@@ -148,7 +148,7 @@ fn is_super_nice(s: &str) -> bool {
 /// Given a list of strings, answer the question posed in Part 2.
 fn part2(lines: &[String]) {
     let num_nice = lines.iter().filter(|&line| is_super_nice(line)).count();
-    println!("Part2: There are {} nice (v2) strings", num_nice);
+    println!("Part2: There are {num_nice} nice (v2) strings");
 }
 
 fn main() -> io::Result<()> {
