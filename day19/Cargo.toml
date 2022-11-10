@@ -7,9 +7,9 @@ edition = "2021"
 
 [dependencies]
 regex = "1"
-lazy_static = "1.4"
-ahash = "0.7"
-anyhow = "1.0"
+lazy_static = "1"
+ahash = "0.8"
+anyhow = "1"
 
 [dev-dependencies]
 test-case = "2"
