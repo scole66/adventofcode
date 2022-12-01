@@ -6,20 +6,6 @@
 use anyhow::{self, Context};
 use std::io::{self, BufRead};
 
-struct Elf {
-    total: usize,
-}
-
-impl Elf {
-    pub fn new(items: Vec<usize>) -> Self {
-        let total = items.iter().sum::<usize>();
-        Self { total }
-    }
-}
-struct Elves {
-    individuals: Vec<Elf>,
-}
-
 struct ResultString(anyhow::Result<String>);
 impl From<anyhow::Result<String>> for ResultString {
     /// Converts an `anyhow::Result<String>` into a `ResultString`
@@ -34,24 +20,28 @@ impl From<Result<String, std::io::Error>> for ResultString {
     }
 }
 
-impl FromIterator<ResultString> for anyhow::Result<Elves> {
+impl FromIterator<ResultString> for anyhow::Result<Vec<usize>> {
     fn from_iter<T: IntoIterator<Item = ResultString>>(iter: T) -> Self {
         let mut elves = vec![];
-        let mut current_elf = vec![];
+        let mut current_elf = 0;
         for ResultString(res) in iter.into_iter() {
             let line = res?;
             if line.is_empty() {
-                elves.push(Elf::new(current_elf));
-                current_elf = vec![];
+                elves.push(current_elf);
+                current_elf = 0;
             } else {
                 let calories = line.parse::<usize>().map_err(anyhow::Error::from)?;
-                current_elf.push(calories);
+                current_elf += calories;
             }
         }
-        if !current_elf.is_empty() {
-            elves.push(Elf::new(current_elf));
+        if current_elf > 0 {
+            elves.push(current_elf);
         }
-        Ok(Elves { individuals: elves })
+        if elves.is_empty() {
+            Err(anyhow::anyhow!("No elves in the input"))
+        } else {
+            Ok(elves)
+        }
     }
 }
 
@@ -62,16 +52,16 @@ fn main() -> Result<(), anyhow::Error> {
         .lock()
         .lines()
         .map(ResultString::from)
-        .collect::<anyhow::Result<Elves>>()
+        .collect::<anyhow::Result<Vec<usize>>>()
         .context("Failed to parse puzzle input from stdin")?;
 
     // Sort the elves from most to least
-    elves.individuals.sort_by(|a, b| b.total.cmp(&a.total));
+    elves.sort_by(|a, b| b.cmp(a));
 
-    let question_1 = elves.individuals[0].total;
+    let question_1 = elves[0];
     println!("Elf with most calories is carrying {question_1}.");
 
-    let question_2 = elves.individuals[0..3].iter().map(|elf| elf.total).sum::<usize>();
+    let question_2 = elves[0..3].iter().sum::<usize>();
     println!("Most cals for first 3: {question_2}");
 
     Ok(())
