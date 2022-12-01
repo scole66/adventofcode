@@ -7,12 +7,6 @@ use anyhow::{self, Context};
 use std::io::{self, BufRead};
 
 struct ResultString(anyhow::Result<String>);
-impl From<anyhow::Result<String>> for ResultString {
-    /// Converts an `anyhow::Result<String>` into a `ResultString`
-    fn from(src: anyhow::Result<String>) -> Self {
-        Self(src)
-    }
-}
 impl From<Result<String, std::io::Error>> for ResultString {
     /// Converts a `Result<String, std::io::Error>` into a `ResultString`
     fn from(src: Result<String, std::io::Error>) -> Self {
@@ -20,7 +14,9 @@ impl From<Result<String, std::io::Error>> for ResultString {
     }
 }
 
-impl FromIterator<ResultString> for anyhow::Result<Vec<usize>> {
+type ElfCollection = Vec<usize>;
+
+impl FromIterator<ResultString> for anyhow::Result<ElfCollection> {
     fn from_iter<T: IntoIterator<Item = ResultString>>(iter: T) -> Self {
         let mut elves = vec![];
         let mut current_elf = 0;
@@ -52,7 +48,7 @@ fn main() -> Result<(), anyhow::Error> {
         .lock()
         .lines()
         .map(ResultString::from)
-        .collect::<anyhow::Result<Vec<usize>>>()
+        .collect::<anyhow::Result<ElfCollection>>()
         .context("Failed to parse puzzle input from stdin")?;
 
     // Sort the elves from most to least
