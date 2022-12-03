@@ -29,6 +29,15 @@ impl TryFrom<String> for Coords {
     }
 }
 
+impl Coords {
+    fn distance_to_squared(&self, other: &Coords) -> i32 {
+        let dx = self.0 - other.0;
+        let dy = self.1 - other.1;
+        let dz = self.2 - other.2;
+        dx * dx + dy * dy + dz * dz
+    }
+}
+
 #[derive(Debug, PartialEq)]
 struct Scanner {
     id: String,
@@ -40,14 +49,22 @@ impl Scanner {
         Scanner { id: name.to_string(), beacons: AHashSet::new() }
     }
 
-    fn distances(&self) -> Vec<f64> {
-        for head in self.beacons.iter() {
-            for tail in 
+    fn distances(&self) -> Vec<i32> {
+        let n = self.beacons.len();
+        let mut result = Vec::with_capacity(n * (n - 1) / 2);
+        for (index, head) in self.beacons.iter().enumerate() {
+            for tail in self.beacons.iter().skip(index + 1) {
+                let distance = head.distance_to_squared(tail);
+                result.push(distance);
+            }
         }
+
+        result.sort();
+        result
     }
 
     fn shared_beacons(&self, other: &Scanner) -> AHashSet<Coords> {
-        
+        todo!()
     }
 }
 
@@ -352,7 +369,7 @@ mod intersection {
             443,580,662
             -789,900,-551
             459,-707,401
-            
+
             --- scanner 1 ---
             686,422,578
             605,423,415
