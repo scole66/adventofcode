@@ -48,46 +48,21 @@ fn part1(rucksacks: &[String]) -> anyhow::Result<i32> {
     Ok(priorities.iter().sum())
 }
 
-fn partition(rucksacks: &[String]) -> anyhow::Result<Vec<[String; 3]>> {
-    (rucksacks.len() % 3 == 0).then_some(()).ok_or_else(|| {
-        anyhow::anyhow!(
-            "The number of rucksacks must be divisible by 3. (Found {}.)",
-            rucksacks.len()
-        )
-    })?;
-    let mut results = Vec::with_capacity(rucksacks.len() / 3);
-    let mut group = Vec::with_capacity(3);
-    for sack in rucksacks {
-        group.push(sack);
-        if group.len() == 3 {
-            results.push([group[0].clone(), group[1].clone(), group[2].clone()]);
-            group.clear();
-        }
+fn common_group_item(group: &[String]) -> anyhow::Result<char> {
+    let mut items = AHashSet::from_iter("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".chars());
+    for sack in group {
+        let sack_items = AHashSet::from_iter(sack.chars());
+        items = items.intersection(&sack_items).copied().collect();
     }
 
-    Ok(results)
-}
-
-fn common_group_item(group: &[String; 3]) -> anyhow::Result<char> {
-    let group1_items = AHashSet::from_iter(group[0].chars());
-    let group2_items = AHashSet::from_iter(group[1].chars());
-    let group3_items = AHashSet::from_iter(group[2].chars());
-
-    let early_commons = group1_items
-        .intersection(&group2_items)
-        .copied()
-        .collect::<AHashSet<_>>();
-    let common = early_commons.intersection(&group3_items).collect::<Vec<_>>();
-
-    (common.len() == 1)
-        .then(|| *common[0])
-        .ok_or_else(|| anyhow::anyhow!("Expected one common item, found {}", common.len()))
+    (items.len() == 1)
+        .then(|| items.iter().copied().next().unwrap())
+        .ok_or_else(|| anyhow::anyhow!("Expected one common item, found {}", items.len()))
 }
 
 fn part2(rucksacks: &[String]) -> anyhow::Result<i32> {
-    let groups = partition(rucksacks)?;
+    let groups = rucksacks.chunks_exact(3);
     let priorities = groups
-        .iter()
         .map(|group| {
             let item = common_group_item(group)?;
             Ok(priority(item))
@@ -118,28 +93,31 @@ fn main() -> anyhow::Result<()> {
 }
 
 #[cfg(test)]
+mod tests {
+    use super::*;
 
-static SAMPLE: &str = indoc::indoc! {"
-    vJrwpWtwJgWrhcsFMMfFFhFp
-    jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
-    PmmdzqPrVvPwwTWBwg
-    wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
-    ttgJtRGJQctTZtZT
-    CrZsJsPPZsGzwwsLwLmpwMDw
-"};
+    static SAMPLE: &str = indoc::indoc! {"
+        vJrwpWtwJgWrhcsFMMfFFhFp
+        jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
+        PmmdzqPrVvPwwTWBwg
+        wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
+        ttgJtRGJQctTZtZT
+        CrZsJsPPZsGzwwsLwLmpwMDw
+    "};
 
-#[test]
-fn part1_sample() {
-    let rucksacks = SAMPLE.lines().map(String::from).collect::<Vec<_>>();
+    #[test]
+    fn part1_sample() {
+        let rucksacks = SAMPLE.lines().map(String::from).collect::<Vec<_>>();
 
-    let p1 = part1(&rucksacks).unwrap();
-    assert_eq!(p1, 157);
-}
+        let p1 = part1(&rucksacks).unwrap();
+        assert_eq!(p1, 157);
+    }
 
-#[test]
-fn part2_sample() {
-    let rucksacks = SAMPLE.lines().map(String::from).collect::<Vec<_>>();
+    #[test]
+    fn part2_sample() {
+        let rucksacks = SAMPLE.lines().map(String::from).collect::<Vec<_>>();
 
-    let p2 = part2(&rucksacks).unwrap();
-    assert_eq!(p2, 70);
+        let p2 = part2(&rucksacks).unwrap();
+        assert_eq!(p2, 70);
+    }
 }
