@@ -9,14 +9,6 @@ use regex::Regex;
 use std::io::{self, BufRead};
 use thiserror::Error;
 
-struct ResultString(anyhow::Result<String>);
-impl From<Result<String, std::io::Error>> for ResultString {
-    /// Converts a `Result<String, std::io::Error>` into a `ResultString`
-    fn from(src: Result<String, std::io::Error>) -> Self {
-        Self(src.map_err(anyhow::Error::from))
-    }
-}
-
 #[derive(Debug)]
 struct Strategy {
     steps: Vec<Step>,
@@ -107,15 +99,17 @@ impl TryFrom<&str> for Step {
     }
 }
 
-impl FromIterator<ResultString> for anyhow::Result<Strategy> {
-    fn from_iter<T: IntoIterator<Item = ResultString>>(iter: T) -> Self {
-        let mut strategy = vec![];
-        for ResultString(res) in iter.into_iter() {
-            let line = res?;
-            let step = Step::try_from(line.as_str())?;
-            strategy.push(step);
-        }
-        Ok(Strategy { steps: strategy })
+impl TryFrom<String> for Step {
+    type Error = RPSError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Self::try_from(value.as_str())
+    }
+}
+
+impl FromIterator<Step> for Strategy {
+    fn from_iter<T: IntoIterator<Item = Step>>(iter: T) -> Self {
+        Strategy { steps: iter.into_iter().collect() }
     }
 }
 
@@ -178,8 +172,11 @@ fn main() -> anyhow::Result<()> {
     let strategy = stdin
         .lock()
         .lines()
-        .map(ResultString::from)
-        .collect::<anyhow::Result<Strategy>>()
+        .map(|line| {
+            line.map_err(anyhow::Error::from)
+                .and_then(|line| Step::try_from(line).map_err(anyhow::Error::from))
+        })
+        .collect::<Result<Strategy, anyhow::Error>>()
         .context("Failed to parse puzzle input from stdin")?;
 
     // Part 1: Run the naive strategy
