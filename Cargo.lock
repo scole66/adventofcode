@@ -450,6 +450,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxv_day8"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
