@@ -2,10 +2,9 @@
 //!
 //! Ref: [Advent of Code 2022 Day 8](https://adventofcode.com/2022/day/8)
 //!
-#![allow(unused_imports, dead_code, unused_variables)]
 use ahash::{AHashMap, AHashSet};
 use std::io::{self, Read};
-use std::iter::{Iterator, Peekable};
+use std::iter::Iterator;
 
 struct Input {
     trees: AHashMap<(isize, isize), u8>,
@@ -227,8 +226,7 @@ mod tests {
 
     #[test]
     fn part1_sample() {
-        let input = SAMPLE;
-        assert_eq!(part1(&input).unwrap(), 21);
+        assert_eq!(part1(SAMPLE).unwrap(), 21);
     }
 
     #[test]
