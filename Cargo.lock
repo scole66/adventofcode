@@ -214,6 +214,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxv_day8"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+]
+
+[[package]]
 name = "mmxxi_day1"
 version = "0.1.0"
 dependencies = [
@@ -485,13 +492,6 @@ dependencies = [
  "anyhow",
  "indoc",
  "itertools",
-]
-
-[[package]]
-name = "mmxxv_day8"
-version = "0.1.0"
-dependencies = [
- "anyhow",
 ]
 
 [[package]]
