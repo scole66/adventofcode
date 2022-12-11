@@ -254,41 +254,22 @@ where
 }
 
 struct Permutation<T> {
+    items: Vec<T>,
+    a: Vec<usize>,
+    n: usize,
     done: bool,
-    index: usize,
-    length: usize,
-    sub_permutation: Vec<T>,
-    sub_iter: Option<Box<Permutation<T>>>,
-    elements: Vec<T>,
 }
 
-impl<T> Permutation<T> {
-    fn new(elements: &[T]) -> Permutation<T>
-    where
-        T: Clone,
-    {
-        let length = elements.len();
-        if length <= 1 {
-            Permutation {
-                done: false,
-                index: 2,
-                length,
-                sub_permutation: Vec::new(),
-                sub_iter: None,
-                elements: elements.to_vec(),
-            }
-        } else {
-            Permutation {
-                done: false,
-                index: length + 1,
-                length,
-                sub_permutation: Vec::new(),
-                sub_iter: Some(Box::new(Permutation::new(&elements[1..]))),
-                elements: elements.to_vec(),
-            }
-        }
+impl<T> Permutation<T>
+where
+    T: Clone,
+{
+    fn new(items: &[T]) -> Self {
+        let n = items.len();
+        Permutation { items: items.to_vec(), n, a: [0..=n].into_iter().flatten().collect::<Vec<_>>(), done: false }
     }
 }
+
 impl<T> Iterator for Permutation<T>
 where
     T: Clone,
@@ -298,28 +279,36 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         if self.done {
             None
-        } else if self.length == 1 {
-            self.done = true;
-            Some(self.elements.clone())
         } else {
-            if self.index >= self.length {
-                self.index = 0;
-                match self.sub_iter.as_mut().unwrap().next() {
-                    None => {
-                        self.done = true;
-                        return None;
-                    }
-                    Some(vector) => {
-                        self.sub_permutation = vector;
-                    }
-                }
-            }
+            // Algorithm L from Knuth 7.2.1.2. Generating all permutations.
+            let result = Some(
+                self.a[1..=self.n]
+                    .iter()
+                    .map(|&idx| self.items[idx - 1].clone())
+                    .collect::<Vec<_>>(),
+            );
 
-            let mut result = self.sub_permutation[0..self.index].to_vec();
-            result.push(self.elements[0].clone());
-            result.extend_from_slice(&self.sub_permutation[self.index..]);
-            self.index += 1;
-            Some(result)
+            let mut j = self.n - 1;
+            while j > 0 && self.a[j + 1] <= self.a[j] {
+                j -= 1;
+            }
+            if j == 0 {
+                self.done = true;
+                return result;
+            }
+            let mut l = self.n;
+            while self.a[j] >= self.a[l] {
+                l -= 1;
+            }
+            (self.a[j], self.a[l]) = (self.a[l], self.a[j]);
+            let mut k = j + 1;
+            let mut l = self.n;
+            while k < l {
+                (self.a[k], self.a[l]) = (self.a[l], self.a[k]);
+                k += 1;
+                l -= 1;
+            }
+            return result;
         }
     }
 }
@@ -408,7 +397,7 @@ mod tests {
     }
 
     #[test]
-    fn permutate() {
+    fn permutator() {
         let input = &[4, 12, 33, -1];
         let result = Permutation::new(input).collect::<Vec<_>>();
         assert_eq!(result.len(), 4 * 3 * 2);
