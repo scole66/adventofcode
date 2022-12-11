@@ -308,7 +308,7 @@ where
                 k += 1;
                 l -= 1;
             }
-            return result;
+            result
         }
     }
 }
