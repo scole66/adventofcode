@@ -446,6 +446,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxii_day11"
+version = "0.1.0"
+dependencies = [
+ "ahash 0.8.2",
+ "anyhow",
+ "indoc",
+ "once_cell",
+ "regex",
+]
+
+[[package]]
 name = "mmxxii_day2"
 version = "0.1.0"
 dependencies = [
