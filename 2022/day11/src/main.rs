@@ -1,4 +1,4 @@
-//! # Solution for Advent of Code 2022 Day 11:
+//! # Solution for Advent of Code 2022 Day 11: Monkey in the Middle
 //!
 //! Ref: [Advent of Code 2022 Day 11](https://adventofcode.com/2022/day/11)
 //!
@@ -195,71 +195,75 @@ fn parse_monkeys(iter: &mut impl Iterator<Item = RString>) -> anyhow::Result<Bar
     Ok(Barrel { monkeys, ids, lcm })
 }
 
-fn round(barrel: &mut Barrel, worry_divisor: Option<i64>) {
-    for monkey_id in barrel.ids.iter() {
-        let monkey = barrel.monkeys.get(monkey_id).unwrap();
-        let items = monkey.items.clone(); // This gets cloned so we can keep it and let the monkey ref get dropped.
-        for item in items {
-            // For Rust mutability/ownership reasons, we need to get the monkey from the hash table each
-            // iteration. (We get a mutable ref to our target monkey at the bottom of the loop; in order to do
-            // that, all immutable refs need to be out of scope, which means we can't hold the current monkey
-            // between iterations.)
-            let monkey = barrel.monkeys.get(monkey_id).unwrap();
-            let worry_level = match &monkey.operation {
-                Operation::Add(operand) => match operand {
-                    Operand::Old => item + item,
-                    Operand::Number(v) => item + v,
-                },
-                Operation::Multiply(operand) => match operand {
-                    Operand::Old => item * item,
-                    Operand::Number(v) => item * v,
-                },
-            };
-            let adjusted_worry = match worry_divisor {
-                Some(divisor) => worry_level / divisor,
-                None => worry_level % barrel.lcm,
-            };
+impl Barrel {
+    fn round(&mut self, worry_divisor: Option<i64>) {
+        for monkey_id in self.ids.iter() {
+            let monkey = self.monkeys.get(monkey_id).unwrap();
+            let items = monkey.items.clone(); // This gets cloned so we can keep it and let the monkey ref get dropped.
+            for item in items {
+                // For Rust mutability/ownership reasons, we need to get the monkey from the hash table each
+                // iteration. (We get a mutable ref to our target monkey at the bottom of the loop; in order to do
+                // that, all immutable refs need to be out of scope, which means we can't hold the current monkey
+                // between iterations.)
+                let monkey = self.monkeys.get(monkey_id).unwrap();
+                let worry_level = match &monkey.operation {
+                    Operation::Add(operand) => match operand {
+                        Operand::Old => item + item,
+                        Operand::Number(v) => item + v,
+                    },
+                    Operation::Multiply(operand) => match operand {
+                        Operand::Old => item * item,
+                        Operand::Number(v) => item * v,
+                    },
+                };
+                let adjusted_worry = match worry_divisor {
+                    Some(divisor) => worry_level / divisor,
+                    None => worry_level % self.lcm,
+                };
 
-            let target = if adjusted_worry % monkey.test_divisor == 0 {
-                monkey.reaction.truish
-            } else {
-                monkey.reaction.falsish
-            };
-            let target = barrel.monkeys.get_mut(&target).unwrap();
-            target.items.push(adjusted_worry);
+                let target = if adjusted_worry % monkey.test_divisor == 0 {
+                    monkey.reaction.truish
+                } else {
+                    monkey.reaction.falsish
+                };
+                let target = self.monkeys.get_mut(&target).unwrap();
+                target.items.push(adjusted_worry);
+            }
+            let monkey = self.monkeys.get_mut(monkey_id).unwrap();
+            monkey.inspection_count += monkey.items.len();
+            monkey.items.clear();
         }
-        let monkey = barrel.monkeys.get_mut(monkey_id).unwrap();
-        monkey.inspection_count += monkey.items.len();
-        monkey.items.clear();
+    }
+
+    fn reset(&mut self) {
+        self.monkeys.values_mut().for_each(|monkey| monkey.reset());
+    }
+
+    fn monkey_business(&self) -> usize {
+        let mut stats = self
+            .monkeys
+            .values()
+            .map(|monkey| monkey.inspection_count)
+            .collect::<Vec<_>>();
+        stats.sort();
+        stats.iter().rev().take(2).product()
     }
 }
 
 fn part1(input: &mut Barrel) -> usize {
     // 20 rounds
     for _ in 0..20 {
-        round(input, Some(3));
+        input.round(Some(3));
     }
-    let mut stats = input
-        .monkeys
-        .values()
-        .map(|monkey| monkey.inspection_count)
-        .collect::<Vec<_>>();
-    stats.sort();
-    stats.iter().rev().take(2).product()
+    input.monkey_business()
 }
 
 fn part2(barrel: &mut Barrel) -> usize {
     // 10,000 rounds
     for _ in 0..10000 {
-        round(barrel, None);
+        barrel.round(None);
     }
-    let mut stats = barrel
-        .monkeys
-        .values()
-        .map(|monkey| monkey.inspection_count)
-        .collect::<Vec<_>>();
-    stats.sort();
-    stats.iter().rev().take(2).product()
+    barrel.monkey_business()
 }
 
 fn main() -> anyhow::Result<()> {
@@ -269,7 +273,7 @@ fn main() -> anyhow::Result<()> {
     let mut barrel = parse_monkeys(&mut input_iter)?;
 
     println!("Part1: {}", part1(&mut barrel));
-    barrel.monkeys.values_mut().for_each(|monkey| monkey.reset());
+    barrel.reset();
     println!("Part2: {}", part2(&mut barrel));
 
     Ok(())
