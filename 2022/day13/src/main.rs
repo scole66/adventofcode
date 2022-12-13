@@ -115,47 +115,56 @@ impl Ord for Item {
 }
 
 fn part1(input: &str) -> anyhow::Result<usize> {
-    let x = input
-        .split("\n\n")
-        .map(|pair| {
-            let mut line_iter = pair.lines();
-            let line1 = line_iter.next().ok_or_else(|| anyhow::anyhow!("pair missing"))?;
-            let line2 = line_iter
-                .next()
-                .ok_or_else(|| anyhow::anyhow!("second of pair missing"))?;
-            if line_iter.next().is_some() {
-                anyhow::bail!("Too many items for a pair")
-            }
-            let left = line1.parse::<Item>()?;
-            let right = line2.parse::<Item>()?;
+    itertools::process_results(
+        input
+            .split("\n\n")
+            .enumerate()
+            .map(|(idx, pair)| {
+                let mut line_iter = pair.lines();
+                let line1 = line_iter.next().ok_or_else(|| anyhow::anyhow!("pair missing"))?;
+                let line2 = line_iter
+                    .next()
+                    .ok_or_else(|| anyhow::anyhow!("second of pair missing"))?;
+                if line_iter.next().is_some() {
+                    anyhow::bail!("Too many items for a pair")
+                }
+                let left = line1.parse::<Item>()?;
+                let right = line2.parse::<Item>()?;
 
-            Ok(left < right)
-        })
-        .enumerate()
-        .filter(|(_, correct)| *correct.as_ref().unwrap())
-        .map(|(idx, _)| idx + 1)
-        .sum();
-    Ok(x)
+                Ok((idx, left < right))
+            })
+            .filter(|r| r.is_err() || r.as_ref().expect("not error case").1)
+            .map(|r| r.map(|(idx, _)| idx + 1)),
+        |iter| iter.sum(),
+    )
 }
 
-fn part2(input: &str) -> usize {
-    let mut items = input
-        .lines()
-        .filter(|&line| !line.is_empty())
-        .map(|line| line.parse::<Item>().unwrap())
-        .collect::<Vec<_>>();
+fn part2(input: &str) -> anyhow::Result<usize> {
+    let mut items = itertools::process_results(
+        input
+            .lines()
+            .filter(|&line| !line.is_empty())
+            .map(|line| line.parse::<Item>()),
+        |iter| iter.collect::<Vec<_>>(),
+    )?;
 
-    let first_divider = "[[2]]".parse::<Item>().unwrap();
-    let second_divider = "[[6]]".parse::<Item>().unwrap();
+    let first_divider = "[[2]]".parse::<Item>().expect("good input string");
+    let second_divider = "[[6]]".parse::<Item>().expect("good input string");
     items.push(first_divider.clone());
     items.push(second_divider.clone());
 
     items.sort();
 
-    let first_idx = 1 + items.iter().position(|x| x == &first_divider).unwrap();
-    let second_idx = 1 + items.iter().position(|x| x == &second_divider).unwrap();
+    let first_idx = 1 + items
+        .iter()
+        .position(|x| x == &first_divider)
+        .expect("item must exist as we explicity added it");
+    let second_idx = 1 + items
+        .iter()
+        .position(|x| x == &second_divider)
+        .expect("item must exist as we explicity added it");
 
-    first_idx * second_idx
+    Ok(first_idx * second_idx)
 }
 
 fn main() -> anyhow::Result<()> {
@@ -165,7 +174,7 @@ fn main() -> anyhow::Result<()> {
     stdin.lock().read_to_string(&mut input)?;
 
     println!("Part1: {}", part1(&input)?);
-    println!("Part2: {}", part2(&input));
+    println!("Part2: {}", part2(&input)?);
 
     Ok(())
 }
@@ -209,7 +218,7 @@ mod tests {
 
     #[test]
     fn part2_sample() {
-        assert_eq!(part2(SAMPLE), 140);
+        assert_eq!(part2(SAMPLE).unwrap(), 140);
     }
 
     #[test_case("322" => Item::Number(322); "one number")]
