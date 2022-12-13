@@ -7,7 +7,7 @@ use std::io::{self, Read};
 use std::iter::{Iterator, Peekable};
 use std::str::FromStr;
 
-#[derive(Debug, PartialEq, Clone, Ord, Eq)]
+#[derive(Debug, PartialEq, Clone, Eq)]
 enum Item {
     Number(i64),
     List(Vec<Item>),
@@ -99,6 +99,17 @@ impl PartialOrd for Item {
             (Item::List(_), Item::Number(b)) => self.partial_cmp(&Item::List(vec![Item::Number(*b)])),
             (Item::Number(a), Item::List(_)) => Item::List(vec![Item::Number(*a)]).partial_cmp(other),
             (Item::List(a), Item::List(b)) => a.partial_cmp(b),
+        }
+    }
+}
+
+impl Ord for Item {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match (self, other) {
+            (Item::Number(a), Item::Number(b)) => a.cmp(b),
+            (Item::List(_), Item::Number(b)) => self.cmp(&Item::List(vec![Item::Number(*b)])),
+            (Item::Number(a), Item::List(_)) => Item::List(vec![Item::Number(*a)]).cmp(other),
+            (Item::List(a), Item::List(b)) => a.cmp(b),
         }
     }
 }
