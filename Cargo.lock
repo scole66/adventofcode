@@ -470,9 +470,9 @@ dependencies = [
 name = "mmxxii_day13"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
  "anyhow",
  "indoc",
+ "itertools",
  "test-case 2.2.2",
 ]
 
