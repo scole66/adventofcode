@@ -163,12 +163,9 @@ impl Map {
         result
     }
 
-    fn dijkstra_with_early_exit(
-        &self,
-        start: (usize, usize),
-    ) -> Option<((usize, usize), usize)> {
+    fn dijkstra_with_early_exit(&self, start: (usize, usize)) -> Option<((usize, usize), usize)> {
         let mut dist = AHashMap::new();
-        let mut prev:AHashMap<_, Option<(usize, usize)>> = AHashMap::new();
+        let mut prev: AHashMap<_, Option<(usize, usize)>> = AHashMap::new();
         let mut q = AHashSet::new();
         itertools::iproduct!(0..self.width, 0..self.height).for_each(|point| {
             dist.insert(point, usize::MAX);
@@ -197,7 +194,11 @@ impl Map {
                 if v_elevation == 1 {
                     return Some((v, current_dist + 1));
                 }
-                let alt = if current_dist == usize::MAX { usize::MAX } else { current_dist + 1 };
+                let alt = if current_dist == usize::MAX {
+                    usize::MAX
+                } else {
+                    current_dist + 1
+                };
                 if alt < dist[&v] {
                     dist.insert(v, alt);
                     prev.insert(v, Some(u));
@@ -269,5 +270,4 @@ mod tests {
             ]
         );
     }
-
 }
