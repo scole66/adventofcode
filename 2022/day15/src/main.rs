@@ -113,11 +113,7 @@ fn part1(input: &str, row: isize) -> anyhow::Result<isize> {
 
     // So what we want to do here is identify where a beacon cannot exist for
     // just one line. This is modelled as a sorted vector of start/end pairs.
-    let impacts = data
-        .0
-        .iter()
-        .flat_map(|item| item.row_impact(row))
-        .collect::<Vec<_>>();
+    let impacts = data.0.iter().flat_map(|item| item.row_impact(row)).collect::<Vec<_>>();
     let mut starts = impacts.iter().map(|&(start, _)| start).collect::<Vec<_>>();
     starts.sort();
     let mut ends = impacts.iter().map(|&(_, end)| end).collect::<Vec<_>>();
