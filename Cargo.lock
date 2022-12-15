@@ -477,6 +477,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxii_day14"
+version = "0.1.0"
+dependencies = [
+ "ahash 0.8.2",
+ "anyhow",
+ "indoc",
+ "itertools",
+ "test-case 2.2.2",
+]
+
+[[package]]
 name = "mmxxii_day2"
 version = "0.1.0"
 dependencies = [
