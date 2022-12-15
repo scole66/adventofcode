@@ -2,9 +2,6 @@
 //!
 //! Ref: [Advent of Code 2022 Day 15](https://adventofcode.com/2022/day/15)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::AHashSet;
-use anyhow::Context;
 use itertools::chain;
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -147,7 +144,7 @@ fn part1(input: &str, row: isize) -> anyhow::Result<isize> {
                 si.next();
                 ei.next();
             }
-            (Some(&start), None) => anyhow::bail!("Start after end"),
+            (Some(_), None) => anyhow::bail!("Start after end"),
             (None, Some(&end)) => {
                 // decrease level
                 level -= 1;
@@ -179,7 +176,7 @@ fn part2(input: &str, max_dimension: isize) -> anyhow::Result<isize> {
             .iter()
             .flat_map(|scanner| scanner.right_edge())
             .filter(|&Point { col, row }| col >= 0 && col <= max_dimension && row >= 0 && row <= max_dimension),
-        (0..=max_dimension).map(|x| Point { col: 0, row: max_dimension })
+        (0..=max_dimension).map(|row| Point { col: 0, row })
     );
 
     for point in points_to_check {
