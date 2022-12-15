@@ -2,8 +2,7 @@
 //!
 //! Ref: [Advent of Code 2022 Day 14](https://adventofcode.com/2022/day/14)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap, AHashSet};
+use ahash::AHashMap;
 use anyhow::Context;
 use itertools::{chain, Itertools};
 use std::fmt::Display;
