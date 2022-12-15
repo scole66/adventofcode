@@ -196,25 +196,30 @@ enum DropResult {
     SandFellForever,
     NoRoomAtAll,
 }
+#[derive(PartialEq, Eq, Copy, Clone)]
+enum ItFalls {
+    ToFloor,
+    Forever,
+}
 
 impl GameData {
-    fn loc_is_empty(&self, location: &(isize, isize), with_floor: bool) -> bool {
-        !self.data.contains_key(location) && (!with_floor || location.1 < self.floor_row)
+    fn loc_is_empty(&self, location: &(isize, isize), falls: ItFalls) -> bool {
+        !self.data.contains_key(location) && (falls == ItFalls::Forever || location.1 < self.floor_row)
     }
-    fn next_step(&self, location: (isize, isize), with_floor: bool) -> Option<(isize, isize)> {
+    fn next_step(&self, location: (isize, isize), falls: ItFalls) -> Option<(isize, isize)> {
         [0, -1, 1]
             .iter()
             .map(|dx| (location.0 + dx, location.1 + 1))
-            .find(|point| self.loc_is_empty(point, with_floor))
+            .find(|point| self.loc_is_empty(point, falls))
     }
     fn below_all(&self, location: (isize, isize)) -> bool {
         self.data.keys().all(|&(_, row)| row < location.1)
     }
-    fn drop_grain(&mut self, with_floor: bool) -> DropResult {
+    fn drop_grain(&mut self, falls: ItFalls) -> DropResult {
         static START: (isize, isize) = (500, 0);
         let mut location = START;
         loop {
-            match self.next_step(location, with_floor) {
+            match self.next_step(location, falls) {
                 None => {
                     return match self.data.insert(location, Piece::Sand) {
                         None => DropResult::SandStopped,
@@ -222,7 +227,7 @@ impl GameData {
                     };
                 }
                 Some(new_location) => {
-                    if !with_floor && self.below_all(location) {
+                    if falls == ItFalls::Forever && self.below_all(location) {
                         return DropResult::SandFellForever;
                     }
                     location = new_location;
@@ -237,7 +242,7 @@ fn part1(input: &str) -> anyhow::Result<usize> {
     let mut game = GameData::from(initial);
     let mut grains_dropped = 0;
     let grains = loop {
-        if game.drop_grain(false) == DropResult::SandFellForever {
+        if game.drop_grain(ItFalls::Forever) == DropResult::SandFellForever {
             break grains_dropped;
         }
         grains_dropped += 1;
@@ -250,7 +255,7 @@ fn part2(input: &str) -> anyhow::Result<usize> {
     let mut game = GameData::from(initial);
     let mut grains_dropped = 0;
     let grains = loop {
-        if game.drop_grain(true) == DropResult::NoRoomAtAll {
+        if game.drop_grain(ItFalls::ToFloor) == DropResult::NoRoomAtAll {
             break grains_dropped;
         }
         grains_dropped += 1;
