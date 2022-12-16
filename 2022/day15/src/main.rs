@@ -10,8 +10,6 @@ use std::io::{self, Read};
 use std::iter::Iterator;
 use std::str::FromStr;
 
-//         Sensor at x=2, y=18: closest beacon is at x=-2, y=15
-
 struct Item {
     scanner: Point,
     beacon: Point,
