@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 regex = "1"
 lazy_static = "1.4"
-ahash = "0.7"
+ahash = "0.8.2"
