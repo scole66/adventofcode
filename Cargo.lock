@@ -4,17 +4,6 @@ version = 3
 
 [[package]]
 name = "ahash"
-version = "0.7.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fcb51a0695d8f838b1ee009b3fbf66bda078cd64590202a864a8f3e8c4315c47"
-dependencies = [
- "getrandom",
- "once_cell",
- "version_check",
-]
-
-[[package]]
-name = "ahash"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bf6ccdb167abbf410dcb915cabd428929d7f6a04980b54a11f26a39f1c7f7107"
@@ -36,9 +25,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.66"
+version = "1.0.67"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "216261ddc8289130e551ddcd5ce8a064710c0d064a4d2895c67151c92b5443f6"
+checksum = "7724808837b77f4b4de9d283820f9d98bcf496d5692934b857a2399d31ff22e6"
 
 [[package]]
 name = "autocfg"
@@ -121,9 +110,9 @@ dependencies = [
 
 [[package]]
 name = "indoc"
-version = "1.0.7"
+version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adab1eaa3408fb7f0c777a73e7465fd5656136fc93b670eb6df3c88c2c1344e3"
+checksum = "da2d6f23ffea9d7e76c53eee25dfb67bcd8fde7f1198b0855350698c9f07c780"
 
 [[package]]
 name = "itertools"
@@ -179,7 +168,7 @@ dependencies = [
 name = "mmxv_day3"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "lazy_static",
  "regex",
  "test-case 1.2.3",
@@ -212,7 +201,7 @@ dependencies = [
 name = "mmxv_day7"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -230,7 +219,7 @@ dependencies = [
 name = "mmxv_day9"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
  "once_cell",
@@ -248,7 +237,7 @@ dependencies = [
 name = "mmxxi_day10"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "lazy_static",
  "regex",
  "test-case 1.2.3",
@@ -258,7 +247,7 @@ dependencies = [
 name = "mmxxi_day11"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "lazy_static",
  "regex",
  "test-case 1.2.3",
@@ -268,7 +257,7 @@ dependencies = [
 name = "mmxxi_day12"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -279,7 +268,7 @@ dependencies = [
 name = "mmxxi_day13"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -290,7 +279,7 @@ dependencies = [
 name = "mmxxi_day14"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -301,7 +290,7 @@ dependencies = [
 name = "mmxxi_day15"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "priority-queue",
@@ -313,7 +302,7 @@ dependencies = [
 name = "mmxxi_day16"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -324,7 +313,7 @@ dependencies = [
 name = "mmxxi_day17"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -335,7 +324,7 @@ dependencies = [
 name = "mmxxi_day18"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -346,7 +335,7 @@ dependencies = [
 name = "mmxxi_day19"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "lazy_static",
  "regex",
@@ -372,7 +361,7 @@ dependencies = [
 name = "mmxxi_day4"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "anyhow",
 ]
 
@@ -380,7 +369,7 @@ dependencies = [
 name = "mmxxi_day5"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "lazy_static",
  "regex",
 ]
@@ -400,7 +389,7 @@ version = "0.1.0"
 name = "mmxxi_day8"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "lazy_static",
  "regex",
  "test-case 1.2.3",
@@ -410,7 +399,7 @@ dependencies = [
 name = "mmxxi_day9"
 version = "0.1.0"
 dependencies = [
- "ahash 0.7.6",
+ "ahash",
  "lazy_static",
  "regex",
  "test-case 1.2.3",
@@ -420,7 +409,7 @@ dependencies = [
 name = "mmxxii-day7"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
 ]
@@ -429,7 +418,7 @@ dependencies = [
 name = "mmxxii-day8"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
 ]
@@ -455,7 +444,7 @@ dependencies = [
 name = "mmxxii_day11"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
  "once_cell",
@@ -466,7 +455,7 @@ dependencies = [
 name = "mmxxii_day12"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
  "itertools",
@@ -486,7 +475,7 @@ dependencies = [
 name = "mmxxii_day14"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
  "itertools",
@@ -509,7 +498,7 @@ dependencies = [
 name = "mmxxii_day16"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "bimap",
  "indoc",
@@ -531,7 +520,7 @@ dependencies = [
 name = "mmxxii_day3"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
 ]
@@ -550,7 +539,7 @@ dependencies = [
 name = "mmxxii_day5"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
  "once_cell",
@@ -561,7 +550,7 @@ dependencies = [
 name = "mmxxii_day6"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "itertools",
  "test-case 2.2.2",
@@ -571,7 +560,7 @@ dependencies = [
 name = "mmxxii_day9"
 version = "0.1.0"
 dependencies = [
- "ahash 0.8.2",
+ "ahash",
  "anyhow",
  "indoc",
  "itertools",
