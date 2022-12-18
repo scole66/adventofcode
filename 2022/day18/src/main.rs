@@ -3,6 +3,7 @@
 //! Ref: [Advent of Code 2022 Day 18](https://adventofcode.com/2022/day/18)
 //!
 use ahash::{AHashMap, AHashSet};
+use std::cell::RefCell;
 use std::io::{self, Read};
 use std::iter::Iterator;
 use std::str::FromStr;
@@ -27,7 +28,7 @@ impl FromStr for Point {
 }
 struct Scan {
     voxels: AHashSet<Point>,
-    cache: AHashMap<Point, bool>,
+    cache: RefCell<AHashMap<Point, bool>>,
 }
 impl FromStr for Scan {
     type Err = anyhow::Error;
@@ -38,7 +39,7 @@ impl FromStr for Scan {
                 .lines()
                 .map(|line| line.parse::<Point>())
                 .collect::<anyhow::Result<AHashSet<_>>>()?,
-            cache: AHashMap::new(),
+            cache: RefCell::new(AHashMap::new()),
         })
     }
 }
@@ -79,12 +80,12 @@ impl Scan {
     }
 
     fn path_to_exterior_exists(
-        &mut self,
+        &self,
         pt: Point,
         targets: &(Point, Point),
         previously_examined: &mut AHashSet<Point>,
     ) -> bool {
-        if let Some(&result) = self.cache.get(&pt) {
+        if let Some(&result) = self.cache.borrow().get(&pt) {
             return result;
         }
         previously_examined.insert(pt);
@@ -104,16 +105,16 @@ impl Scan {
                 || to_check.0 .2 >= (targets.1).0 .2
                 || self.path_to_exterior_exists(to_check, targets, previously_examined)
             {
-                self.cache.insert(pt, true);
+                self.cache.borrow_mut().insert(pt, true);
                 return true;
             }
         }
 
-        self.cache.insert(pt, false);
+        self.cache.borrow_mut().insert(pt, false);
         false
     }
 
-    fn exterior_count(&mut self, pt: Point) -> usize {
+    fn exterior_count(&self, pt: Point) -> usize {
         // A point is an exterior point if at least one of its neighbors is empty and that neighbor can follow
         // a path to infinity without needing to cross through any other pixels. We want the number of faces
         // of our point where that's true. (So an isolated voxel has a count of 6.) Though we don't strictly
@@ -124,10 +125,7 @@ impl Scan {
         // we were already travelling when iterating within the search.
         let target = self.boundaries();
 
-        #[allow(clippy::needless_collect)] // it's not actually needless
-        let neighbors = self.free_neighbors(pt).collect::<Vec<_>>();
-        neighbors
-            .into_iter()
+        self.free_neighbors(pt)
             .filter(|&p| {
                 let mut already_scanned = AHashSet::new();
                 self.path_to_exterior_exists(p, &target, &mut already_scanned)
@@ -143,12 +141,8 @@ fn part1(input: &str) -> anyhow::Result<usize> {
 }
 
 fn part2(input: &str) -> anyhow::Result<usize> {
-    let mut voxels = input.parse::<Scan>()?;
-    #[allow(clippy::needless_collect)] // it's not actually needless
-    let points = voxels.voxels.iter().copied().collect::<Vec<_>>();
-    let free_count = points.into_iter().map(|vox| voxels.exterior_count(vox)).sum();
-
-    Ok(free_count)
+    let voxels = input.parse::<Scan>()?;
+    Ok(voxels.voxels.iter().map(|&vox| voxels.exterior_count(vox)).sum())
 }
 
 fn main() -> anyhow::Result<()> {
@@ -372,7 +366,7 @@ mod tests {
         4,4,2
     "} => 2; "same-tunnel reused")]
     fn exterior_count(input: &str) -> usize {
-        let mut scan = input.parse::<Scan>().unwrap();
+        let scan = input.parse::<Scan>().unwrap();
         scan.exterior_count(Point((1, 1, 1)))
     }
 }
