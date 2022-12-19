@@ -4,6 +4,7 @@
 //!
 use ahash::AHashMap;
 use once_cell::sync::Lazy;
+use rayon::prelude::*;
 use regex::Regex;
 use std::io::{self, Read};
 use std::iter::Iterator;
@@ -162,7 +163,7 @@ impl Blueprint {
             m = m.max(self.max_production_inner(cache, new_inventory, time_left - 1));
         }
         // Make an ore robot. Reduce the inventory by the robot's cost, and increase the number of robots.
-        if can_build_ore_robot && new_inventory.ore_robots < self.max_ore_cost {
+        if can_build_ore_robot && !can_build_geode_robot && new_inventory.ore_robots < self.max_ore_cost {
             m = m.max(self.max_production_inner(
                 cache,
                 new_inventory.build_ore_robot(self.ore_robot_ore_cost),
@@ -170,7 +171,7 @@ impl Blueprint {
             ));
         }
         // Make a clay robot.
-        if can_build_clay_robot && new_inventory.clay_robots < self.obsidian_robot_clay_cost {
+        if can_build_clay_robot && !can_build_geode_robot && new_inventory.clay_robots < self.obsidian_robot_clay_cost {
             m = m.max(self.max_production_inner(
                 cache,
                 new_inventory.build_clay_robot(self.clay_robot_ore_cost),
@@ -178,7 +179,10 @@ impl Blueprint {
             ));
         }
         // Make an obsidian robot.
-        if can_build_obsidian_robot && new_inventory.obsidian_robots < self.geode_robot_obsidian_cost {
+        if can_build_obsidian_robot
+            && !can_build_geode_robot
+            && new_inventory.obsidian_robots < self.geode_robot_obsidian_cost
+        {
             m = m.max(self.max_production_inner(
                 cache,
                 new_inventory.build_obsidian_robot(self.obsidian_robot_ore_cost, self.obsidian_robot_clay_cost),
@@ -220,13 +224,13 @@ impl Blueprint {
 
 fn part1(input: &str) -> anyhow::Result<usize> {
     let prints = input.parse::<Blueprints>()?;
-    Ok(prints.0.iter().map(|print| print.quality_level()).sum())
+    Ok(prints.0.par_iter().map(|print| print.quality_level()).sum())
 }
-
 fn part2(input: &str) -> anyhow::Result<usize> {
     let prints = input.parse::<Blueprints>()?;
-    let result = prints.0[0..3]
-        .iter()
+    let limit = 3.min(prints.0.len());
+    let result = prints.0[0..limit]
+        .par_iter()
         .map(|print| print.max_geode_production(32))
         .product::<usize>();
     Ok(result)
@@ -259,7 +263,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore] // This takes too long, and the test executor aborts it.
     fn part2_sample() {
         assert_eq!(part2(SAMPLE).unwrap(), 62 * 56);
     }
