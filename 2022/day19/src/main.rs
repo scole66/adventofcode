@@ -259,6 +259,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore] // This takes too long, and the test executor aborts it.
     fn part2_sample() {
         assert_eq!(part2(SAMPLE).unwrap(), 62 * 56);
     }
