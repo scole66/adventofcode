@@ -258,11 +258,13 @@ mod tests {
     "};
 
     #[test]
+    #[ignore] // takes too long on github
     fn part1_sample() {
         assert_eq!(part1(SAMPLE).unwrap(), 33);
     }
 
     #[test]
+    #[ignore] // takes too long on github
     fn part2_sample() {
         assert_eq!(part2(SAMPLE).unwrap(), 62 * 56);
     }
