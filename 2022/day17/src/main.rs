@@ -241,9 +241,27 @@ impl Canvas {
     }
 }
 
+fn gcd(a: u64, b: u64) -> u64 {
+    let mut u = a;
+    let mut v = b;
+    while v != 0 {
+        let r = u % v;
+        u = v;
+        v = r;
+    }
+    u
+}
+
+fn lcm(a: u64, b: u64) -> u64 {
+    let gcd = gcd(a,b);
+    a * b / gcd
+}
+
 fn part1(input: &str) -> anyhow::Result<isize> {
     let jets = input.parse::<AirJets>()?;
+    println!("LCM: {}", lcm(PATTERNS.len() as u64, jets.0.len() as u64));
     let mut canvas = Canvas::new(jets);
+
     for _ in 0..2022 {
         canvas.drop_rock();
     }
@@ -252,6 +270,8 @@ fn part1(input: &str) -> anyhow::Result<isize> {
 }
 
 fn part2(input: &str) -> anyhow::Result<usize> {
+    let jets = input.parse::<AirJets>()?;
+
     todo!()
 }
 
@@ -281,7 +301,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn part2_sample() {
-        assert_eq!(part2(SAMPLE).unwrap(), 36);
+        assert_eq!(part2(SAMPLE).unwrap(), 1514285714288);
     }
 
     mod first_empty_row {
