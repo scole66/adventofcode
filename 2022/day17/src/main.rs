@@ -3,7 +3,7 @@
 //! Ref: [Advent of Code 2022 Day 17](https://adventofcode.com/2022/day/17)
 //!
 #![allow(dead_code, unused_imports, unused_variables)]
-use ahash::AHashMap;
+use ahash::{AHashMap,AHashSet};
 use anyhow::Context;
 use once_cell::sync::Lazy;
 use std::fmt::Display;
@@ -241,25 +241,8 @@ impl Canvas {
     }
 }
 
-fn gcd(a: u64, b: u64) -> u64 {
-    let mut u = a;
-    let mut v = b;
-    while v != 0 {
-        let r = u % v;
-        u = v;
-        v = r;
-    }
-    u
-}
-
-fn lcm(a: u64, b: u64) -> u64 {
-    let gcd = gcd(a,b);
-    a * b / gcd
-}
-
 fn part1(input: &str) -> anyhow::Result<isize> {
     let jets = input.parse::<AirJets>()?;
-    println!("LCM: {}", lcm(PATTERNS.len() as u64, jets.0.len() as u64));
     let mut canvas = Canvas::new(jets);
 
     for _ in 0..2022 {
@@ -269,10 +252,49 @@ fn part1(input: &str) -> anyhow::Result<isize> {
     Ok(canvas.height())
 }
 
+
+#[derive(PartialEq, Eq, Hash)]
+struct CacheKey {
+    jet_index: u8,
+    rock_index: u8,
+    jumble: Vec<u8>,
+}
+struct CachedCanvas {
+    spots: AHashMap<(isize, isize), Rock>,
+    jets: AirJets,
+    jet_index: usize,
+    rock_index: usize,
+    state: RocksAre,
+    cache: AHashMap<CacheKey, AHashSet<(u8,u8)>>,
+    virtual_row_count: isize,
+}
+impl CachedCanvas {
+    fn new(jets: AirJets) -> Self {
+        CachedCanvas {
+            spots: AHashMap::new(),
+            jets,
+            jet_index: 0,
+            rock_index: 0,
+            state: RocksAre::Stopped,
+            cache: AHashMap::new(),
+            virtual_row_count: 0,
+        }
+    }
+    
+    fn highest_nonempty_row(&self) -> Option<isize> {
+        self.spots.keys().map(|(_, row)| *row).max()
+    }
+
+    fn height(&self) -> isize {
+        self.highest_nonempty_row().unwrap_or(-1) + 1 + self.virtual_row_count
+    }
+}
+
 fn part2(input: &str) -> anyhow::Result<usize> {
     let jets = input.parse::<AirJets>()?;
 
-    todo!()
+    let mut cached_canvas = CachedCanvas::new(jets);
+    cached_canvas.height_after(1000000000000)
 }
 
 fn main() -> anyhow::Result<()> {
