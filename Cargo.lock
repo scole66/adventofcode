@@ -618,6 +618,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxii_day21"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc",
+ "test-case 2.2.2",
+]
+
+[[package]]
+name = "mmxxii_day23"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc",
+]
+
+[[package]]
 name = "mmxxii_day3"
 version = "0.1.0"
 dependencies = [
