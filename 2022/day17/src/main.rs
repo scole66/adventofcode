@@ -2,13 +2,11 @@
 //!
 //! Ref: [Advent of Code 2022 Day 17](https://adventofcode.com/2022/day/17)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap,AHashSet};
-use anyhow::Context;
+use ahash::AHashMap;
 use once_cell::sync::Lazy;
+use std::cmp::Ordering;
 use std::fmt::Display;
 use std::io::{self, Read};
-use std::iter::Iterator;
 use std::str::FromStr;
 
 // Coord system: x grows to the right, y grows upward. (0,0) is the leftmost spot just above the floor. ("Just
@@ -97,18 +95,59 @@ enum RocksAre {
     Stopped,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+struct Point {
+    col: isize,
+    row: isize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct CacheKey {
+    rock_idx: u32,
+    jet_idx: u32,
+    rocks: Vec<Point>,
+}
+impl CacheKey {
+    fn new(value: &Canvas) -> Self {
+        let mut rocks = value.spots.keys().cloned().collect::<Vec<_>>();
+        rocks.sort_by(|a, b| match a.row.cmp(&b.row) {
+            Ordering::Less => Ordering::Less,
+            Ordering::Equal => a.col.cmp(&b.col),
+            Ordering::Greater => Ordering::Greater,
+        });
+
+        CacheKey {
+            rock_idx: u32::try_from(value.rock_idx).expect("rock_idx should fit in a u32"),
+            jet_idx: u32::try_from(value.jet_idx).expect("jet_idx should fit in a u32"),
+            rocks,
+        }
+    }
+}
+
+#[derive(Debug)]
+struct CacheEntry {
+    height_delta: u32,
+    jet_idx_delta: u32,
+    rocks: Vec<Point>,
+    iter_number: usize,
+    original_floor_offset: usize,
+}
+
 struct Canvas {
-    spots: AHashMap<(isize, isize), Rock>,
-    jets: std::iter::Cycle<std::vec::IntoIter<AirJet>>,
-    rocks: std::iter::Cycle<std::slice::Iter<'static, Vec<(u8, u8)>>>,
+    spots: AHashMap<Point, Rock>,
+    jets: AirJets,
+    jet_idx: usize,
+    rock_idx: usize,
     state: RocksAre,
+    floor_offset: usize,
+    cache: AHashMap<CacheKey, CacheEntry>,
 }
 impl Display for Canvas {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if let Some(highest_nonempty_row) = self.highest_nonempty_row() {
             for row in (0..=highest_nonempty_row).rev() {
                 for col in 0..CANVAS_WIDTH {
-                    match self.at_spot(&(col, row)) {
+                    match self.at_spot(&Point { col, row }) {
                         Space::Falling => write!(f, "@")?,
                         Space::Stuck => write!(f, "#")?,
                         Space::Air => write!(f, ".")?,
@@ -123,33 +162,35 @@ impl Display for Canvas {
 const CANVAS_WIDTH: isize = 7;
 impl Canvas {
     fn new(jets: AirJets) -> Self {
-        let jetiter = jets.0.into_iter().cycle();
-        let rocks = PATTERNS.iter().cycle();
-        Canvas { spots: AHashMap::new(), jets: jetiter, rocks, state: RocksAre::Stopped }
+        Canvas {
+            spots: AHashMap::new(),
+            jets,
+            jet_idx: 0,
+            rock_idx: 0,
+            state: RocksAre::Stopped,
+            floor_offset: 0,
+            cache: AHashMap::new(),
+        }
     }
 
-    fn at_spot(&self, key: &(isize, isize)) -> Space {
+    fn at_spot(&self, key: &Point) -> Space {
         self.spots.get(key).into()
     }
 
-    fn first_empty_row(&self) -> isize {
-        (0..)
-            .find(|&row| !(0..CANVAS_WIDTH).any(|col| self.spots.contains_key(&(col, row))))
-            .unwrap()
-    }
-
     fn highest_nonempty_row(&self) -> Option<isize> {
-        self.spots.keys().max_by_key(|(_, row)| row).map(|(_, row)| *row)
+        self.spots.keys().max_by_key(|&pt| pt.row).map(|pt| pt.row)
     }
 
     fn add_new_rock(&mut self) {
         let row_offset = self.highest_nonempty_row().unwrap_or(-1) + 4;
         let col_offset = 2;
-        let pattern = self.rocks.next().unwrap();
-        for &(x, y) in pattern {
+        let pattern = &PATTERNS[self.rock_idx];
+        self.rock_idx = (self.rock_idx + 1) % PATTERNS.len();
+        for &(x, y) in pattern.iter() {
             let col = x as isize;
             let row = y as isize;
-            self.spots.insert((col_offset + col, row_offset + row), Rock::Falling);
+            self.spots
+                .insert(Point { col: col_offset + col, row: row_offset + row }, Rock::Falling);
         }
 
         self.state = RocksAre::Falling;
@@ -160,7 +201,8 @@ impl Canvas {
     }
 
     fn blow(&mut self) {
-        let blow_direction = self.jets.next().unwrap();
+        let blow_direction = self.jets.0[self.jet_idx];
+        self.jet_idx = (self.jet_idx + 1) % self.jets.0.len();
         let delta_x = match blow_direction {
             AirJet::Left => -1,
             AirJet::Right => 1,
@@ -178,8 +220,8 @@ impl Canvas {
         // Check to see if any of those would bump into anything, either the edge of the canvas, or another
         // stationary rock.
         if !locs_to_adjust.iter().any(|spot| {
-            let adjusted = (spot.0 + delta_x, spot.1);
-            matches!(self.spots.get(&adjusted), Some(Rock::Stuck)) || adjusted.0 < 0 || adjusted.0 >= CANVAS_WIDTH
+            let adjusted = Point { col: spot.col + delta_x, row: spot.row };
+            matches!(self.spots.get(&adjusted), Some(Rock::Stuck)) || adjusted.col < 0 || adjusted.col >= CANVAS_WIDTH
         }) {
             // We're good. Take all the old ones out entirely, and then put them back in where they belong.
             let mut todo_list = vec![];
@@ -188,7 +230,8 @@ impl Canvas {
                 todo_list.push((spot, value));
             }
             for (spot, value) in todo_list {
-                self.spots.insert((spot.0 + delta_x, spot.1), value);
+                self.spots
+                    .insert(Point { col: spot.col + delta_x, row: spot.row }, value);
             }
         }
     }
@@ -206,8 +249,8 @@ impl Canvas {
         // Check to see if any of those would bump into anything, either the floor of the canvas, or another
         // stationary rock.
         if !locs_to_adjust.iter().any(|spot| {
-            let adjusted = (spot.0, spot.1 - 1);
-            matches!(self.spots.get(&adjusted), Some(Rock::Stuck)) || adjusted.1 < 0
+            let adjusted = Point { col: spot.col, row: spot.row - 1 };
+            matches!(self.spots.get(&adjusted), Some(Rock::Stuck)) || adjusted.row < 0
         }) {
             // We're good. Go ahead and move stuff around.
             let mut todo_list = vec![];
@@ -216,7 +259,7 @@ impl Canvas {
                 todo_list.push((spot, value));
             }
             for (spot, value) in todo_list {
-                self.spots.insert((spot.0, spot.1 - 1), value);
+                self.spots.insert(Point { col: spot.col, row: spot.row - 1 }, value);
             }
         } else {
             // Downward motion was blocked. In this case, we switch all of the rocks to "Stuck", and turn off
@@ -228,16 +271,105 @@ impl Canvas {
         }
     }
 
-    fn drop_rock(&mut self) {
-        self.add_new_rock();
-        while self.rock_in_motion() {
-            self.blow();
-            self.fall();
+    fn raise_floor(&mut self) {
+        // After a rock has fallen, keep only the rows that matter to handle future falls, and update the
+        // floor offset. (This is to keep tall towers fitting into memory.)
+        let lowest_keepable_row = (0..CANVAS_WIDTH)
+            .into_iter()
+            .map(|col| {
+                self.spots
+                    .keys()
+                    .filter_map(|pt| if pt.col == col { Some(pt.row) } else { None })
+                    .max()
+                    .unwrap_or(0)
+            })
+            .min()
+            .expect("CANVAS_WIDTH should not be negative");
+
+        if lowest_keepable_row > 0 {
+            let new_spots = AHashMap::from_iter(self.spots.keys().filter_map(|&pt| {
+                if pt.row >= lowest_keepable_row {
+                    Some((Point { col: pt.col, row: pt.row - lowest_keepable_row }, Rock::Stuck))
+                } else {
+                    None
+                }
+            }));
+            self.spots = new_spots;
+            self.floor_offset += usize::try_from(lowest_keepable_row).expect("positive value should not be negative");
+        }
+    }
+
+    fn drop_rock(&mut self, iteration_num: usize) {
+        let key = CacheKey::new(self);
+        match self.cache.get(&key) {
+            Some(entry) => {
+                self.floor_offset += entry.height_delta as usize;
+                self.jet_idx = (self.jet_idx + entry.jet_idx_delta as usize) % self.jets.0.len();
+                self.rock_idx = (self.rock_idx + 1) % PATTERNS.len();
+                self.spots = AHashMap::from_iter(entry.rocks.iter().map(|&point| (point, Rock::Stuck)))
+            }
+            None => {
+                let starting_offset = self.floor_offset;
+                let starting_jet_index = self.jet_idx;
+
+                self.add_new_rock();
+                while self.rock_in_motion() {
+                    self.blow();
+                    self.fall();
+                }
+
+                // raise the floor
+                self.raise_floor();
+
+                // add back to cache:
+                let mut rocks = self.spots.keys().cloned().collect::<Vec<_>>();
+                rocks.sort_by(|a, b| match a.row.cmp(&b.row) {
+                    Ordering::Less => Ordering::Less,
+                    Ordering::Equal => a.col.cmp(&b.col),
+                    Ordering::Greater => Ordering::Greater,
+                });
+                let entry = CacheEntry {
+                    height_delta: u32::try_from(self.floor_offset - starting_offset)
+                        .expect("Height deltas should fit in a u32"),
+                    jet_idx_delta: u32::try_from(
+                        (self.jets.0.len() + self.jet_idx - starting_jet_index) % self.jets.0.len(),
+                    )
+                    .expect("Jet index should fit in a u32"),
+                    rocks,
+                    iter_number: iteration_num,
+                    original_floor_offset: starting_offset,
+                };
+                self.cache.insert(key, entry);
+            }
         }
     }
 
     fn height(&self) -> isize {
-        self.highest_nonempty_row().unwrap_or(-1) + 1
+        self.highest_nonempty_row().unwrap_or(-1)
+            + 1
+            + isize::try_from(self.floor_offset).expect("floor should fit into an isize")
+    }
+
+    fn height_after(&mut self, iterations: usize) -> isize {
+        let mut max_step = iterations;
+        let mut num = 0;
+        let mut might_repeat = true;
+        while num < max_step {
+            if might_repeat {
+                let key = CacheKey::new(self);
+                if let Some(entry) = self.cache.get(&key) {
+                    let cycle_repetitions = num - entry.iter_number;
+                    let cycle_height = self.floor_offset - entry.original_floor_offset;
+                    let instantly_consumed = (max_step - num) / cycle_repetitions;
+                    self.floor_offset += cycle_height * instantly_consumed;
+                    max_step -= instantly_consumed * cycle_repetitions;
+                    might_repeat = false;
+                }
+            }
+            self.drop_rock(num);
+            num += 1;
+        }
+        self.height()
     }
 }
 
@@ -245,56 +377,18 @@ fn part1(input: &str) -> anyhow::Result<isize> {
     let jets = input.parse::<AirJets>()?;
     let mut canvas = Canvas::new(jets);
 
-    for _ in 0..2022 {
-        canvas.drop_rock();
+    for num in 0..2022 {
+        canvas.drop_rock(num);
     }
 
     Ok(canvas.height())
 }
 
-
-#[derive(PartialEq, Eq, Hash)]
-struct CacheKey {
-    jet_index: u8,
-    rock_index: u8,
-    jumble: Vec<u8>,
-}
-struct CachedCanvas {
-    spots: AHashMap<(isize, isize), Rock>,
-    jets: AirJets,
-    jet_index: usize,
-    rock_index: usize,
-    state: RocksAre,
-    cache: AHashMap<CacheKey, AHashSet<(u8,u8)>>,
-    virtual_row_count: isize,
-}
-impl CachedCanvas {
-    fn new(jets: AirJets) -> Self {
-        CachedCanvas {
-            spots: AHashMap::new(),
-            jets,
-            jet_index: 0,
-            rock_index: 0,
-            state: RocksAre::Stopped,
-            cache: AHashMap::new(),
-            virtual_row_count: 0,
-        }
-    }
-    
-    fn highest_nonempty_row(&self) -> Option<isize> {
-        self.spots.keys().map(|(_, row)| *row).max()
-    }
-
-    fn height(&self) -> isize {
-        self.highest_nonempty_row().unwrap_or(-1) + 1 + self.virtual_row_count
-    }
-}
-
-fn part2(input: &str) -> anyhow::Result<usize> {
+fn part2(input: &str) -> anyhow::Result<isize> {
     let jets = input.parse::<AirJets>()?;
 
-    let mut cached_canvas = CachedCanvas::new(jets);
-    cached_canvas.height_after(1000000000000)
+    let mut cached_canvas = Canvas::new(jets);
+    Ok(cached_canvas.height_after(1000000000000))
 }
 
 fn main() -> anyhow::Result<()> {
@@ -321,18 +415,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn part2_sample() {
         assert_eq!(part2(SAMPLE).unwrap(), 1514285714288);
-    }
-
-    mod first_empty_row {
-        use super::*;
-        #[test]
-        fn empty() {
-            let jets = SAMPLE.parse::<AirJets>().unwrap();
-            let canvas = Canvas::new(jets);
-            assert_eq!(canvas.first_empty_row(), 0);
-        }
     }
 }
