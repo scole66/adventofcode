@@ -215,7 +215,7 @@ impl Canvas {
         let locs_to_adjust = self
             .spots
             .iter()
-            .filter_map(|(key, value)| if *value == Rock::Falling { Some(*key) } else { None })
+            .filter_map(|(key, value)| (*value == Rock::Falling).then_some(*key))
             .collect::<Vec<_>>();
         // Check to see if any of those would bump into anything, either the edge of the canvas, or another
         // stationary rock.
@@ -244,7 +244,7 @@ impl Canvas {
         let locs_to_adjust = self
             .spots
             .iter()
-            .filter_map(|(key, value)| if *value == Rock::Falling { Some(*key) } else { None })
+            .filter_map(|(key, value)| (*value == Rock::Falling).then_some(*key))
             .collect::<Vec<_>>();
         // Check to see if any of those would bump into anything, either the floor of the canvas, or another
         // stationary rock.
@@ -279,7 +279,7 @@ impl Canvas {
             .map(|col| {
                 self.spots
                     .keys()
-                    .filter_map(|pt| if pt.col == col { Some(pt.row) } else { None })
+                    .filter_map(|pt| (pt.col == col).then_some(pt.row))
                     .max()
                     .unwrap_or(0)
             })
@@ -288,11 +288,8 @@ impl Canvas {
 
         if lowest_keepable_row > 0 {
             let new_spots = AHashMap::from_iter(self.spots.keys().filter_map(|&pt| {
-                if pt.row >= lowest_keepable_row {
-                    Some((Point { col: pt.col, row: pt.row - lowest_keepable_row }, Rock::Stuck))
-                } else {
-                    None
-                }
+                (pt.row >= lowest_keepable_row)
+                    .then_some((Point { col: pt.col, row: pt.row - lowest_keepable_row }, Rock::Stuck))
             }));
             self.spots = new_spots;
             self.floor_offset += usize::try_from(lowest_keepable_row).expect("positive value should not be negative");
