@@ -9,6 +9,7 @@ use regex::Regex;
 use std::io::{self, Read};
 use std::iter::Iterator;
 use std::str::FromStr;
+use combinations::{Permutation, Combination};
 
 #[derive(Debug)]
 struct DataPoint {
@@ -183,136 +184,6 @@ impl Data {
             .map(|x| (x.1, x.0))
     }
 }
-
-struct Combination<T> {
-    source: Vec<T>,
-    c: Vec<usize>,
-    j: usize,
-    t: usize,
-    done: bool,
-}
-
-impl<T> Combination<T> {
-    fn new(items: &[T], size: usize) -> Combination<T>
-    where
-        T: Clone,
-    {
-        let mut c = (0..size).collect::<Vec<_>>();
-        c.push(items.len());
-        c.push(0);
-        Combination { source: items.to_vec(), c, j: size, t: size, done: false }
-    }
-}
-
-impl<T> Iterator for Combination<T>
-where
-    T: Clone,
-{
-    type Item = Vec<T>;
-
-    // algorithm T from Knuth 7.2.1.3 "Generating all combinations"
-    fn next(&mut self) -> Option<Self::Item> {
-        // This structure uses a "child vector" that contains all the indexes into the source data. We do the
-        // combinatorial work on that index vector, as copying an index is likely much cheaper than cloning
-        // the actual items being permuted. Source items are only cloned when the return value is constructed.
-        if self.done {
-            None
-        } else {
-            let result = self.c[0..self.t]
-                .iter()
-                .map(|&idx| self.source[idx].clone())
-                .collect::<Vec<_>>();
-
-            let mut x;
-            if self.j > 0 {
-                x = self.j;
-            } else {
-                if self.c[0] + 1 < self.c[1] {
-                    self.c[0] += 1;
-                    return Some(result);
-                }
-                self.j = 2;
-                loop {
-                    self.c[self.j - 2] = self.j - 2;
-                    x = self.c[self.j - 1] + 1;
-                    if x != self.c[self.j] {
-                        break;
-                    }
-                    self.j += 1;
-                }
-                if self.j > self.t {
-                    self.done = true;
-                    return Some(result);
-                }
-            }
-            self.c[self.j - 1] = x;
-            self.j -= 1;
-
-            Some(result)
-        }
-    }
-}
-
-struct Permutation<T> {
-    items: Vec<T>,
-    a: Vec<usize>,
-    n: usize,
-    done: bool,
-}
-
-impl<T> Permutation<T>
-where
-    T: Clone,
-{
-    fn new(items: &[T]) -> Self {
-        let n = items.len();
-        Permutation { items: items.to_vec(), n, a: [0..=n].into_iter().flatten().collect::<Vec<_>>(), done: false }
-    }
-}
-
-impl<T> Iterator for Permutation<T>
-where
-    T: Clone,
-{
-    type Item = Vec<T>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.done {
-            None
-        } else {
-            // Algorithm L from Knuth 7.2.1.2. Generating all permutations.
-            let result = Some(
-                self.a[1..=self.n]
-                    .iter()
-                    .map(|&idx| self.items[idx - 1].clone())
-                    .collect::<Vec<_>>(),
-            );
-
-            let mut j = self.n - 1;
-            while j > 0 && self.a[j + 1] <= self.a[j] {
-                j -= 1;
-            }
-            if j == 0 {
-                self.done = true;
-                return result;
-            }
-            let mut l = self.n;
-            while self.a[j] >= self.a[l] {
-                l -= 1;
-            }
-            (self.a[j], self.a[l]) = (self.a[l], self.a[j]);
-            let mut k = j + 1;
-            let mut l = self.n;
-            while k < l {
-                (self.a[k], self.a[l]) = (self.a[l], self.a[k]);
-                k += 1;
-                l -= 1;
-            }
-            result
-        }
-    }
-}
-
 fn part1(input: &str) -> anyhow::Result<usize> {
     let data = input
         .lines()

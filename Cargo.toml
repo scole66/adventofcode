@@ -56,3 +56,6 @@ members = [
     "2022/day24",
     "2022/day25",
 ]
+
+[workspace.dependencies]
+combinations = { path = "combinations" }
