@@ -2,13 +2,14 @@
 //!
 //! Ref: [Advent of Code 2022 Day 22](https://adventofcode.com/2022/day/22)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap, AHashSet};
-use anyhow::Context;
+use ahash::AHashMap;
+use anyhow::{anyhow, bail, Error, Result};
+use once_cell::sync::Lazy;
 use std::io::{self, Read};
 use std::iter::Iterator;
 use std::str::FromStr;
 
+#[derive(Clone, Copy)]
 enum OneOfSix {
     One,
     Two,
@@ -28,58 +29,152 @@ enum Constraint {
     Free,
     Wall,
 }
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+enum FoldingStyle {
+    Sample,
+    Actual,
+}
 #[derive(Debug)]
 struct Map {
     points: AHashMap<Point, Constraint>,
-    top_left: Point,     // of bounding box. There might not be a key here
-    bottom_right: Point, // ditto
+    face_size: i64,
+    folding_style: FoldingStyle,
 }
 impl FromStr for Map {
-    type Err = anyhow::Error;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut map = AHashMap::new();
-        for (row, line) in s.lines().enumerate() {
-            for (col, ch) in line.chars().enumerate() {
-                match ch {
-                    ' ' => (),
-                    '.' => {
-                        map.insert(Point { col: col.try_into()?, row: row.try_into()? }, Constraint::Free);
-                    }
-                    '#' => {
-                        map.insert(Point { col: col.try_into()?, row: row.try_into()? }, Constraint::Wall);
-                    }
-                    _ => {
-                        anyhow::bail!("Bad character in map: {ch}");
-                    }
+        let map = s
+            .lines()
+            .enumerate()
+            .flat_map(|(row, line)| {
+                line.chars().enumerate().filter_map(move |(col, ch)| match ch {
+                    ' ' => None,
+                    '.' => Some((|| {
+                        Ok((Point { col: col.try_into()?, row: row.try_into()? }, Constraint::Free))
+                    })()),
+                    '#' => Some((|| {
+                        Ok((Point { col: col.try_into()?, row: row.try_into()? }, Constraint::Wall))
+                    })()),
+                    _ => Some(Err(anyhow!("Bad character in map: {ch}"))),
+                })
+            })
+            .collect::<Result<AHashMap<_, _>>>()?;
+
+        // Calculate the bounding box (so we don't do it more often than we need to)
+        let (leftmost, rightmost, top, bottom) = map.keys().fold(
+            (i64::MAX, i64::MIN, i64::MAX, i64::MIN),
+            |(leftmost, rightmost, top, bottom), key| {
+                (
+                    leftmost.min(key.col),
+                    rightmost.max(key.col),
+                    top.min(key.row),
+                    bottom.max(key.row),
+                )
+            },
+        );
+
+        // Calculate "face" size (for the cube problem). This is the shortest run of continuous characters in
+        // either the rows or columns. All other run lengths should be multiples of this.
+        let face_size = (top..=bottom)
+            .map(|row| {
+                map.keys()
+                    .filter_map(|key| (key.row == row).then_some(key.col))
+                    .fold((i64::MAX, i64::MIN), |(leftmost, rightmost), column| {
+                        (leftmost.min(column), rightmost.max(column))
+                    })
+            })
+            .map(|(smallest, largest)| 1 + largest - smallest)
+            .min()
+            .expect("The map should not be an empty string");
+
+        // Validate that all rows have values between min & max and that their widths are multiples.
+        for row in top..=bottom {
+            let (first, last) = map
+                .keys()
+                .filter_map(|key| (key.row == row).then_some(key.col))
+                .fold((i64::MAX, i64::MIN), |(smallest, largest), col| {
+                    (smallest.min(col), largest.max(col))
+                });
+            for col in first..=last {
+                if !map.contains_key(&Point { col, row }) {
+                    bail!("Map has holes");
                 }
+            }
+            if (last + 1 - first) % face_size != 0 {
+                bail!(
+                    "Map is ill-sized (face_size is {face_size}, row has width {})",
+                    last - first + 1
+                );
+            }
+        }
+        for col in leftmost..=rightmost {
+            let (first, last) = map
+                .keys()
+                .filter_map(|key| (key.col == col).then_some(key.row))
+                .fold((i64::MAX, i64::MIN), |(smallest, largest), row| {
+                    (smallest.min(row), largest.max(row))
+                });
+            for row in first..=last {
+                if !map.contains_key(&Point { col, row }) {
+                    bail!("Map has holes");
+                }
+            }
+            if (last + 1 - first) % face_size != 0 {
+                bail!(
+                    "Map is ill-sized (face_size is {face_size}, column has height {})",
+                    last - first + 1
+                );
             }
         }
 
-        // Calculate the bounding box (so we don't do it more often than we need to)
-        let mut top = i64::MAX;
-        let mut bottom = i64::MIN;
-        let mut leftmost = i64::MAX;
-        let mut rightmost = i64::MIN;
-        for key in map.keys() {
-            leftmost = leftmost.min(key.col);
-            rightmost = rightmost.max(key.col);
-            top = top.min(key.row);
-            bottom = bottom.max(key.row);
-        }
+        // The resulting pattern should be foldable into a cube. There's probably a general purpose way to
+        // confirm that's the case, but we only actually need to deal with the pattern from the sample, and
+        // the pattern in my input, so I'm not gonna bother. We do need to figure out which of those patterns
+        // it is, though.
+        const SAMPLE_PROBES: [Point; 6] = [
+            Point { row: 0, col: 2 },
+            Point { row: 1, col: 0 },
+            Point { row: 1, col: 1 },
+            Point { row: 1, col: 2 },
+            Point { row: 2, col: 2 },
+            Point { row: 2, col: 3 },
+        ];
+        const ACTUAL_PROBES: [Point; 6] = [
+            Point { row: 0, col: 1 },
+            Point { row: 0, col: 2 },
+            Point { row: 1, col: 1 },
+            Point { row: 2, col: 0 },
+            Point { row: 2, col: 1 },
+            Point { row: 3, col: 0 },
+        ];
 
-        Ok(Map {
-            points: map,
-            top_left: Point { col: leftmost, row: top },
-            bottom_right: Point { col: rightmost, row: bottom },
+        let folding_style = [
+            (&SAMPLE_PROBES, FoldingStyle::Sample),
+            (&ACTUAL_PROBES, FoldingStyle::Actual),
+        ]
+        .into_iter()
+        .filter_map(|(probes, tag)| {
+            probes
+                .iter()
+                .all(|pt| {
+                    map.contains_key(&Point {
+                        row: (face_size * pt.row) + face_size / 2,
+                        col: (face_size * pt.col) + face_size / 2,
+                    })
+                })
+                .then_some(tag)
         })
+        .next()
+        .ok_or_else(|| anyhow!("Map doesn't have a known fold"))?;
+
+        Ok(Map { points: map, face_size, folding_style })
     }
 }
-use once_cell::sync::Lazy;
-use std::ops::Range;
+
 impl Map {
     fn start_location(&self) -> Option<Point> {
-        let lowest_row = self.top_left.row;
+        let lowest_row = 0;
         self.points
             .keys()
             .filter(|&item| item.row == lowest_row)
@@ -102,14 +197,14 @@ impl Map {
 
         if !is_cube {
             let compare = match facing {
-                Facing::Up => |pt1: &&Point, pt2: &&Point| (*pt1).row.cmp(&(*pt2).row),
-                Facing::Down => |pt1: &&Point, pt2: &&Point| (*pt2).row.cmp(&(*pt1).row),
-                Facing::Left => |pt1: &&Point, pt2: &&Point| (*pt1).col.cmp(&(*pt2).col),
-                Facing::Right => |pt1: &&Point, pt2: &&Point| (*pt2).col.cmp(&(*pt1).col),
+                Facing::Up => |pt1: &&Point, pt2: &&Point| pt1.row.cmp(&pt2.row),
+                Facing::Down => |pt1: &&Point, pt2: &&Point| pt2.row.cmp(&pt1.row),
+                Facing::Left => |pt1: &&Point, pt2: &&Point| pt1.col.cmp(&pt2.col),
+                Facing::Right => |pt1: &&Point, pt2: &&Point| pt2.col.cmp(&pt1.col),
             };
             let filter = match facing {
-                Facing::Up | Facing::Down => |pt: &&Point, _: i64, col: i64| (*pt).col == col,
-                Facing::Left | Facing::Right => |pt: &&Point, row: i64, _: i64| (*pt).row == row,
+                Facing::Up | Facing::Down => |pt: &&Point, _: i64, col: i64| pt.col == col,
+                Facing::Left | Facing::Right => |pt: &&Point, row: i64, _: i64| pt.row == row,
             };
 
             (
@@ -122,106 +217,182 @@ impl Map {
                 facing,
             )
         } else {
-            // Oh, there are _rules_ if this is a cube:
-            println!("Bounding Points: {:?}; {:?}", self.top_left, self.bottom_right);
-            assert_eq!(self.top_left.col, 0);
-            assert_eq!(self.top_left.row, 0);
-            assert_eq!((self.bottom_right.row + 1) % 3, 0);
-            assert_eq!((self.bottom_right.col + 1) % 4, 0);
-            assert_eq!((self.bottom_right.row + 1) / 3, (self.bottom_right.col + 1) / 4);
-
-            let face_size = (self.bottom_right.row + 1) / 3;
-            match (self.cube_face(from), facing) {
-                (OneOfSix::One, Facing::Up) => {
+            let face_size = self.face_size;
+            match (self.cube_face(from), facing, self.folding_style) {
+                (OneOfSix::One, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, 0);
                     (Point { col: 3 * face_size - col - 1, row: face_size }, Facing::Down)
                 }
-                (OneOfSix::One, Facing::Down) => unreachable!(),
-                (OneOfSix::One, Facing::Left) => {
+                (OneOfSix::One, Facing::Down, FoldingStyle::Sample) => unreachable!(),
+                (OneOfSix::One, Facing::Left, FoldingStyle::Sample) => {
                     assert_eq!(col, face_size * 2);
                     (Point { col: face_size + row, row: face_size }, Facing::Down)
                 }
-                (OneOfSix::One, Facing::Right) => {
+                (OneOfSix::One, Facing::Right, FoldingStyle::Sample) => {
                     assert_eq!(col, face_size * 3 - 1);
                     (
                         Point { col: face_size * 4 - 1, row: 3 * face_size - row - 1 },
                         Facing::Left,
                     )
                 }
-                (OneOfSix::Two, Facing::Up) => {
+                (OneOfSix::Two, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, face_size);
                     (Point { col: 3 * face_size - col - 1, row: 0 }, Facing::Down)
                 }
-                (OneOfSix::Two, Facing::Down) => {
+                (OneOfSix::Two, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, 2 * face_size - 1);
                     (
                         Point { col: 3 * face_size - col - 1, row: 3 * face_size - 1 },
                         Facing::Up,
                     )
                 }
-                (OneOfSix::Two, Facing::Left) => {
+                (OneOfSix::Two, Facing::Left, FoldingStyle::Sample) => {
                     assert_eq!(col, 0);
                     (
                         Point { col: 5 * face_size - 1 - row, row: 3 * face_size - 1 },
                         Facing::Up,
                     )
                 }
-                (OneOfSix::Two, Facing::Right) => unreachable!(),
-                (OneOfSix::Three, Facing::Up) => {
+                (OneOfSix::Two, Facing::Right, FoldingStyle::Sample) => unreachable!(),
+                (OneOfSix::Three, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, face_size);
                     (Point { col: face_size * 2, row: col - face_size }, Facing::Right)
                 }
-                (OneOfSix::Three, Facing::Down) => {
+                (OneOfSix::Three, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, 2 * face_size - 1);
                     (
                         Point { col: 2 * face_size, row: 4 * face_size - col - 1 },
                         Facing::Right,
                     )
                 }
-                (OneOfSix::Three, Facing::Left)
-                | (OneOfSix::Three, Facing::Right)
-                | (OneOfSix::Four, Facing::Up)
-                | (OneOfSix::Four, Facing::Down)
-                | (OneOfSix::Four, Facing::Left) => {
+                (OneOfSix::Three, Facing::Left, FoldingStyle::Sample)
+                | (OneOfSix::Three, Facing::Right, FoldingStyle::Sample)
+                | (OneOfSix::Four, Facing::Up, FoldingStyle::Sample)
+                | (OneOfSix::Four, Facing::Down, FoldingStyle::Sample)
+                | (OneOfSix::Four, Facing::Left, FoldingStyle::Sample) => {
                     unreachable!()
                 }
-                (OneOfSix::Four, Facing::Right) => {
+                (OneOfSix::Four, Facing::Right, FoldingStyle::Sample) => {
                     assert_eq!(col, 3 * face_size - 1);
                     (Point { col: 5 * face_size - row - 1, row: 2 * face_size }, Facing::Down)
                 }
-                (OneOfSix::Five, Facing::Up) => unreachable!(),
-                (OneOfSix::Five, Facing::Down) => {
+                (OneOfSix::Five, Facing::Up, FoldingStyle::Sample) => unreachable!(),
+                (OneOfSix::Five, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, face_size * 3 - 1);
                     (
                         Point { col: 3 * face_size - col - 1, row: 2 * face_size - 1 },
                         Facing::Up,
                     )
                 }
-                (OneOfSix::Five, Facing::Left) => {
+                (OneOfSix::Five, Facing::Left, FoldingStyle::Sample) => {
                     assert_eq!(col, 2 * face_size);
                     (
                         Point { col: 4 * face_size - row - 1, row: 2 * face_size - 1 },
                         Facing::Up,
                     )
                 }
-                (OneOfSix::Five, Facing::Right) => unreachable!(),
-                (OneOfSix::Six, Facing::Up) => {
+                (OneOfSix::Five, Facing::Right, FoldingStyle::Sample) => unreachable!(),
+                (OneOfSix::Six, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, 2 * face_size);
                     (
                         Point { col: 3 * face_size - 1, row: 5 * face_size - col - 1 },
                         Facing::Left,
                     )
                 }
-                (OneOfSix::Six, Facing::Down) => {
+                (OneOfSix::Six, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, 3 * face_size - 1);
                     (Point { col: 0, row: 5 * face_size - col - 1 }, Facing::Right)
                 }
-                (OneOfSix::Six, Facing::Left) => unreachable!(),
-                (OneOfSix::Six, Facing::Right) => {
+                (OneOfSix::Six, Facing::Left, FoldingStyle::Sample) => unreachable!(),
+                (OneOfSix::Six, Facing::Right, FoldingStyle::Sample) => {
                     assert_eq!(col, 4 * face_size - 1);
                     (
                         Point { col: 3 * face_size - 1, row: 3 * face_size - row - 1 },
                         Facing::Left,
+                    )
+                }
+                (OneOfSix::One, Facing::Up, FoldingStyle::Actual) => {
+                    assert_eq!(row, 0);
+                    (Point { col: 0, row: col + 2 * face_size }, Facing::Right)
+                }
+                (OneOfSix::One, Facing::Down, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::One, Facing::Left, FoldingStyle::Actual) => {
+                    assert_eq!(col, face_size);
+                    (Point { col: 0, row: 3 * face_size - row - 1 }, Facing::Right)
+                }
+                (OneOfSix::One, Facing::Right, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Two, Facing::Up, FoldingStyle::Actual) => {
+                    assert_eq!(row, 0);
+                    (Point { col: col - 2 * face_size, row: 4 * face_size - 1 }, Facing::Up)
+                }
+                (OneOfSix::Two, Facing::Down, FoldingStyle::Actual) => {
+                    assert_eq!(row, face_size - 1);
+                    (Point { col: 2 * face_size - 1, row: col - face_size }, Facing::Left)
+                }
+                (OneOfSix::Two, Facing::Left, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Two, Facing::Right, FoldingStyle::Actual) => {
+                    let (lr, _lc) = (row, col - 2 * face_size);
+                    let to_offset = Point { row: 2 * face_size, col: face_size }; // face 4
+                    (
+                        Point { col: to_offset.col + face_size - 1, row: (face_size - 1 - lr) + to_offset.row },
+                        Facing::Left,
+                    )
+                }
+                (OneOfSix::Three, Facing::Up, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Three, Facing::Down, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Three, Facing::Left, FoldingStyle::Actual) => {
+                    (Point { col: row - face_size, row: 2 * face_size }, Facing::Down)
+                }
+                (OneOfSix::Three, Facing::Right, FoldingStyle::Actual) => (
+                    Point { col: (row - face_size) + 2 * face_size, row: face_size - 1 },
+                    Facing::Up,
+                ),
+                (OneOfSix::Four, Facing::Up, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Four, Facing::Down, FoldingStyle::Actual) => {
+                    let (_lr, lc) = (row - 2 * face_size, col - face_size);
+                    (Point { col: face_size - 1, row: lc + 3 * face_size }, Facing::Left)
+                }
+                (OneOfSix::Four, Facing::Left, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Four, Facing::Right, FoldingStyle::Actual) => {
+                    let (lr, _lc) = (row - 2 * face_size, col - face_size);
+                    let to_offset = Point { row: 0, col: 2 * face_size }; // face 2
+                    (
+                        Point { col: to_offset.col + face_size - 1, row: (face_size - 1 - lr) + to_offset.row },
+                        Facing::Left,
+                    )
+                }
+                (OneOfSix::Five, Facing::Up, FoldingStyle::Actual) => {
+                    let (_lr, lc) = (row - 2 * face_size, col);
+                    let (to_ofs_row, to_ofs_col) = (face_size, face_size); // face 3
+                    (Point { col: to_ofs_col, row: lc + to_ofs_row }, Facing::Right)
+                }
+                (OneOfSix::Five, Facing::Down, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Five, Facing::Left, FoldingStyle::Actual) => {
+                    let (lr, _lc) = (row - 2 * face_size, col);
+                    let (to_ofs_row, to_ofs_col) = (0, face_size); // face 1
+                    (
+                        Point { row: (face_size - 1 - lr) + to_ofs_row, col: to_ofs_col },
+                        Facing::Right,
+                    )
+                }
+                (OneOfSix::Five, Facing::Right, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Six, Facing::Up, FoldingStyle::Actual) => unreachable!(),
+                (OneOfSix::Six, Facing::Down, FoldingStyle::Actual) => {
+                    let (_lr, lc) = (row - 3 * face_size, col);
+                    let to_offset = Point { row: 0, col: 2 * face_size }; // face 2
+                    (Point { row: to_offset.row, col: lc + to_offset.col }, Facing::Down)
+                }
+                (OneOfSix::Six, Facing::Left, FoldingStyle::Actual) => {
+                    let (lr, _lc) = (row - 3 * face_size, col);
+                    let to_offset = Point { row: 0, col: face_size }; // face 1
+                    (Point { row: to_offset.row, col: lr + to_offset.col }, Facing::Down)
+                }
+                (OneOfSix::Six, Facing::Right, FoldingStyle::Actual) => {
+                    let (lr, _lc) = (row - 3 * face_size, col);
+                    let to_offset = Point { row: 2 * face_size, col: face_size }; // face 4
+                    (
+                        Point { row: to_offset.row + face_size - 1, col: lr + to_offset.col },
+                        Facing::Up,
                     )
                 }
             }
@@ -229,33 +400,27 @@ impl Map {
     }
 
     fn cube_face(&self, pt: Point) -> OneOfSix {
-        let map_width = self.bottom_right.col - self.top_left.col + 1;
-        let map_height = self.bottom_right.row - self.top_left.row + 1;
-        assert_eq!(map_width % 4, 0);
-        assert_eq!(map_height % 3, 0);
-        let hrange = (0..4)
-            .into_iter()
-            .map(|idx| (self.top_left.col + idx * map_width / 4..self.top_left.col + (idx + 1) * map_width / 4))
-            .collect::<Vec<_>>();
-        let vrange = (0..3)
-            .into_iter()
-            .map(|idx| (self.top_left.row + idx * map_height / 3..self.top_left.row + (idx + 1) * map_height / 3))
-            .collect::<Vec<_>>();
-        if hrange[0].contains(&pt.col) && vrange[1].contains(&pt.row) {
-            OneOfSix::Two
-        } else if hrange[2].contains(&pt.col) && vrange[0].contains(&pt.row) {
-            OneOfSix::One
-        } else if hrange[1].contains(&pt.col) && vrange[1].contains(&pt.row) {
-            OneOfSix::Three
-        } else if hrange[2].contains(&pt.col) && vrange[1].contains(&pt.row) {
-            OneOfSix::Four
-        } else if hrange[2].contains(&pt.col) && vrange[2].contains(&pt.row) {
-            OneOfSix::Five
-        } else if hrange[3].contains(&pt.col) && vrange[2].contains(&pt.row) {
-            OneOfSix::Six
-        } else {
-            panic!("Not in the cube")
-        }
+        let normalized = Point { row: pt.row / self.face_size, col: pt.col / self.face_size };
+
+        static FACE_DEFINITIONS: Lazy<AHashMap<(Point, FoldingStyle), OneOfSix>> = Lazy::new(|| {
+            AHashMap::from_iter([
+                ((Point { row: 0, col: 2 }, FoldingStyle::Sample), OneOfSix::One),
+                ((Point { row: 1, col: 0 }, FoldingStyle::Sample), OneOfSix::Two),
+                ((Point { row: 1, col: 1 }, FoldingStyle::Sample), OneOfSix::Three),
+                ((Point { row: 1, col: 2 }, FoldingStyle::Sample), OneOfSix::Four),
+                ((Point { row: 2, col: 2 }, FoldingStyle::Sample), OneOfSix::Five),
+                ((Point { row: 2, col: 3 }, FoldingStyle::Sample), OneOfSix::Six),
+                ((Point { row: 0, col: 1 }, FoldingStyle::Actual), OneOfSix::One),
+                ((Point { row: 0, col: 2 }, FoldingStyle::Actual), OneOfSix::Two),
+                ((Point { row: 1, col: 1 }, FoldingStyle::Actual), OneOfSix::Three),
+                ((Point { row: 2, col: 0 }, FoldingStyle::Actual), OneOfSix::Five),
+                ((Point { row: 2, col: 1 }, FoldingStyle::Actual), OneOfSix::Four),
+                ((Point { row: 3, col: 0 }, FoldingStyle::Actual), OneOfSix::Six),
+            ])
+        });
+        *FACE_DEFINITIONS
+            .get(&(normalized, self.folding_style))
+            .expect("Point should be in cube")
     }
 
     fn do_motion(&self, motions: &Motions, is_cube: bool) -> Option<(Point, Facing)> {
@@ -294,7 +459,7 @@ struct Motions {
     motions: Vec<Motion>,
 }
 impl FromStr for Motions {
-    type Err = anyhow::Error;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut result = Vec::new();
@@ -323,12 +488,10 @@ struct Input {
     motions: Motions,
 }
 impl FromStr for Input {
-    type Err = anyhow::Error;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let (map_src, motions_src) = s
-            .split_once("\n\n")
-            .ok_or_else(|| anyhow::anyhow!("badly formed input"))?;
+        let (map_src, motions_src) = s.split_once("\n\n").ok_or_else(|| anyhow!("badly formed input"))?;
         let map = map_src.parse::<Map>()?;
         let motions = motions_src.trim().parse::<Motions>()?;
         Ok(Input { map, motions })
@@ -376,23 +539,19 @@ fn score(p: Point, f: Facing) -> i64 {
     1000 * row + 4 * col + facing
 }
 
-fn part1(input_str: &str) -> anyhow::Result<i64> {
+fn part1(input_str: &str) -> Result<i64> {
     let Input { map, motions } = input_str.parse::<Input>()?;
-    let (end_point, end_facing) = map
-        .do_motion(&motions, false)
-        .ok_or_else(|| anyhow::anyhow!("Empty map?"))?;
+    let (end_point, end_facing) = map.do_motion(&motions, false).ok_or_else(|| anyhow!("Empty map?"))?;
     Ok(score(end_point, end_facing))
 }
 
-fn part2(input_str: &str) -> anyhow::Result<i64> {
+fn part2(input_str: &str) -> Result<i64> {
     let Input { map, motions } = input_str.parse::<Input>()?;
-    let (end_point, end_facing) = map
-        .do_motion(&motions, true)
-        .ok_or_else(|| anyhow::anyhow!("Empty map?"))?;
+    let (end_point, end_facing) = map.do_motion(&motions, true).ok_or_else(|| anyhow!("Empty map?"))?;
     Ok(score(end_point, end_facing))
 }
 
-fn main() -> anyhow::Result<()> {
+fn main() -> Result<()> {
     let stdin = io::stdin();
 
     let mut input = String::new();
@@ -438,26 +597,6 @@ mod tests {
         map.do_motion(&motions, false).unwrap()
     }
 
-    #[test_case(Point{col:4,row:1}, Facing::Left => (Point{col:7,row:1}, Facing::Left))]
-    #[test_case(Point{col:4,row:3}, Facing::Down => (Point{col:4,row:0}, Facing::Down))]
-    #[test_case(Point{col:7,row:2}, Facing::Right => (Point{col:4,row:2}, Facing::Right))]
-    #[test_case(Point{col:3,row:4}, Facing::Up => (Point{col:3,row:7}, Facing::Up))]
-    fn next_spot(location: Point, facing: Facing) -> (Point, Facing) {
-        let map = indoc::indoc! {"
-                ....
-                ....
-                ....
-                ....
-            ....
-            ....
-            ....
-            ....
-        "}
-        .parse::<Map>()
-        .unwrap();
-        map.next_spot(location, facing, false)
-    }
-
     #[test_case(Point{col: 8, row: 0}, Facing::Up => (Point{col: 3, row: 4}, Facing::Down); "up from face 1 (on left)")]
     #[test_case(Point{col: 11, row: 0}, Facing::Up => (Point{col: 0, row: 4}, Facing::Down); "up from face 1 (on right)")]
     #[test_case(Point{col: 8, row: 0}, Facing::Left => (Point{col: 4, row: 4}, Facing::Down); "left from face 1 (on top)")]
@@ -478,6 +617,45 @@ mod tests {
     #[test_case(Point{col: 11, row: 7}, Facing::Right => (Point{col: 12, row: 8}, Facing::Down); "right from face 4 (on the bottom)")]
     fn next_spot_cube(location: Point, facing: Facing) -> (Point, Facing) {
         let Input { map, motions: _ } = SAMPLE.parse::<Input>().unwrap();
+
+        map.next_spot(location, facing, true)
+    }
+
+    static OTHER_FOLD: &str = indoc::indoc! {"
+            ........
+            ........
+            ........
+            ........
+            ....
+            ....
+            ....
+            ....
+        ........
+        ........
+        ........
+        ........
+        ....
+        ....
+        ....
+        ....
+    "};
+
+    #[test_case(Point{col: 3, row: 15}, Facing::Right => (Point {col: 7, row: 11}, Facing::Up); "right from face 6")]
+    #[test_case(Point{col: 3, row: 15}, Facing::Down => (Point {col: 11, row: 0}, Facing::Down); "down from face 6")]
+    #[test_case(Point{col: 0, row: 15}, Facing::Left => (Point {col: 7, row: 0}, Facing::Down); "left from face 6")]
+    #[test_case(Point{col: 0, row: 11}, Facing::Left => (Point {col: 4, row: 0}, Facing::Right); "left from face 5")]
+    #[test_case(Point{col: 3, row: 8}, Facing::Up => (Point {col: 4, row: 7}, Facing::Right); "up from face 5")]
+    #[test_case(Point{col: 7, row: 11}, Facing::Down => (Point {col: 3, row: 15}, Facing::Left); "down from face 4")]
+    #[test_case(Point{col: 7, row: 11}, Facing::Right => (Point {col: 11, row: 0}, Facing::Left); "right from face 4")]
+    #[test_case(Point{col: 7, row: 7}, Facing::Right => (Point {col: 11, row: 3}, Facing::Up); "right from face 3")]
+    #[test_case(Point{col: 4, row: 7}, Facing::Left => (Point {col: 3, row: 8}, Facing::Down); "left from face 3")]
+    #[test_case(Point{col: 11, row: 3}, Facing::Down => (Point {col: 7, row: 7}, Facing::Left); "down from face 2")]
+    #[test_case(Point{col: 11, row: 3}, Facing::Right => (Point {col: 7, row: 8}, Facing::Left); "right from face 2")]
+    #[test_case(Point{col: 7, row: 0}, Facing::Up => (Point {col: 0, row: 15}, Facing::Right); "up from face 1")]
+    #[test_case(Point{col: 4, row: 3}, Facing::Left => (Point {col: 0, row: 8}, Facing::Right); "left from face 1")]
+    #[test_case(Point{col: 11, row: 0}, Facing::Up => (Point {col: 3, row: 15}, Facing::Up); "up from face 2")]
+    fn other_fold_next(location: Point, facing: Facing) -> (Point, Facing) {
+        let map = OTHER_FOLD.parse::<Map>().unwrap();
 
         map.next_spot(location, facing, true)
     }
