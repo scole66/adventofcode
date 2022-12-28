@@ -4,12 +4,12 @@
 //!
 use ahash::{AHashMap, AHashSet};
 use anyhow::Context;
+use combinations::{Combination, Permutation};
 use once_cell::sync::Lazy;
 use regex::Regex;
 use std::io::{self, Read};
 use std::iter::Iterator;
 use std::str::FromStr;
-use combinations::{Permutation, Combination};
 
 #[derive(Debug)]
 struct DataPoint {
