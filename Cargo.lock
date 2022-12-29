@@ -222,6 +222,14 @@ name = "mmxv_day1"
 version = "0.1.0"
 
 [[package]]
+name = "mmxv_day10"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "test-case 2.2.2",
+]
+
+[[package]]
 name = "mmxv_day2"
 version = "0.1.0"
 dependencies = [
