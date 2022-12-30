@@ -60,7 +60,12 @@ impl FromStr for SeatingMatrix {
 impl SeatingMatrix {
     fn best_seating_value(&self) -> i64 {
         let people = self.matrix.keys().collect::<Vec<_>>();
+        let first_person = people[0].clone();
         Permutation::new(&people)
+            // We actually don't need all the permutations, since this is a circular pattern. (a-b-c has the
+            // same result as b-c-a). We can hold one of the items in the same location. So this filters out
+            // all the permutations that don't have the same first item.
+            .filter(|perm| perm[0] == &first_person)
             .map(|perm| {
                 perm.into_iter()
                     .circular_tuple_windows()
