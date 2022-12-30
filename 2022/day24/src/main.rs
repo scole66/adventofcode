@@ -4,92 +4,15 @@
 //!
 use ahash::{AHashMap, AHashSet};
 use anyhow::{anyhow, bail, Error, Result};
+use astar::{search_astar, AStarNode};
 use num::traits::Zero;
 use once_cell::sync::Lazy;
-use priority_queue::PriorityQueue;
 use regex::Regex;
 use std::cell::RefCell;
-use std::cmp::Ordering;
 use std::hash::Hash;
 use std::io::{self, Read};
-use std::ops::{Add, Div, Mul, Rem};
+use std::ops::{Div, Mul, Rem};
 use std::str::FromStr;
-
-trait AStarState: Clone + PartialEq + Eq + Hash {
-    type Cost: Ord + Hash + Copy + Add<Output = Self::Cost>;
-    type NeighborIter: Iterator<Item = (Self, Self::Cost)>;
-    type AssociatedState;
-    fn cost(&self, target: &Self, state: &Self::AssociatedState) -> Self::Cost;
-    fn fitness(&self, goal: &Self, state: &Self::AssociatedState) -> Self::Cost;
-    fn neighbors(&self, state: &Self::AssociatedState) -> Self::NeighborIter;
-    fn goal_match(&self, goal: &Self, state: &Self::AssociatedState) -> bool;
-}
-
-fn search_astar<T>(initial: T, goal: T, state: &T::AssociatedState) -> Option<Vec<T>>
-where
-    T: AStarState,
-{
-    // Highest priority is lowest cost, so this struct is an interface to flip the ordering. (Lowest cost
-    // sorts to "highest".)
-    #[derive(PartialEq, Eq)]
-    struct Priority<T: AStarState> {
-        value: T::Cost,
-    }
-    impl<T: AStarState> PartialOrd for Priority<T> {
-        fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-            self.value.partial_cmp(&other.value).map(|ordering| match ordering {
-                Ordering::Less => Ordering::Greater,
-                Ordering::Equal => Ordering::Equal,
-                Ordering::Greater => Ordering::Less,
-            })
-        }
-    }
-    impl<T: AStarState> Ord for Priority<T> {
-        fn cmp(&self, other: &Self) -> Ordering {
-            match self.value.cmp(&other.value) {
-                Ordering::Less => Ordering::Greater,
-                Ordering::Equal => Ordering::Equal,
-                Ordering::Greater => Ordering::Less,
-            }
-        }
-    }
-
-    let mut open: PriorityQueue<T, Priority<T>> = PriorityQueue::new();
-    // Like to find a way to combine these into the priority queue so we don't have to compute hashes so often
-    let mut g_score = AHashMap::new();
-    let mut f_score = AHashMap::new();
-    let mut came_from: AHashMap<T, T> = AHashMap::new();
-
-    g_score.insert(initial.clone(), initial.cost(&initial, state));
-    let fitness = initial.fitness(&goal, state);
-    f_score.insert(initial.clone(), fitness);
-
-    open.push(initial, Priority { value: fitness });
-
-    while !open.is_empty() {
-        let (current, _) = open.pop().unwrap();
-        if current.goal_match(&goal, state) {
-            let mut result = vec![goal];
-            let mut current = current;
-            while let Some(previous) = came_from.get(&current) {
-                result.push(previous.clone());
-                current = previous.clone();
-            }
-            return Some(result.into_iter().rev().collect());
-        }
-        for (neighbor, neighbor_cost) in current.neighbors(state) {
-            let tentative = g_score[&current] + neighbor_cost;
-            if g_score.get(&neighbor).map_or(true, |&previous| tentative < previous) {
-                came_from.insert(neighbor.clone(), current.clone());
-                g_score.insert(neighbor.clone(), tentative);
-                let new_fscore = tentative + neighbor.fitness(&goal, state);
-                f_score.insert(neighbor.clone(), new_fscore);
-                open.push(neighbor, Priority { value: new_fscore });
-            }
-        }
-    }
-    None
-}
 
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Hash)]
 enum Direction {
@@ -214,6 +137,7 @@ struct TraversalState {
     row: i64,
     col: i64,
 }
+
 struct TraversalSharedInfo {
     cycle_modulo: usize,
     blizzards: Vec<Blizzard>,
@@ -290,23 +214,16 @@ impl Iterator for NeighborIter {
         }
     }
 }
-impl AStarState for TraversalState {
+impl AStarNode for TraversalState {
     type Cost = i64;
 
     type NeighborIter = NeighborIter;
 
     type AssociatedState = TraversalSharedInfo;
 
-    fn cost(&self, target: &Self, state: &Self::AssociatedState) -> Self::Cost {
-        // Since our state is both a position and a timestamp (within a cycle, anyway), we can just
-        // use the time delta as the cost. (It costs 1 to wait without moving, after all.)
-        ((state.cycle_modulo + target.cycle - self.cycle) % state.cycle_modulo) as i64
-    }
-
-    fn fitness(&self, goal: &Self, _: &Self::AssociatedState) -> Self::Cost {
-        // Also the "heuristic" of A*. This is an optimistic assessment of the cost to reach the goal. In the
-        // case of the blizzard simulation, it's just the Manhattan distance between the current location and
-        // the goal location.
+    fn heuristic(&self, goal: &Self, _: &Self::AssociatedState) -> Self::Cost {
+        // This is an optimistic assessment of the cost to reach the goal. In the case of the blizzard
+        // simulation, it's just the Manhattan distance between the current location and the goal location.
         let dx = (goal.col - self.col).abs();
         let dy = (goal.row - self.row).abs();
         dx + dy
@@ -369,6 +286,7 @@ impl AStarState for TraversalState {
         self.col == goal.col && self.row == goal.row
     }
 }
+
 fn part1(input: &str) -> anyhow::Result<usize> {
     let input = input.parse::<Input>()?;
     let info = input.info();

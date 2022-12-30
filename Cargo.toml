@@ -1,6 +1,7 @@
 [workspace]
 
 members = [
+    "astar",
     "combinations",
     "2015/day1",
     "2015/day2",
@@ -63,3 +64,4 @@ members = [
 
 [workspace.dependencies]
 combinations = { path = "combinations" }
+astar = { path = "astar" }
