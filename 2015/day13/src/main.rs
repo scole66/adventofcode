@@ -66,7 +66,7 @@ impl SeatingMatrix {
         // make the sum.
         Permutation::new(&people[1..])
             .map(|mut perm| {
-                perm.push(&people[0]);
+                perm.push(people[0]);
                 perm.into_iter()
                     .circular_tuple_windows()
                     .map(|(left, middle, right)| self.matrix[middle][left] + self.matrix[middle][right])
