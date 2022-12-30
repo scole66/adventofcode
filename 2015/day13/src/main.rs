@@ -60,13 +60,13 @@ impl FromStr for SeatingMatrix {
 impl SeatingMatrix {
     fn best_seating_value(&self) -> i64 {
         let people = self.matrix.keys().collect::<Vec<_>>();
-        let first_person = people[0].clone();
-        Permutation::new(&people)
-            // We actually don't need all the permutations, since this is a circular pattern. (a-b-c has the
-            // same result as b-c-a). We can hold one of the items in the same location. So this filters out
-            // all the permutations that don't have the same first item.
-            .filter(|perm| perm[0] == &first_person)
-            .map(|perm| {
+        // We actually don't need all the permutations, since this is a circular pattern. (a-b-c has the same
+        // result as b-c-a). We can hold one of the items in the same location. So this asks for the
+        // permutations on [1..] (i.e. skipping the first), and then adding that first back in just before we
+        // make the sum.
+        Permutation::new(&people[1..])
+            .map(|mut perm| {
+                perm.push(people[0]);
                 perm.into_iter()
                     .circular_tuple_windows()
                     .map(|(left, middle, right)| self.matrix[middle][left] + self.matrix[middle][right])
