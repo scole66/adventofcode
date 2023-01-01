@@ -276,6 +276,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxv_day14"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc",
+ "once_cell",
+ "regex",
+]
+
+[[package]]
 name = "mmxv_day2"
 version = "0.1.0"
 dependencies = [
