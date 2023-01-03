@@ -55,7 +55,6 @@ impl Datum {
 
     fn locations_by_time(&self, max_secs: u64) -> Vec<u64> {
         (0..max_secs)
-            .into_iter()
             .map(|time| self.speed_at(time))
             .scan(0, |loc, speed| {
                 let new_loc = *loc + speed;
