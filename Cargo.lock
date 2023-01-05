@@ -316,6 +316,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxv_day18"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "itertools",
+]
+
+[[package]]
 name = "mmxv_day2"
 version = "0.1.0"
 dependencies = [
