@@ -307,6 +307,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxv_day17"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "indoc",
+ "itertools",
+]
+
+[[package]]
 name = "mmxv_day2"
 version = "0.1.0"
 dependencies = [
