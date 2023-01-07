@@ -15,7 +15,7 @@
 use ahash::AHashMap;
 use num::Zero;
 use priority_queue::PriorityQueue;
-use std::cmp::Ordering;
+use std::cmp::Reverse;
 use std::hash::Hash;
 use std::ops::Add;
 
@@ -48,31 +48,6 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
     /// deliberately avoid some of the node data to match a class of destinations. (Like: anything on the
     /// bottom row, or something.)
     fn goal_match(&self, goal: &Self, state: &Self::AssociatedState) -> bool;
-}
-
-// Highest priority is lowest cost, so this struct is an interface to flip the ordering. (Lowest cost sorts to
-// "highest".)
-#[derive(PartialEq, Eq)]
-struct Priority<T: AStarNode> {
-    value: T::Cost,
-}
-impl<T: AStarNode> PartialOrd for Priority<T> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.value.partial_cmp(&other.value).map(|ordering| match ordering {
-            Ordering::Less => Ordering::Greater,
-            Ordering::Equal => Ordering::Equal,
-            Ordering::Greater => Ordering::Less,
-        })
-    }
-}
-impl<T: AStarNode> Ord for Priority<T> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        match self.value.cmp(&other.value) {
-            Ordering::Less => Ordering::Greater,
-            Ordering::Equal => Ordering::Equal,
-            Ordering::Greater => Ordering::Less,
-        }
-    }
 }
 
 /// Use a heuristic-based search from a start node to a destination class of nodes in a graph
@@ -243,7 +218,7 @@ pub fn search_astar<T>(initial: T, goal: T, state: &T::AssociatedState) -> Optio
 where
     T: AStarNode,
 {
-    let mut open: PriorityQueue<T, Priority<T>> = PriorityQueue::new();
+    let mut open: PriorityQueue<T, Reverse<T::Cost>> = PriorityQueue::new();
     // Like to find a way to combine these into the priority queue so we don't have to compute hashes so often
     let mut g_score = AHashMap::new();
     let mut f_score = AHashMap::new();
@@ -253,7 +228,7 @@ where
     let fitness = initial.heuristic(&goal, state);
     f_score.insert(initial.clone(), fitness);
 
-    open.push(initial, Priority { value: fitness });
+    open.push(initial, Reverse(fitness));
 
     while !open.is_empty() {
         let (current, _) = open.pop().unwrap();
@@ -273,7 +248,7 @@ where
                 g_score.insert(neighbor.clone(), tentative);
                 let new_fscore = tentative + neighbor.heuristic(&goal, state);
                 f_score.insert(neighbor.clone(), new_fscore);
-                open.push(neighbor, Priority { value: new_fscore });
+                open.push(neighbor, Reverse(new_fscore));
             }
         }
     }
