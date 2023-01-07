@@ -194,7 +194,7 @@ fn main() -> Result<()> {
     stdin.lock().read_to_string(&mut input)?;
 
     println!("Part1: {}", part1(&input)?);
-    print!(indoc::indoc!{"
+    print!(indoc::indoc! {"
         Sometimes (most of the time?) this randomly picks a poor starting choice, and
         runs out of ram. When the stars align, it picks a good choice and returns in
         seconds. So if this seems to go on for too long, Ctrl-C and retry.
