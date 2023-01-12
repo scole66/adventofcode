@@ -203,7 +203,7 @@ where
     /// ```
     pub fn new(items: &[T]) -> Self {
         let n = items.len();
-        Permutation { items: items.to_vec(), n, a: (0..=n).into_iter().collect::<Vec<_>>(), done: false }
+        Permutation { items: items.to_vec(), n, a: (0..=n).collect::<Vec<_>>(), done: false }
     }
 }
 

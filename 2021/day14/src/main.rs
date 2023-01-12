@@ -228,7 +228,6 @@ fn main() -> Result<(), anyhow::Error> {
         .lock()
         .lines()
         .map(ResultStringWrap::from)
-        .into_iter()
         .collect::<anyhow::Result<Data>>()
         .context("Failed to parse puzzle input from stdin")?;
 

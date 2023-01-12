@@ -52,7 +52,7 @@ impl FromStr for Data {
     }
 }
 
-fn split_at_nth<'a, 'd>(source: &'a str, delimiter: &'d str, n: usize) -> Option<(&'a str, &'a str)> {
+fn split_at_nth<'a>(source: &'a str, delimiter: &str, n: usize) -> Option<(&'a str, &'a str)> {
     let mut scan = source;
     let mut matches_left = n - 1;
     let mut offset = 0;
@@ -241,7 +241,7 @@ mod tests {
     #[test_case("abcd--fghi--kmlm--asea", "--", 2 => Some(("abcd--fghi", "kmlm--asea")))]
     #[test_case("abcd--fghi--kmlm--asea", "--", 3 => Some(("abcd--fghi--kmlm", "asea")))]
     #[test_case("abcd--fghi--kmlm--asea", "--", 4 => None)]
-    fn split_at_nth<'a, 'd>(src: &'a str, delim: &'d str, n: usize) -> Option<(&'a str, &'a str)> {
+    fn split_at_nth<'a>(src: &'a str, delim: &str, n: usize) -> Option<(&'a str, &'a str)> {
         super::split_at_nth(src, delim, n)
     }
 }

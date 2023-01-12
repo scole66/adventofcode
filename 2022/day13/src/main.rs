@@ -62,13 +62,13 @@ impl Item {
                     }
                 }
             }
-            Some(&ch) if ('0'..='9').contains(&ch) => {
+            Some(&ch) if ch.is_ascii_digit() => {
                 let mut number = String::from(ch);
                 iter.next();
                 loop {
                     let next = iter.peek();
                     match next {
-                        Some(&ch) if ('0'..='9').contains(&ch) => {
+                        Some(&ch) if ch.is_ascii_digit() => {
                             number.push(ch);
                             iter.next();
                         }

@@ -79,7 +79,7 @@ impl Display for MonkeyId {
 impl Debug for MonkeyId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let id = self.0;
-        write!(f, "MonkeyId({id:x} [{}]", self)
+        write!(f, "MonkeyId({id:x} [{self}]")
     }
 }
 

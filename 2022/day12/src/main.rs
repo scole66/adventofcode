@@ -42,7 +42,7 @@ impl FromStr for Map {
                         Ok(match ch {
                             'S' => 1,
                             'E' => 27,
-                            e if ('a'..='z').contains(&e) => e as u8 - b'a' + 1,
+                            e if e.is_ascii_lowercase() => e as u8 - b'a' + 1,
                             _ => {
                                 anyhow::bail!("Improper character in map");
                             }
