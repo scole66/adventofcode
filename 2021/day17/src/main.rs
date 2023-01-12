@@ -141,10 +141,7 @@ fn main() -> Result<(), anyhow::Error> {
         .context("Failed to parse puzzle input from stdin")?;
 
     let (highest_y, best_xvel, best_yvel) = calculate(&input);
-    println!(
-        "Part 1: With initial velocity ({}, {}), reached height of {}",
-        best_xvel, best_yvel, highest_y
-    );
+    println!("Part 1: With initial velocity ({best_xvel}, {best_yvel}), reached height of {highest_y}");
 
     println!(
         "Part 2: Number of potential initial velocities that reach the target: {}",

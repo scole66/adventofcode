@@ -275,7 +275,6 @@ impl Canvas {
         // After a rock has fallen, keep only the rows that matter to handle future falls, and update the
         // floor offset. (This is to keep tall towers fitting into memory.)
         let lowest_keepable_row = (0..CANVAS_WIDTH)
-            .into_iter()
             .map(|col| {
                 self.spots
                     .keys()
