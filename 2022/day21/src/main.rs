@@ -83,10 +83,11 @@ impl Debug for MonkeyId {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 enum InsnOp {
     Yell(i64),
     Op(Op, MonkeyId, MonkeyId),
+    #[default]
     Bogus, // The default value, should never be executed.
 }
 impl FromStr for InsnOp {
@@ -111,11 +112,7 @@ impl FromStr for InsnOp {
         }
     }
 }
-impl Default for InsnOp {
-    fn default() -> Self {
-        InsnOp::Bogus
-    }
-}
+
 impl Display for InsnOp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
