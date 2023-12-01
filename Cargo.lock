@@ -163,6 +163,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa799dd5ed20a7e349f3b4639aa80d74549c81716d9ec4f994c9b5815598306"
 
 [[package]]
+name = "indoc"
+version = "2.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1e186cfbae8084e513daff4240b4797e342f988cecda4fb6c939150f96315fd8"
+
+[[package]]
 name = "itertools"
 version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -251,7 +257,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "combinations",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
  "once_cell",
  "regex",
@@ -263,7 +269,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -274,7 +280,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -293,7 +299,7 @@ name = "mmxv_day17"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
 ]
 
@@ -313,7 +319,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "astar",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
  "test-case 2.2.2",
@@ -385,7 +391,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "combinations",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -575,7 +581,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
 ]
 
 [[package]]
@@ -584,7 +590,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
 ]
 
 [[package]]
@@ -599,7 +605,7 @@ name = "mmxxii_day10"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -610,7 +616,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -621,7 +627,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
 ]
 
@@ -630,7 +636,7 @@ name = "mmxxii_day13"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
  "test-case 2.2.2",
 ]
@@ -641,7 +647,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
  "test-case 2.2.2",
 ]
@@ -651,7 +657,7 @@ name = "mmxxii_day15"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
  "once_cell",
  "regex",
@@ -665,7 +671,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "bimap",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -685,7 +691,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "test-case 2.2.2",
 ]
 
@@ -695,7 +701,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "rayon",
  "regex",
@@ -716,7 +722,7 @@ name = "mmxxii_day20"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "test-case 2.2.2",
 ]
 
@@ -726,7 +732,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "test-case 2.2.2",
 ]
 
@@ -736,7 +742,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
  "once_cell",
  "regex",
@@ -749,7 +755,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
 ]
 
 [[package]]
@@ -759,7 +765,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "astar",
- "indoc",
+ "indoc 1.0.9",
  "num",
  "once_cell",
  "regex",
@@ -771,7 +777,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "test-case 2.2.2",
 ]
 
@@ -781,7 +787,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
 ]
 
 [[package]]
@@ -789,7 +795,7 @@ name = "mmxxii_day4"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -800,7 +806,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "once_cell",
  "regex",
 ]
@@ -821,8 +827,18 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc",
+ "indoc 1.0.9",
  "itertools",
+]
+
+[[package]]
+name = "mmxxiii_day01"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "indoc 2.0.4",
+ "once_cell",
+ "regex",
 ]
 
 [[package]]
