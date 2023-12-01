@@ -1,5 +1,5 @@
 [workspace]
-
+resolver = "2"
 members = [
     "astar",
     "combinations",
@@ -66,6 +66,7 @@ members = [
     "2022/day23",
     "2022/day24",
     "2022/day25",
+    "2023/day01",
 ]
 
 [workspace.dependencies]
