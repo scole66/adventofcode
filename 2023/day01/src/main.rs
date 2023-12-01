@@ -41,8 +41,14 @@ fn decode_2(line: &str) -> u32 {
         Lazy::new(|| Regex::new(r"([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap());
     static TRAILING_DIGIT_PATTERN: Lazy<Regex> =
         Lazy::new(|| Regex::new(r".*([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap());
-    let left = DIGIT_PATTERN.captures(line).map(|caps| to_digit(caps.get(1).unwrap().as_str())).unwrap_or(0);
-    let right = TRAILING_DIGIT_PATTERN.captures(line).map(|caps| to_digit(caps.get(1).unwrap().as_str())).unwrap_or(0);
+    let left = DIGIT_PATTERN
+        .captures(line)
+        .map(|caps| to_digit(caps.get(1).unwrap().as_str()))
+        .unwrap_or(0);
+    let right = TRAILING_DIGIT_PATTERN
+        .captures(line)
+        .map(|caps| to_digit(caps.get(1).unwrap().as_str()))
+        .unwrap_or(0);
     left * 10 + right
 }
 
