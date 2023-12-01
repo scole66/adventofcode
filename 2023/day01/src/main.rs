@@ -4,20 +4,16 @@
 //!
 use once_cell::sync::Lazy;
 use regex::Regex;
-use std::char;
 use std::io::{self, Read};
 
 fn decode(line: &str) -> u32 {
-    let mut left = 100;
-    let mut most_recent = 100;
-
-    line.chars().filter(char::is_ascii_digit).for_each(|c| {
-        if left >= 100 {
-            left = c.to_digit(10).unwrap();
-        }
-        most_recent = c.to_digit(10).unwrap();
-    });
-    left * 10 + most_recent
+    let (_, first, last) = line
+        .chars()
+        .filter_map(|c| c.to_digit(10))
+        .fold((false, 0, 0), |(first_captured, first, _), next| {
+            (true, if first_captured { first } else { next }, next)
+        });
+    first * 10 + last
 }
 
 fn to_digit(s: &str) -> u32 {
