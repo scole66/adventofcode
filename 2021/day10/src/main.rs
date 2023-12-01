@@ -80,7 +80,7 @@ fn incomplete_points(res: LineResult) -> u64 {
 
 fn main() -> io::Result<()> {
     let stdin = io::stdin();
-    let lines = stdin.lock().lines().filter_map(|res| res.ok()).collect::<Vec<String>>();
+    let lines = stdin.lock().lines().map_while(Result::ok).collect::<Vec<String>>();
 
     let points: u64 = lines.iter().map(|s| corrupted_points(&parse_line(s))).sum();
     println!("Part1: {points} syntax error points");

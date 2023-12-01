@@ -81,7 +81,7 @@ impl EnergyMap {
 fn main() -> io::Result<()> {
     let stdin = io::stdin();
 
-    let lines = stdin.lock().lines().filter_map(|res| res.ok()).collect::<Vec<_>>();
+    let lines = stdin.lock().lines().map_while(Result::ok).collect::<Vec<_>>();
     let mut energy_map = lines.iter().collect::<EnergyMap>();
 
     let flashes = (0..100).map(|_| energy_map.run_step() as u64).sum::<u64>();

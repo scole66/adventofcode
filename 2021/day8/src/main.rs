@@ -129,7 +129,7 @@ fn main() -> io::Result<()> {
     let input: Vec<(Vec<SegmentPattern>, Vec<OutputValue>)> = stdin
         .lock()
         .lines()
-        .filter_map(|res| res.ok())
+        .map_while(Result::ok)
         .filter_map(|s| parse_line(&s))
         .collect();
 

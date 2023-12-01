@@ -91,7 +91,7 @@ impl HeightMap {
 
 fn main() -> io::Result<()> {
     let stdin = io::stdin();
-    let height_map = stdin.lock().lines().filter_map(|res| res.ok()).collect::<HeightMap>();
+    let height_map = stdin.lock().lines().map_while(Result::ok).collect::<HeightMap>();
 
     // Part 1: Sum of the risk levels of all the low points.
     let total_risk: u32 = height_map

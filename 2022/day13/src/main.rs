@@ -94,12 +94,7 @@ impl FromStr for Item {
 
 impl PartialOrd for Item {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match (self, other) {
-            (Item::Number(a), Item::Number(b)) => a.partial_cmp(b),
-            (Item::List(_), Item::Number(b)) => self.partial_cmp(&Item::List(vec![Item::Number(*b)])),
-            (Item::Number(a), Item::List(_)) => Item::List(vec![Item::Number(*a)]).partial_cmp(other),
-            (Item::List(a), Item::List(b)) => a.partial_cmp(b),
-        }
+        Some(self.cmp(other))
     }
 }
 
