@@ -37,20 +37,13 @@ fn to_digit(s: &str) -> u32 {
 }
 
 fn decode_2(line: &str) -> u32 {
-    static TWO_DIGIT_PATTERN: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"([0-9]|zero|one|two|three|four|five|six|seven|eight|nine).*([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap()
-    });
-    static ONE_DIGIT_PATTERN: Lazy<Regex> =
+    static DIGIT_PATTERN: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap());
-    TWO_DIGIT_PATTERN
-        .captures(line)
-        .map(|caps| 10 * to_digit(caps.get(1).unwrap().as_str()) + caps.get(2).map(|m| to_digit(m.as_str())).unwrap())
-        .unwrap_or_else(|| {
-            ONE_DIGIT_PATTERN
-                .captures(line)
-                .map(|caps| to_digit(caps.get(1).unwrap().as_str()) * 11)
-                .unwrap_or(0)
-        })
+    static TRAILING_DIGIT_PATTERN: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r".*([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap());
+    let left = DIGIT_PATTERN.captures(line).map(|caps| to_digit(caps.get(1).unwrap().as_str())).unwrap_or(0);
+    let right = TRAILING_DIGIT_PATTERN.captures(line).map(|caps| to_digit(caps.get(1).unwrap().as_str())).unwrap_or(0);
+    left * 10 + right
 }
 
 fn main() -> anyhow::Result<()> {
@@ -100,5 +93,10 @@ mod tests {
 
         let result = input.lines().map(decode_2).sum::<u32>();
         assert_eq!(result, 281);
+    }
+
+    #[test]
+    fn twone() {
+        assert_eq!(decode_2("twone"), 21);
     }
 }
