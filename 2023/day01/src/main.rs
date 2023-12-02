@@ -2,8 +2,6 @@
 //!
 //! Ref: [Advent of Code 2023 Day 1](https://adventofcode.com/2023/day/1)
 //!
-use once_cell::sync::Lazy;
-use regex::Regex;
 use std::io::{self, Read};
 
 fn decode(line: &str) -> u32 {
@@ -16,35 +14,29 @@ fn decode(line: &str) -> u32 {
     first * 10 + last
 }
 
-fn to_digit(s: &str) -> u32 {
+fn to_digit(s: &str) -> Option<u32> {
     match s {
-        "0" | "zero" => 0,
-        "1" | "one" => 1,
-        "2" | "two" => 2,
-        "3" | "three" => 3,
-        "4" | "four" => 4,
-        "5" | "five" => 5,
-        "6" | "six" => 6,
-        "7" | "seven" => 7,
-        "8" | "eight" => 8,
-        "9" | "nine" => 9,
-        _ => unreachable!(),
+        x if x.starts_with('0') || x.starts_with("zero") => Some(0),
+        x if x.starts_with('1') || x.starts_with("one") => Some(1),
+        x if x.starts_with('2') || x.starts_with("two") => Some(2),
+        x if x.starts_with('3') || x.starts_with("three") => Some(3),
+        x if x.starts_with('4') || x.starts_with("four") => Some(4),
+        x if x.starts_with('5') || x.starts_with("five") => Some(5),
+        x if x.starts_with('6') || x.starts_with("six") => Some(6),
+        x if x.starts_with('7') || x.starts_with("seven") => Some(7),
+        x if x.starts_with('8') || x.starts_with("eight") => Some(8),
+        x if x.starts_with('9') || x.starts_with("nine") => Some(9),
+        _ => None,
     }
 }
 
 fn decode_2(line: &str) -> u32 {
-    static DIGIT_PATTERN: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap());
-    static TRAILING_DIGIT_PATTERN: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r".*([0-9]|zero|one|two|three|four|five|six|seven|eight|nine)").unwrap());
-    let left = DIGIT_PATTERN
-        .captures(line)
-        .map(|caps| to_digit(caps.get(1).unwrap().as_str()))
-        .unwrap_or(0);
-    let right = TRAILING_DIGIT_PATTERN
-        .captures(line)
-        .map(|caps| to_digit(caps.get(1).unwrap().as_str()))
-        .unwrap_or(0);
+    let (_, left, right) = line
+        .char_indices()
+        .filter_map(|(idx, _)| to_digit(&line[idx..]))
+        .fold((false, 0, 0), |(first_captured, first, _), next| {
+            (true, if first_captured { first } else { next }, next)
+        });
     left * 10 + right
 }
 
