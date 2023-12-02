@@ -1,6 +1,6 @@
-//! # Solution for Advent of Code 2022 Day XXX:
+//! # Solution for Advent of Code 2023 Day XXX:
 //!
-//! Ref: [Advent of Code 2022 Day XXX](https://adventofcode.com/2022/day/XXX)
+//! Ref: [Advent of Code 2023 Day XXX](https://adventofcode.com/2023/day/XXX)
 //!
 #![allow(dead_code, unused_imports, unused_variables)]
 use ahash::{AHashMap, AHashSet};
