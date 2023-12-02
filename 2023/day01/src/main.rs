@@ -16,16 +16,16 @@ fn decode(line: &str) -> u32 {
 
 fn to_digit(s: &str) -> Option<u32> {
     match s {
-        x if x.starts_with("0") || x.starts_with("zero") => Some(0),
-        x if x.starts_with("1") || x.starts_with("one") => Some(1),
-        x if x.starts_with("2") || x.starts_with("two") => Some(2),
-        x if x.starts_with("3") || x.starts_with("three") => Some(3),
-        x if x.starts_with("4") || x.starts_with("four") => Some(4),
-        x if x.starts_with("5") || x.starts_with("five") => Some(5),
-        x if x.starts_with("6") || x.starts_with("six") => Some(6),
-        x if x.starts_with("7") || x.starts_with("seven") => Some(7),
-        x if x.starts_with("8") || x.starts_with("eight") => Some(8),
-        x if x.starts_with("9") || x.starts_with("nine") => Some(9),
+        x if x.starts_with('0') || x.starts_with("zero") => Some(0),
+        x if x.starts_with('1') || x.starts_with("one") => Some(1),
+        x if x.starts_with('2') || x.starts_with("two") => Some(2),
+        x if x.starts_with('3') || x.starts_with("three") => Some(3),
+        x if x.starts_with('4') || x.starts_with("four") => Some(4),
+        x if x.starts_with('5') || x.starts_with("five") => Some(5),
+        x if x.starts_with('6') || x.starts_with("six") => Some(6),
+        x if x.starts_with('7') || x.starts_with("seven") => Some(7),
+        x if x.starts_with('8') || x.starts_with("eight") => Some(8),
+        x if x.starts_with('9') || x.starts_with("nine") => Some(9),
         _ => None,
     }
 }
