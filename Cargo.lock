@@ -863,6 +863,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxiii_day04"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc 2.0.4",
+ "once_cell",
+ "regex",
+]
+
+[[package]]
 name = "num"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
