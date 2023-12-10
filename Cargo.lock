@@ -178,6 +178,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "itertools"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25db6b064527c5d482d0423354fcd07a89a2dfe07b67892e62411946db7f07b0"
+dependencies = [
+ "either",
+]
+
+[[package]]
 name = "itoa"
 version = "1.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -258,7 +267,7 @@ dependencies = [
  "anyhow",
  "combinations",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
  "once_cell",
  "regex",
 ]
@@ -300,7 +309,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
 ]
 
 [[package]]
@@ -309,7 +318,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "itertools",
+ "itertools 0.10.5",
 ]
 
 [[package]]
@@ -628,7 +637,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
 ]
 
 [[package]]
@@ -637,7 +646,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
  "test-case 2.2.2",
 ]
 
@@ -648,7 +657,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
  "test-case 2.2.2",
 ]
 
@@ -658,7 +667,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
  "once_cell",
  "regex",
  "test-case 2.2.2",
@@ -743,7 +752,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
  "once_cell",
  "regex",
  "test-case 2.2.2",
@@ -817,7 +826,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "itertools",
+ "itertools 0.10.5",
  "test-case 2.2.2",
 ]
 
@@ -828,7 +837,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 1.0.9",
- "itertools",
+ "itertools 0.10.5",
 ]
 
 [[package]]
@@ -871,6 +880,17 @@ dependencies = [
  "indoc 2.0.4",
  "once_cell",
  "regex",
+]
+
+[[package]]
+name = "mmxxiii_day06"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc 2.0.4",
+ "itertools 0.12.0",
+ "test-case 3.3.1",
 ]
 
 [[package]]
