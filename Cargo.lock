@@ -72,6 +72,15 @@ name = "combinations"
 version = "0.1.0"
 
 [[package]]
+name = "counter"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d458e66999348f56fd3ffcfbb7f7951542075ca8359687c703de6500c1ddccd"
+dependencies = [
+ "num-traits",
+]
+
+[[package]]
 name = "crossbeam-deque"
 version = "0.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -899,6 +908,18 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
+ "indoc 2.0.4",
+ "once_cell",
+ "regex",
+ "test-case 3.3.1",
+]
+
+[[package]]
+name = "mmxxiii_day7"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "counter",
  "indoc 2.0.4",
  "once_cell",
  "regex",
