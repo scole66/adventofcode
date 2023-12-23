@@ -13,8 +13,8 @@ impl FromStr for Sequence {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(
             s.split_whitespace()
-                .map(|numstr| numstr.parse::<i64>().map_err(Error::from))
-                .collect::<Result<Vec<_>>>()?,
+                .map(|numstr| numstr.parse::<i64>())
+                .collect::<Result<Vec<_>, _>>()?,
         ))
     }
 }
