@@ -116,7 +116,6 @@ dependencies = [
 name = "day09"
 version = "0.1.0"
 dependencies = [
- "ahash",
  "anyhow",
  "indoc 2.0.4",
 ]
