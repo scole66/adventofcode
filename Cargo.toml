@@ -75,6 +75,7 @@ members = [
     "2023/day07",
     "2023/day09",
     "2023/day10",
+    "2023/day11",
 ]
 
 [workspace.dependencies]
