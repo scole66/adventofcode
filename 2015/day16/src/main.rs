@@ -61,7 +61,10 @@ impl FromStr for Sue {
             .captures(label)
             .ok_or_else(|| anyhow!("Bad label: \"{label}\""))?;
         let id = caps["id"].parse::<i32>()?;
-        let mut sue = Sue { id, ..Default::default() };
+        let mut sue = Sue {
+            id,
+            ..Default::default()
+        };
         for item in data.split(", ") {
             let caps = ITEM_PATTERN
                 .captures(item)
@@ -93,7 +96,9 @@ impl FromStr for Family {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Family { aunts: s.lines().map(|line| line.parse::<Sue>()).collect::<Result<Vec<_>>>()? })
+        Ok(Family {
+            aunts: s.lines().map(|line| line.parse::<Sue>()).collect::<Result<Vec<_>>>()?,
+        })
     }
 }
 

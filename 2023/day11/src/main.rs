@@ -116,7 +116,9 @@ impl StarMap {
         adjust_by(&mut new_stars, loc_mcol, loc_rcol, factor);
         adjust_by(&mut new_stars, loc_mrow, loc_rrow, factor);
 
-        StarMap { stars: new_stars.into_iter().collect::<AHashSet<Location>>() }
+        StarMap {
+            stars: new_stars.into_iter().collect::<AHashSet<Location>>(),
+        }
     }
 
     fn work_the_puzzle(&self, factor: i64) -> i64 {

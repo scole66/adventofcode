@@ -30,7 +30,12 @@ impl FromStr for Datum {
         let rest_time = caps["rt"].parse::<u64>()?;
         let name = caps["name"].to_string();
 
-        Ok(Datum { flight_time, fly_speed, rest_time, name })
+        Ok(Datum {
+            flight_time,
+            fly_speed,
+            rest_time,
+            name,
+        })
     }
 }
 

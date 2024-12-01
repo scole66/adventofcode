@@ -11,16 +11,28 @@ struct Position {
 
 impl Position {
     fn east(self) -> Self {
-        Self { x: self.x + 1, y: self.y }
+        Self {
+            x: self.x + 1,
+            y: self.y,
+        }
     }
     fn west(self) -> Self {
-        Self { x: self.x - 1, y: self.y }
+        Self {
+            x: self.x - 1,
+            y: self.y,
+        }
     }
     fn north(self) -> Self {
-        Self { x: self.x, y: self.y + 1 }
+        Self {
+            x: self.x,
+            y: self.y + 1,
+        }
     }
     fn south(self) -> Self {
-        Self { x: self.x, y: self.y - 1 }
+        Self {
+            x: self.x,
+            y: self.y - 1,
+        }
     }
 }
 

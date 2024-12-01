@@ -29,7 +29,11 @@ impl FromStr for Datum {
         let influencer = caps["influencer"].to_string();
         let happiness_delta = caps["val"].parse::<i64>()? * (if &caps["gl"] == "gain" { 1 } else { -1 });
 
-        Ok(Datum { receiver, influencer, happiness_delta })
+        Ok(Datum {
+            receiver,
+            influencer,
+            happiness_delta,
+        })
     }
 }
 
@@ -43,7 +47,11 @@ impl FromStr for SeatingMatrix {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut matrix = AHashMap::new();
         for datum in s.lines().map(|line| line.parse::<Datum>()) {
-            let Datum { receiver, influencer, happiness_delta } = datum?;
+            let Datum {
+                receiver,
+                influencer,
+                happiness_delta,
+            } = datum?;
             let inf_copy = influencer.clone();
             matrix
                 .entry(receiver)

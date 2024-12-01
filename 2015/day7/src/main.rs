@@ -121,7 +121,11 @@ impl FromIterator<StringWrap> for anyhow::Result<Circuit> {
     fn from_iter<I: IntoIterator<Item = StringWrap>>(iter: I) -> Self {
         let gates = Vec::new();
         let signals = AHashMap::new();
-        let mut circuit = Circuit { signals, gates, overrides: AHashSet::new() };
+        let mut circuit = Circuit {
+            signals,
+            gates,
+            overrides: AHashSet::new(),
+        };
 
         for s in iter.into_iter() {
             let gate = Gate::try_from(s.0.as_str())?;

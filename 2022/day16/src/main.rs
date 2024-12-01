@@ -204,8 +204,12 @@ fn score(
 fn score_part1(data: &InputData) -> usize {
     let initial_valves = ValveData::from(data);
     let mut cache = AHashMap::new();
-    let scoring_run_setup =
-        Chambers { time: 30, location: data.valve_id("AA"), rates: data.rates.clone(), tunnels: data.tunnels.clone() };
+    let scoring_run_setup = Chambers {
+        time: 30,
+        location: data.valve_id("AA"),
+        rates: data.rates.clone(),
+        tunnels: data.tunnels.clone(),
+    };
     let result = score(
         &scoring_run_setup,
         &mut cache,
@@ -229,8 +233,12 @@ fn part2(input: &str) -> anyhow::Result<usize> {
     let data = input.parse::<InputData>()?;
     let initial_valves = ValveData::from(&data);
     let mut cache = AHashMap::new();
-    let scoring_run_setup =
-        Chambers { time: 26, location: data.valve_id("AA"), rates: data.rates, tunnels: data.tunnels };
+    let scoring_run_setup = Chambers {
+        time: 26,
+        location: data.valve_id("AA"),
+        rates: data.rates,
+        tunnels: data.tunnels,
+    };
     let result = Ok(score(
         &scoring_run_setup,
         &mut cache,

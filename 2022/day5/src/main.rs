@@ -143,7 +143,11 @@ impl TryFrom<&Input> for Model {
                     .to_string(),
             })
         }
-        Ok(Model { stacks, identifiers, instructions })
+        Ok(Model {
+            stacks,
+            identifiers,
+            instructions,
+        })
     }
 }
 
