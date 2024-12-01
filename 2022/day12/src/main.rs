@@ -85,7 +85,14 @@ impl Map {
             f: usize,
             g: usize,
         }
-        open.insert(start, Node { parent: (usize::MAX, usize::MAX), f: 0, g: 0 });
+        open.insert(
+            start,
+            Node {
+                parent: (usize::MAX, usize::MAX),
+                f: 0,
+                g: 0,
+            },
+        );
         while !open.is_empty() {
             // Find the lowest f-value in the open list
             let current_pos = *open.iter().min_by(|a, b| a.1.f.cmp(&b.1.f)).unwrap().0;
@@ -134,10 +141,24 @@ impl Map {
 
                 match open.get(&child_pos) {
                     None => {
-                        open.insert(child_pos, Node { parent: current_pos, f: child_f, g: child_g });
+                        open.insert(
+                            child_pos,
+                            Node {
+                                parent: current_pos,
+                                f: child_f,
+                                g: child_g,
+                            },
+                        );
                     }
                     Some(node) if node.g > child_g => {
-                        open.insert(child_pos, Node { parent: current_pos, f: child_f, g: child_g });
+                        open.insert(
+                            child_pos,
+                            Node {
+                                parent: current_pos,
+                                f: child_f,
+                                g: child_g,
+                            },
+                        );
                     }
                     Some(_) => {}
                 }

@@ -189,8 +189,13 @@ impl Canvas {
         for &(x, y) in pattern.iter() {
             let col = x as isize;
             let row = y as isize;
-            self.spots
-                .insert(Point { col: col_offset + col, row: row_offset + row }, Rock::Falling);
+            self.spots.insert(
+                Point {
+                    col: col_offset + col,
+                    row: row_offset + row,
+                },
+                Rock::Falling,
+            );
         }
 
         self.state = RocksAre::Falling;
@@ -220,7 +225,10 @@ impl Canvas {
         // Check to see if any of those would bump into anything, either the edge of the canvas, or another
         // stationary rock.
         if !locs_to_adjust.iter().any(|spot| {
-            let adjusted = Point { col: spot.col + delta_x, row: spot.row };
+            let adjusted = Point {
+                col: spot.col + delta_x,
+                row: spot.row,
+            };
             matches!(self.spots.get(&adjusted), Some(Rock::Stuck)) || adjusted.col < 0 || adjusted.col >= CANVAS_WIDTH
         }) {
             // We're good. Take all the old ones out entirely, and then put them back in where they belong.
@@ -230,8 +238,13 @@ impl Canvas {
                 todo_list.push((spot, value));
             }
             for (spot, value) in todo_list {
-                self.spots
-                    .insert(Point { col: spot.col + delta_x, row: spot.row }, value);
+                self.spots.insert(
+                    Point {
+                        col: spot.col + delta_x,
+                        row: spot.row,
+                    },
+                    value,
+                );
             }
         }
     }
@@ -249,7 +262,10 @@ impl Canvas {
         // Check to see if any of those would bump into anything, either the floor of the canvas, or another
         // stationary rock.
         if !locs_to_adjust.iter().any(|spot| {
-            let adjusted = Point { col: spot.col, row: spot.row - 1 };
+            let adjusted = Point {
+                col: spot.col,
+                row: spot.row - 1,
+            };
             matches!(self.spots.get(&adjusted), Some(Rock::Stuck)) || adjusted.row < 0
         }) {
             // We're good. Go ahead and move stuff around.
@@ -259,7 +275,13 @@ impl Canvas {
                 todo_list.push((spot, value));
             }
             for (spot, value) in todo_list {
-                self.spots.insert(Point { col: spot.col, row: spot.row - 1 }, value);
+                self.spots.insert(
+                    Point {
+                        col: spot.col,
+                        row: spot.row - 1,
+                    },
+                    value,
+                );
             }
         } else {
             // Downward motion was blocked. In this case, we switch all of the rocks to "Stuck", and turn off
@@ -287,8 +309,13 @@ impl Canvas {
 
         if lowest_keepable_row > 0 {
             let new_spots = AHashMap::from_iter(self.spots.keys().filter_map(|&pt| {
-                (pt.row >= lowest_keepable_row)
-                    .then_some((Point { col: pt.col, row: pt.row - lowest_keepable_row }, Rock::Stuck))
+                (pt.row >= lowest_keepable_row).then_some((
+                    Point {
+                        col: pt.col,
+                        row: pt.row - lowest_keepable_row,
+                    },
+                    Rock::Stuck,
+                ))
             }));
             self.spots = new_spots;
             self.floor_offset += usize::try_from(lowest_keepable_row).expect("positive value should not be negative");

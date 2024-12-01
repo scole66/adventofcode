@@ -23,7 +23,10 @@ impl FromStr for ReplacementRule {
         let caps = PATTERN
             .captures(s)
             .ok_or_else(|| anyhow!("Not a valid replacement rule: \"{s}\""))?;
-        Ok(ReplacementRule { source: caps["source"].to_string(), replacement: caps["replacement"].to_string() })
+        Ok(ReplacementRule {
+            source: caps["source"].to_string(),
+            replacement: caps["replacement"].to_string(),
+        })
     }
 }
 
@@ -48,7 +51,10 @@ impl FromStr for Data {
         if !TARGET_PATTERN.is_match(target) {
             bail!("invalid target (not alphabetic)");
         }
-        Ok(Data { rules, target: target.to_string() })
+        Ok(Data {
+            rules,
+            target: target.to_string(),
+        })
     }
 }
 
@@ -138,7 +144,12 @@ impl Iterator for MoleculeNeighborIter {
             None
         } else {
             self.next += 1;
-            Some((SearchNode { compound: self.data[self.next - 1].clone() }, 1))
+            Some((
+                SearchNode {
+                    compound: self.data[self.next - 1].clone(),
+                },
+                1,
+            ))
         }
     }
 }
@@ -161,7 +172,10 @@ impl AStarNode for SearchNode {
             .into_iter()
             .filter(|potential| potential.len() <= state.data.target.len())
             .collect::<Vec<_>>();
-        MoleculeNeighborIter { data: potentials, next: 0 }
+        MoleculeNeighborIter {
+            data: potentials,
+            next: 0,
+        }
     }
 
     fn goal_match(&self, goal: &Self, _state: &Self::AssociatedState) -> bool {
@@ -179,8 +193,12 @@ fn part2(input: &str) -> Result<usize> {
     let data = input.parse::<Data>()?;
     let state = MoleculeState { data };
     let path = search_astar(
-        SearchNode { compound: state.data.target.clone() },
-        SearchNode { compound: "e".to_string() },
+        SearchNode {
+            compound: state.data.target.clone(),
+        },
+        SearchNode {
+            compound: "e".to_string(),
+        },
         &state,
     );
 

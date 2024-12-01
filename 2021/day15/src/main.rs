@@ -103,7 +103,10 @@ impl FromIterator<ResultStringWrap> for anyhow::Result<Cavern> {
         if !rows.iter().all(|r| r.len() == line_one_length) {
             anyhow::bail!("All rows must be the same length");
         }
-        Ok(Cavern { map: rows, expansion_factor: 1 })
+        Ok(Cavern {
+            map: rows,
+            expansion_factor: 1,
+        })
     }
 }
 

@@ -34,7 +34,16 @@ impl FromStr for Item {
         let scanner_y = caps["scanner_y"].parse::<isize>()?;
         let beacon_x = caps["beacon_x"].parse::<isize>()?;
         let beacon_y = caps["beacon_y"].parse::<isize>()?;
-        Ok(Item { scanner: Point { col: scanner_x, row: scanner_y }, beacon: Point { col: beacon_x, row: beacon_y } })
+        Ok(Item {
+            scanner: Point {
+                col: scanner_x,
+                row: scanner_y,
+            },
+            beacon: Point {
+                col: beacon_x,
+                row: beacon_y,
+            },
+        })
     }
 }
 
@@ -91,8 +100,10 @@ impl Item {
 
     fn right_edge(&self) -> impl Iterator<Item = Point> + '_ {
         let scanner_radius = self.scanner.mh_distance(&self.beacon);
-        (-scanner_radius..=scanner_radius)
-            .map(move |x| Point { col: self.scanner.col + (scanner_radius.abs() - x) + 1, row: self.scanner.row + x })
+        (-scanner_radius..=scanner_radius).map(move |x| Point {
+            col: self.scanner.col + (scanner_radius.abs() - x) + 1,
+            row: self.scanner.row + x,
+        })
     }
 
     fn covers(&self, point: &Point) -> bool {

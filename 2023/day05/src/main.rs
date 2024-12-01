@@ -32,7 +32,11 @@ impl FromStr for MapRange {
         if items.next().is_some() {
             bail!("Too many items for MapRange");
         }
-        Ok(MapRange { destination_start, source_start, range_length })
+        Ok(MapRange {
+            destination_start,
+            source_start,
+            range_length,
+        })
     }
 }
 
@@ -341,9 +345,21 @@ mod tests {
     fn map_1() -> PlantMap {
         PlantMap {
             map: vec![
-                MapRange { destination_start: 50, source_start: 10, range_length: 10 },
-                MapRange { destination_start: 40, source_start: 20, range_length: 10 },
-                MapRange { destination_start: 10, source_start: 40, range_length: 20 },
+                MapRange {
+                    destination_start: 50,
+                    source_start: 10,
+                    range_length: 10,
+                },
+                MapRange {
+                    destination_start: 40,
+                    source_start: 20,
+                    range_length: 10,
+                },
+                MapRange {
+                    destination_start: 10,
+                    source_start: 40,
+                    range_length: 20,
+                },
             ],
         }
     }

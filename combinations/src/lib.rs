@@ -73,7 +73,13 @@ impl<T> Combination<T> {
         let mut c = (0..size).collect::<Vec<_>>();
         c.push(items.len());
         c.push(0);
-        Combination { source: items.to_vec(), c, j: size, t: size, done: false }
+        Combination {
+            source: items.to_vec(),
+            c,
+            j: size,
+            t: size,
+            done: false,
+        }
     }
 }
 
@@ -203,7 +209,12 @@ where
     /// ```
     pub fn new(items: &[T]) -> Self {
         let n = items.len();
-        Permutation { items: items.to_vec(), n, a: (0..=n).collect::<Vec<_>>(), done: false }
+        Permutation {
+            items: items.to_vec(),
+            n,
+            a: (0..=n).collect::<Vec<_>>(),
+            done: false,
+        }
     }
 }
 

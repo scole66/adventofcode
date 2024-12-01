@@ -26,7 +26,10 @@ impl FromStr for Input {
                 match ch {
                     '.' => {}
                     '#' => {
-                        map.insert(Point { col: col as i64, row: row as i64 });
+                        map.insert(Point {
+                            col: col as i64,
+                            row: row as i64,
+                        });
                     }
                     _ => {
                         bail!("Bad char in map");
@@ -107,10 +110,22 @@ impl ElfBall {
         [-1, 0, 1]
             .into_iter()
             .map(|delta| match dir {
-                CardinalDirection::North => Point { row: row - 1, col: col + delta },
-                CardinalDirection::South => Point { row: row + 1, col: col + delta },
-                CardinalDirection::East => Point { row: row + delta, col: col + 1 },
-                CardinalDirection::West => Point { row: row + delta, col: col - 1 },
+                CardinalDirection::North => Point {
+                    row: row - 1,
+                    col: col + delta,
+                },
+                CardinalDirection::South => Point {
+                    row: row + 1,
+                    col: col + delta,
+                },
+                CardinalDirection::East => Point {
+                    row: row + delta,
+                    col: col + 1,
+                },
+                CardinalDirection::West => Point {
+                    row: row + delta,
+                    col: col - 1,
+                },
             })
             .any(|pt| self.elves.contains_key(&pt))
     }
@@ -203,7 +218,12 @@ impl ElfBall {
             col_min = col_min.min(col);
             col_max = col_max.max(col);
         }
-        Limits { east_most: col_max, west_most: col_min, north_most: row_min, south_most: row_max }
+        Limits {
+            east_most: col_max,
+            west_most: col_min,
+            north_most: row_min,
+            south_most: row_max,
+        }
     }
 
     fn empty_ground_tiles(&self) -> i64 {
