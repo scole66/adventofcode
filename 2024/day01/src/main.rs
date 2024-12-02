@@ -38,8 +38,7 @@ impl FromStr for Input {
     }
 }
 
-fn part1(input: &str) -> Result<usize> {
-    let input = Input::from_str(input)?;
+fn part1(input: &Input) -> Result<usize> {
     let mut left = input.data.iter().map(|(left, _)| *left).collect::<Vec<_>>();
     let mut right = input.data.iter().map(|(_, right)| *right).collect::<Vec<_>>();
     left.sort();
@@ -51,8 +50,7 @@ fn part1(input: &str) -> Result<usize> {
         .sum::<usize>())
 }
 
-fn part2(input: &str) -> Result<usize> {
-    let input = Input::from_str(input)?;
+fn part2(input: &Input) -> Result<usize> {
     let counted = input.data.iter().map(|(_, right)| *right).collect::<Counter<_>>();
     Ok(input.data.iter().map(|(left, _)| counted[left] * left).sum::<usize>())
 }
@@ -62,6 +60,7 @@ fn main() -> Result<()> {
 
     let mut input = String::new();
     stdin.lock().read_to_string(&mut input)?;
+    let input = Input::from_str(&input)?;
 
     println!("Part1: {}", part1(&input)?);
     println!("Part2: {}", part2(&input)?);
@@ -92,11 +91,13 @@ mod tests {
 
     #[test]
     fn part1_sample() {
-        assert_eq!(part1(SAMPLE).unwrap(), 11);
+        let input = Input::from_str(SAMPLE).unwrap();
+        assert_eq!(part1(&input).unwrap(), 11);
     }
 
     #[test]
     fn part2_sample() {
-        assert_eq!(part2(SAMPLE).unwrap(), 31);
+        let input = Input::from_str(SAMPLE).unwrap();
+        assert_eq!(part2(&input).unwrap(), 31);
     }
 }
