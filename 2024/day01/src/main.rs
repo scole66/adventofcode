@@ -1,9 +1,8 @@
-//! # Solution for Advent of Code 2024 Day 1:
+//! # Solution for Advent of Code 2024 Day 1: Historian Hysteria
 //!
 //! Ref: [Advent of Code 2024 Day 1](https://adventofcode.com/2024/day/1)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{anyhow, Context, Error, Result};
 use counter::Counter;
 use std::io::{self, Read};
 use std::str::FromStr;
