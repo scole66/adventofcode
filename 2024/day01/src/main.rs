@@ -23,12 +23,18 @@ impl FromStr for Input {
                 let context = format!("Failed to parse \"{line}\"");
                 let left = iter
                     .next()
-                    .ok_or_else(|| anyhow!("expected left number")).context(context.clone())?
-                    .parse::<usize>().context("Left Number wasn't numberlike").context(context.clone())?;
+                    .ok_or_else(|| anyhow!("expected left number"))
+                    .context(context.clone())?
+                    .parse::<usize>()
+                    .context("Left Number wasn't numberlike")
+                    .context(context.clone())?;
                 let right = iter
                     .next()
-                    .ok_or_else(|| anyhow!("expected right number")).context(context.clone())?
-                    .parse::<usize>().context("Right Number wasn't numberlike").context(context.clone())?;
+                    .ok_or_else(|| anyhow!("expected right number"))
+                    .context(context.clone())?
+                    .parse::<usize>()
+                    .context("Right Number wasn't numberlike")
+                    .context(context.clone())?;
                 if iter.next().is_some() {
                     Err(anyhow!("unexpected extra input").context(context))?
                 }
