@@ -20,16 +20,17 @@ impl FromStr for Input {
             .lines()
             .map(|line| {
                 let mut iter = line.split_whitespace();
+                let context = format!("Failed to parse \"{line}\"");
                 let left = iter
                     .next()
-                    .ok_or_else(|| anyhow!("expected left number"))?
-                    .parse::<usize>()?;
+                    .ok_or_else(|| anyhow!("expected left number")).context(context.clone())?
+                    .parse::<usize>().context("Left Number wasn't numberlike").context(context.clone())?;
                 let right = iter
                     .next()
-                    .ok_or_else(|| anyhow!("expected right number"))?
-                    .parse::<usize>()?;
+                    .ok_or_else(|| anyhow!("expected right number")).context(context.clone())?
+                    .parse::<usize>().context("Right Number wasn't numberlike").context(context.clone())?;
                 if iter.next().is_some() {
-                    bail!("unexpected extra input");
+                    Err(anyhow!("unexpected extra input").context(context))?
                 }
                 Ok((left, right))
             })
