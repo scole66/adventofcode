@@ -16,7 +16,9 @@ impl FromStr for Password {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let trimmed = s.trim();
         if trimmed.len() == 8 && trimmed.chars().all(|c| c.is_ascii_lowercase()) {
-            Ok(Password { text: trimmed.to_string() })
+            Ok(Password {
+                text: trimmed.to_string(),
+            })
         } else {
             Err(anyhow!("Invalid password string \"{trimmed}\""))
         }
@@ -71,7 +73,9 @@ impl Password {
         if carry == 1 {
             None
         } else {
-            Some(Password { text: work.chars().rev().collect() })
+            Some(Password {
+                text: work.chars().rev().collect(),
+            })
         }
     }
 

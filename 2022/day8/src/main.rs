@@ -38,7 +38,11 @@ impl TryFrom<&str> for Input {
                 max_row = row;
             }
         }
-        Ok(Input { trees: result, max_col, max_row })
+        Ok(Input {
+            trees: result,
+            max_col,
+            max_row,
+        })
     }
 }
 

@@ -124,7 +124,13 @@ impl VisitRect {
         let (x1, y1, x2, y2) = rect;
         let (left, right) = if x1 > x2 { (x2, x1) } else { (x1, x2) };
         let (top, bottom) = if y1 > y2 { (y2, y1) } else { (y1, y2) };
-        VisitRect { column: left, row: top, bottom_edge: bottom, left_edge: left, right_edge: right }
+        VisitRect {
+            column: left,
+            row: top,
+            bottom_edge: bottom,
+            left_edge: left,
+            right_edge: right,
+        }
     }
 }
 

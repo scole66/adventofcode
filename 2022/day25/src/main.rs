@@ -59,7 +59,9 @@ impl FromStr for Snafu {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Snafu { digits: s.chars().map(SnafuDigit::try_from).collect::<Result<Vec<_>>>()? })
+        Ok(Snafu {
+            digits: s.chars().map(SnafuDigit::try_from).collect::<Result<Vec<_>>>()?,
+        })
     }
 }
 impl Display for Snafu {
@@ -115,7 +117,9 @@ impl From<isize> for Snafu {
                 _ => unreachable!(),
             }
         }
-        Snafu { digits: result.into_iter().rev().collect() }
+        Snafu {
+            digits: result.into_iter().rev().collect(),
+        }
     }
 }
 

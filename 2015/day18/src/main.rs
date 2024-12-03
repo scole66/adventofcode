@@ -42,7 +42,10 @@ impl Board {
         iproduct!([-1, 0, 1].into_iter(), [-1, 0, 1].into_iter())
             .filter_map(|(dx, dy)| match (dx, dy) {
                 (0, 0) => None,
-                (dx, dy) => Some(Point { row: pt.row + dy, col: pt.col + dx }),
+                (dx, dy) => Some(Point {
+                    row: pt.row + dy,
+                    col: pt.col + dx,
+                }),
             })
             .collect::<Vec<_>>()
     }
@@ -62,9 +65,18 @@ impl Board {
     }
     fn add_corners(&mut self, max_row: i32, max_col: i32) {
         self.0.insert(Point { row: 0, col: 0 });
-        self.0.insert(Point { row: 0, col: max_col - 1 });
-        self.0.insert(Point { row: max_row - 1, col: 0 });
-        self.0.insert(Point { row: max_row - 1, col: max_col - 1 });
+        self.0.insert(Point {
+            row: 0,
+            col: max_col - 1,
+        });
+        self.0.insert(Point {
+            row: max_row - 1,
+            col: 0,
+        });
+        self.0.insert(Point {
+            row: max_row - 1,
+            col: max_col - 1,
+        });
     }
 }
 

@@ -167,7 +167,12 @@ impl FromStr for InitialBoard {
             }
         }
 
-        Ok(InitialBoard { data, width, height, offset: horiz_offset })
+        Ok(InitialBoard {
+            data,
+            width,
+            height,
+            offset: horiz_offset,
+        })
     }
 }
 

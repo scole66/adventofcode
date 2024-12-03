@@ -40,8 +40,14 @@ impl TryFrom<&str> for RangePair {
         let right_end = next_capture()? + 1;
 
         Ok(RangePair {
-            left: Range { start: left_start, end: left_end },
-            right: Range { start: right_start, end: right_end },
+            left: Range {
+                start: left_start,
+                end: left_end,
+            },
+            right: Range {
+                start: right_start,
+                end: right_end,
+            },
         })
     }
 }
