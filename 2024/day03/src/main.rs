@@ -35,52 +35,54 @@ fn part1(input: &Input) -> Result<usize> {
         .sum::<Result<usize>>()
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
-enum Op {
-    Do,
-    Dont,
-    Mul(usize, usize),
+struct Accumulator {
+    sum: usize,
+    multiplication_allowed: bool,
 }
 
 fn part2(input: &Input) -> Result<usize> {
     static PATTERN: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"(do\(\))|(don't\(\))|(mul\((\d+),(\d+)\))").expect("compiled patterns shouldn't fail")
     });
-    let program = PATTERN
+    Ok(PATTERN
         .captures_iter(&input.s)
-        .map(|cap| {
-            if cap.get(1).is_some() {
-                Ok(Op::Do)
-            } else if cap.get(2).is_some() {
-                Ok(Op::Dont)
-            } else if cap.get(3).is_some() {
-                let a = cap[4]
-                    .parse::<usize>()
-                    .context(format!("failed parsing first multiplicand ({})", &cap[4]))?;
-                let b = cap[5]
-                    .parse::<usize>()
-                    .context(format!("failed parsing second multiplicand ({})", &cap[5]))?;
-                Ok(Op::Mul(a, b))
-            } else {
-                bail!("failed to parse input")
-            }
-        })
-        .collect::<Result<Vec<Op>>>()?;
-    let mut sum = 0;
-    let mut multiplication_allowed = true;
-    for op in program {
-        match op {
-            Op::Do => multiplication_allowed = true,
-            Op::Dont => multiplication_allowed = false,
-            Op::Mul(a, b) => {
-                if multiplication_allowed {
-                    sum += a * b;
+        .try_fold(
+            Accumulator {
+                sum: 0,
+                multiplication_allowed: true,
+            },
+            |Accumulator {
+                 sum,
+                 multiplication_allowed,
+             },
+             cap| {
+                if cap.get(1).is_some() {
+                    Ok(Accumulator {
+                        sum,
+                        multiplication_allowed: true,
+                    })
+                } else if cap.get(2).is_some() {
+                    Ok(Accumulator {
+                        sum,
+                        multiplication_allowed: false,
+                    })
+                } else if cap.get(3).is_some() {
+                    let a = cap[4]
+                        .parse::<usize>()
+                        .context(format!("failed parsing first multiplicand ({})", &cap[4]))?;
+                    let b = cap[5]
+                        .parse::<usize>()
+                        .context(format!("failed parsing second multiplicand ({})", &cap[5]))?;
+                    Ok(Accumulator {
+                        sum: sum + if multiplication_allowed { a * b } else { 0 },
+                        multiplication_allowed,
+                    })
+                } else {
+                    bail!("failed to parse input")
                 }
-            }
-        }
-    }
-
-    Ok(sum)
+            },
+        )?
+        .sum)
 }
 
 fn main() -> Result<()> {
