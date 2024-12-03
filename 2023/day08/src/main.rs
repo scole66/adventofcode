@@ -1,6 +1,6 @@
-//! # Solution for Advent of Code 2023 Day XXX:
+//! # Solution for Advent of Code 2023 Day 8: Haunted Wasteland
 //!
-//! Ref: [Advent of Code 2023 Day XXX](https://adventofcode.com/2023/day/XXX)
+//! Ref: [Advent of Code 2023 Day 8](https://adventofcode.com/2023/day/8)
 //!
 #![allow(dead_code, unused_imports, unused_variables)]
 use ahash::{AHashMap, AHashSet};
@@ -38,12 +38,13 @@ impl Debug for Id {
     }
 }
 
-#[derive(Debug, Hash)]
+#[derive(Debug, Hash, Clone, PartialEq, Eq)]
 struct Instruction {
     left: Id,
     right: Id,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 struct Node {
     id: Id,
     left: Id,
@@ -79,7 +80,7 @@ impl FromStr for Input {
             .next()
             .ok_or_else(|| anyhow!("Blank input"))?
             .chars()
-            .map(|c| Step::try_from(c))
+            .map(Step::try_from)
             .collect::<Result<Vec<_>>>()?;
         let blank = lines
             .next()
@@ -158,15 +159,15 @@ impl Input {
         while !loop_found {
             let ptr_next = self.network.get(&state.0).unwrap();
             let next_id = match &state.1 {
-                Step::Left => ptr_next.left,
-                Step::Right => ptr_next.right,
+                Step::Left => ptr_next.left.clone(),
+                Step::Right => ptr_next.right.clone(),
             };
 
-            if cache.has_key(&state) {
+            if cache.contains_key(&state) {
                 loop_found = true;
             } else {
-                cache.insert(state, next_id);
-                state = (next_id, next_id);
+                cache.insert(state, next_id.clone());
+                state = (next_id, instructions.next().unwrap());
             }
         }
         todo!()
