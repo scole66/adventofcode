@@ -73,15 +73,6 @@ version = "0.1.0"
 
 [[package]]
 name = "counter"
-version = "0.5.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d458e66999348f56fd3ffcfbb7f7951542075ca8359687c703de6500c1ddccd"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
-name = "counter"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f009fcafa949dc1fc46a762dae84d0c2687d3b550906b633c4979d58d2c6ae52"
@@ -940,7 +931,7 @@ name = "mmxxiii_day7"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "counter 0.5.7",
+ "counter",
  "indoc 2.0.5",
  "once_cell",
  "regex",
@@ -952,7 +943,7 @@ name = "mmxxiv_day01"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "counter 0.6.0",
+ "counter",
  "indoc 2.0.5",
 ]
 
