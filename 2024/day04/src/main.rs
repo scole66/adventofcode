@@ -77,8 +77,8 @@ impl Input {
     }
 
     fn cross_at(&self, location: (isize, isize)) -> bool {
-        for n in 0..=3 {
-            if ['M', 'M', 'S', 'S']
+        (0..=3).any(|n| {
+            ['M', 'M', 'S', 'S']
                 .iter()
                 .cycle()
                 .skip(n)
@@ -91,11 +91,7 @@ impl Input {
                         .map(|in_puzzle| letter == in_puzzle)
                         .unwrap_or(false)
                 })
-            {
-                return true;
-            }
-        }
-        false
+        })
     }
 
     fn count_crosses(&self) -> usize {
