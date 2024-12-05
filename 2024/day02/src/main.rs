@@ -81,10 +81,10 @@ impl Report {
                         .enumerate()
                         .filter_map(
                             |(index, &level)| {
-                                if index != removal_index {
-                                    Some(level)
-                                } else {
+                                if index == removal_index {
                                     None
+                                } else {
+                                    Some(level)
                                 }
                             },
                         )

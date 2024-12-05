@@ -35,7 +35,7 @@ impl FromStr for Input {
                     .context("Right Number wasn't numberlike")
                     .context(context.clone())?;
                 if iter.next().is_some() {
-                    Err(anyhow!("unexpected extra input").context(context))?
+                    Err(anyhow!("unexpected extra input").context(context))?;
                 }
                 Ok((left, right))
             })
@@ -44,21 +44,20 @@ impl FromStr for Input {
     }
 }
 
-fn part1(input: &Input) -> Result<usize> {
+fn part1(input: &Input) -> usize {
     let mut left = input.data.iter().map(|(left, _)| *left).collect::<Vec<_>>();
     let mut right = input.data.iter().map(|(_, right)| *right).collect::<Vec<_>>();
-    left.sort();
-    right.sort();
-    Ok(left
-        .into_iter()
+    left.sort_unstable();
+    right.sort_unstable();
+    left.into_iter()
         .zip(right)
         .map(|(a, b)| if a > b { a - b } else { b - a })
-        .sum::<usize>())
+        .sum::<usize>()
 }
 
-fn part2(input: &Input) -> Result<usize> {
+fn part2(input: &Input) -> usize {
     let counted = input.data.iter().map(|(_, right)| *right).collect::<Counter<_>>();
-    Ok(input.data.iter().map(|(left, _)| counted[left] * left).sum::<usize>())
+    input.data.iter().map(|(left, _)| counted[left] * left).sum::<usize>()
 }
 
 fn main() -> Result<()> {
@@ -68,8 +67,8 @@ fn main() -> Result<()> {
     stdin.lock().read_to_string(&mut input)?;
     let input = Input::from_str(&input)?;
 
-    println!("Part1: {}", part1(&input)?);
-    println!("Part2: {}", part2(&input)?);
+    println!("Part1: {}", part1(&input));
+    println!("Part2: {}", part2(&input));
 
     Ok(())
 }
@@ -98,12 +97,12 @@ mod tests {
     #[test]
     fn part1_sample() {
         let input = Input::from_str(SAMPLE).unwrap();
-        assert_eq!(part1(&input).unwrap(), 11);
+        assert_eq!(part1(&input), 11);
     }
 
     #[test]
     fn part2_sample() {
         let input = Input::from_str(SAMPLE).unwrap();
-        assert_eq!(part2(&input).unwrap(), 31);
+        assert_eq!(part2(&input), 31);
     }
 }

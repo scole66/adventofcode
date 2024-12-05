@@ -43,10 +43,7 @@ impl Input {
     fn matches(&self, location: (isize, isize), deltas: &[(isize, isize)]) -> bool {
         deltas.iter().zip(MATCH.iter()).all(|(d, ch)| {
             let probe = (location.0 + d.0, location.1 + d.1);
-            self.puzzle
-                .get(&probe)
-                .map(|in_puzzle| ch == in_puzzle)
-                .unwrap_or(false)
+            self.puzzle.get(&probe).is_some_and(|in_puzzle| ch == in_puzzle)
         })
     }
 
@@ -86,10 +83,7 @@ impl Input {
                 .zip([(-1, -1), (1, -1), (1, 1), (-1, 1)].iter())
                 .all(|(letter, delta)| {
                     let probe = (location.0 + delta.0, location.1 + delta.1);
-                    self.puzzle
-                        .get(&probe)
-                        .map(|in_puzzle| letter == in_puzzle)
-                        .unwrap_or(false)
+                    self.puzzle.get(&probe).is_some_and(|in_puzzle| letter == in_puzzle)
                 })
         })
     }
