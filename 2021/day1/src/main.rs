@@ -53,7 +53,6 @@ fn main() {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use test_case::test_case;
 
     #[test_case(&[199, 200, 208, 210, 200, 207, 240, 269, 260, 263] => Some(7); "sample")]

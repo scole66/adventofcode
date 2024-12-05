@@ -12,4 +12,4 @@ anyhow = "1.0"
 ahash = "0.8.2"
 
 [dev-dependencies]
-test-case = "1.2"
+test-case = "3.3"
