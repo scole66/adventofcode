@@ -120,7 +120,7 @@ name = "day09"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
 ]
 
 [[package]]
@@ -129,8 +129,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
- "test-case 3.3.1",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -140,8 +140,8 @@ dependencies = [
  "ahash",
  "anyhow",
  "combinations",
- "indoc 2.0.5",
- "test-case 3.3.1",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -159,6 +159,12 @@ name = "either"
 version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60b1af1c220855b6ceac025d3f6ecdd2b7c4894bfe9cd9bda4fbb4bc7c0d4cf0"
+
+[[package]]
+name = "equivalent"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
 
 [[package]]
 name = "generic-array"
@@ -183,25 +189,19 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.12.3"
+version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
+checksum = "bf151400ff0baff5465007dd2f3e717f3fe502074ca563069ce3a6629d07b289"
 
 [[package]]
 name = "indexmap"
-version = "1.9.3"
+version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd070e393353796e801d209ad339e89596eb4c8d430d18ede6a1cced8fafbd99"
+checksum = "62f822373a4fe84d4bb149bf54e584a7f4abec90e072ed49cda0edea5b95471f"
 dependencies = [
- "autocfg",
+ "equivalent",
  "hashbrown",
 ]
-
-[[package]]
-name = "indoc"
-version = "1.0.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bfa799dd5ed20a7e349f3b4639aa80d74549c81716d9ec4f994c9b5815598306"
 
 [[package]]
 name = "indoc"
@@ -211,18 +211,9 @@ checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
 
 [[package]]
 name = "itertools"
-version = "0.10.5"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
-dependencies = [
- "either",
-]
-
-[[package]]
-name = "itertools"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
 dependencies = [
  "either",
 ]
@@ -270,7 +261,7 @@ name = "mmxv_day10"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -278,7 +269,7 @@ name = "mmxv_day11"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -287,7 +278,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "serde_json",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -297,8 +288,8 @@ dependencies = [
  "ahash",
  "anyhow",
  "combinations",
- "indoc 1.0.9",
- "itertools 0.10.5",
+ "indoc",
+ "itertools",
  "once_cell",
  "regex",
 ]
@@ -309,7 +300,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -320,7 +311,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -339,8 +330,8 @@ name = "mmxv_day17"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
+ "indoc",
+ "itertools",
 ]
 
 [[package]]
@@ -349,7 +340,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "itertools 0.10.5",
+ "itertools",
 ]
 
 [[package]]
@@ -359,10 +350,10 @@ dependencies = [
  "ahash",
  "anyhow",
  "astar",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -379,7 +370,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
 ]
 
 [[package]]
@@ -389,7 +380,7 @@ dependencies = [
  "ahash",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -403,7 +394,7 @@ dependencies = [
 name = "mmxv_day5"
 version = "0.1.0"
 dependencies = [
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -423,7 +414,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -440,7 +431,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "combinations",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -449,7 +440,7 @@ dependencies = [
 name = "mmxxi_day1"
 version = "0.1.0"
 dependencies = [
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -459,7 +450,7 @@ dependencies = [
  "ahash",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -469,7 +460,7 @@ dependencies = [
  "ahash",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -480,7 +471,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -491,7 +482,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -502,7 +493,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -514,7 +505,7 @@ dependencies = [
  "lazy_static",
  "priority-queue",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -525,7 +516,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -536,7 +527,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -547,7 +538,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -558,7 +549,7 @@ dependencies = [
  "anyhow",
  "lazy_static",
  "regex",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -597,7 +588,7 @@ dependencies = [
 name = "mmxxi_day6"
 version = "0.1.0"
 dependencies = [
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -611,7 +602,7 @@ dependencies = [
  "ahash",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -621,7 +612,7 @@ dependencies = [
  "ahash",
  "lazy_static",
  "regex",
- "test-case 1.2.3",
+ "test-case",
 ]
 
 [[package]]
@@ -630,7 +621,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
 ]
 
 [[package]]
@@ -639,7 +630,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
 ]
 
 [[package]]
@@ -654,7 +645,7 @@ name = "mmxxii_day10"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -665,7 +656,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -676,8 +667,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
+ "indoc",
+ "itertools",
 ]
 
 [[package]]
@@ -685,9 +676,9 @@ name = "mmxxii_day13"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
- "test-case 2.2.2",
+ "indoc",
+ "itertools",
+ "test-case",
 ]
 
 [[package]]
@@ -696,9 +687,9 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
- "test-case 2.2.2",
+ "indoc",
+ "itertools",
+ "test-case",
 ]
 
 [[package]]
@@ -706,11 +697,11 @@ name = "mmxxii_day15"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
+ "indoc",
+ "itertools",
  "once_cell",
  "regex",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -720,7 +711,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "bimap",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -740,8 +731,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "test-case 2.2.2",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -750,7 +741,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "rayon",
  "regex",
@@ -771,8 +762,8 @@ name = "mmxxii_day20"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 1.0.9",
- "test-case 2.2.2",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -781,8 +772,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "test-case 2.2.2",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -791,11 +782,11 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
+ "indoc",
+ "itertools",
  "once_cell",
  "regex",
- "test-case 2.2.2",
+ "test-case",
 ]
 
 [[package]]
@@ -804,7 +795,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
 ]
 
 [[package]]
@@ -814,7 +805,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "astar",
- "indoc 1.0.9",
+ "indoc",
  "num",
  "once_cell",
  "regex",
@@ -826,8 +817,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "test-case 2.2.2",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -836,7 +827,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
 ]
 
 [[package]]
@@ -844,7 +835,7 @@ name = "mmxxii_day4"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -855,7 +846,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -866,8 +857,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "itertools 0.10.5",
- "test-case 2.2.2",
+ "itertools",
+ "test-case",
 ]
 
 [[package]]
@@ -876,8 +867,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 1.0.9",
- "itertools 0.10.5",
+ "indoc",
+ "itertools",
 ]
 
 [[package]]
@@ -885,7 +876,7 @@ name = "mmxxiii_day01"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -896,8 +887,8 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
- "test-case 3.3.1",
+ "indoc",
+ "test-case",
 ]
 
 [[package]]
@@ -906,7 +897,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -917,7 +908,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -928,9 +919,9 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
- "itertools 0.12.1",
- "test-case 3.3.1",
+ "indoc",
+ "itertools",
+ "test-case",
 ]
 
 [[package]]
@@ -939,10 +930,10 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
  "once_cell",
  "regex",
- "test-case 3.3.1",
+ "test-case",
 ]
 
 [[package]]
@@ -951,10 +942,10 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "counter",
- "indoc 2.0.5",
+ "indoc",
  "once_cell",
  "regex",
- "test-case 3.3.1",
+ "test-case",
 ]
 
 [[package]]
@@ -963,7 +954,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "counter",
- "indoc 2.0.5",
+ "indoc",
 ]
 
 [[package]]
@@ -971,7 +962,7 @@ name = "mmxxiv_day2"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
 ]
 
 [[package]]
@@ -979,7 +970,7 @@ name = "mmxxiv_day3"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
  "once_cell",
  "regex",
 ]
@@ -990,7 +981,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
 ]
 
 [[package]]
@@ -999,7 +990,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "indoc 2.0.5",
+ "indoc",
 ]
 
 [[package]]
@@ -1083,36 +1074,13 @@ checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
 
 [[package]]
 name = "priority-queue"
-version = "1.4.0"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a0bda9164fe05bc9225752d54aae413343c36f684380005398a6a8fde95fe785"
+checksum = "714c75db297bc88a63783ffc6ab9f830698a6705aa0201416931759ef4c8183d"
 dependencies = [
  "autocfg",
+ "equivalent",
  "indexmap",
-]
-
-[[package]]
-name = "proc-macro-error"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
-dependencies = [
- "proc-macro-error-attr",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
- "version_check",
-]
-
-[[package]]
-name = "proc-macro-error-attr"
-version = "1.0.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
-dependencies = [
- "proc-macro2",
- "quote",
- "version_check",
 ]
 
 [[package]]
@@ -1205,7 +1173,7 @@ checksum = "ad1e866f866923f252f05c889987993144fb74e722403468a4ebd70c3cd756c0"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.90",
+ "syn",
 ]
 
 [[package]]
@@ -1222,17 +1190,6 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "1.0.109"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
-dependencies = [
- "proc-macro2",
- "quote",
- "unicode-ident",
-]
-
-[[package]]
-name = "syn"
 version = "2.0.90"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "919d3b74a5dd0ccd15aeb8f93e7006bd9e14c295087c9896a110f490752bcf31"
@@ -1244,33 +1201,11 @@ dependencies = [
 
 [[package]]
 name = "test-case"
-version = "1.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9e5f048404b43e8ae66dce036163515b6057024cf58c6377be501f250bd3c6a"
-dependencies = [
- "cfg-if",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
- "version_check",
-]
-
-[[package]]
-name = "test-case"
-version = "2.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21d6cf5a7dffb3f9dceec8e6b8ca528d9bd71d36c9f074defb548ce161f598c0"
-dependencies = [
- "test-case-macros 2.2.2",
-]
-
-[[package]]
-name = "test-case"
 version = "3.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb2550dd13afcd286853192af8601920d959b14c401fcece38071d53bf0768a8"
 dependencies = [
- "test-case-macros 3.3.1",
+ "test-case-macros",
 ]
 
 [[package]]
@@ -1282,20 +1217,7 @@ dependencies = [
  "cfg-if",
  "proc-macro2",
  "quote",
- "syn 2.0.90",
-]
-
-[[package]]
-name = "test-case-macros"
-version = "2.2.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e45b7bf6e19353ddd832745c8fcf77a17a93171df7151187f26623f2b75b5b26"
-dependencies = [
- "cfg-if",
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "syn 1.0.109",
+ "syn",
 ]
 
 [[package]]
@@ -1306,28 +1228,28 @@ checksum = "5c89e72a01ed4c579669add59014b9a524d609c0c88c6a585ce37485879f6ffb"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.90",
+ "syn",
  "test-case-core",
 ]
 
 [[package]]
 name = "thiserror"
-version = "1.0.69"
+version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
+checksum = "2f49a1853cf82743e3b7950f77e0f4d622ca36cf4317cba00c767838bac8d490"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.69"
+version = "2.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
+checksum = "8381894bb3efe0c4acac3ded651301ceee58a15d47c2e34885ed1908ad667061"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.90",
+ "syn",
 ]
 
 [[package]]
@@ -1371,5 +1293,5 @@ checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.90",
+ "syn",
 ]
