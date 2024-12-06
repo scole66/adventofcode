@@ -33,8 +33,14 @@ fn main() -> Result<()> {
     stdin.lock().read_to_string(&mut input)?;
     let input = input.parse::<Input>()?;
 
-    println!("Part1: {}", part1(&input));
-    //println!("Part2: {}", part2(&input));
+    let start_time = std::time::Instant::now();
+    let part1 = part1(&input);
+    let part2 = 0; //part2(&input);
+    let elapsed = start_time.elapsed();
+
+    println!("Part1: {part1}");
+    println!("Part2: {part2}");
+    println!("Time: {elapsed:?}");
 
     Ok(())
 }
