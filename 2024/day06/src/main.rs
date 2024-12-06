@@ -111,13 +111,16 @@ fn part2(input: &Input) -> usize {
     locations_visited.remove(&input.start);
 
     // Now try to put a blockage on each of those locations. If the walk produces a cycle (returns false), we bump our count.
+    let mut altered = input.map.clone();
     let mut count = 0;
     for spot in &locations_visited {
-        let mut altered = input.map.clone();
+        // Change the floorplan by adding a new obstacle.
         altered.grid.insert(*spot, Space::Obstacle);
         if !altered.walk(input.start, |_| {}) {
             count += 1;
         }
+        // Restore the foor for the next go-around
+        altered.grid.insert(*spot, Space::Floor);
     }
 
     count
