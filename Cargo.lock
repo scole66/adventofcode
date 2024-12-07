@@ -1017,7 +1017,6 @@ dependencies = [
 name = "mmxxiv_day7"
 version = "0.1.0"
 dependencies = [
- "ahash",
  "anyhow",
  "indoc",
 ]
