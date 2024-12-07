@@ -48,7 +48,7 @@ fn part2(lines: &[String]) -> Option<i32> {
                 _ => 0,
             };
             if floor == -1 {
-                return Some(i32::try_from(index).expect("index should be in range")  + 1);
+                return Some(i32::try_from(index).expect("index should be in range") + 1);
             }
         }
     }
