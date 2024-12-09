@@ -116,35 +116,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "day09"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "indoc",
-]
-
-[[package]]
-name = "day10"
-version = "0.1.0"
-dependencies = [
- "ahash",
- "anyhow",
- "indoc",
- "test-case",
-]
-
-[[package]]
-name = "day11"
-version = "0.1.0"
-dependencies = [
- "ahash",
- "anyhow",
- "combinations",
- "indoc",
- "test-case",
-]
-
-[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -936,6 +907,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxiii_day10"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc",
+ "test-case",
+]
+
+[[package]]
+name = "mmxxiii_day11"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "combinations",
+ "indoc",
+ "test-case",
+]
+
+[[package]]
 name = "mmxxiii_day5"
 version = "0.1.0"
 dependencies = [
@@ -957,6 +949,14 @@ dependencies = [
  "once_cell",
  "regex",
  "test-case",
+]
+
+[[package]]
+name = "mmxxiii_day9"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "indoc",
 ]
 
 [[package]]
@@ -1023,6 +1023,15 @@ dependencies = [
 
 [[package]]
 name = "mmxxiv_day8"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc",
+]
+
+[[package]]
+name = "mmxxiv_day9"
 version = "0.1.0"
 dependencies = [
  "ahash",
