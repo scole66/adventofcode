@@ -165,7 +165,7 @@ impl AStarNode for SearchNode {
         current_len - goal_len + 1
     }
 
-    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item=(Self, Self::Cost)> {
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)> {
         let potentials = reverse_replacements(&state.data.rules, &self.compound)
             .into_iter()
             .filter(|potential| potential.len() <= state.data.target.len())
