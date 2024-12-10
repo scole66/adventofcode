@@ -157,8 +157,6 @@ impl Iterator for MoleculeNeighborIter {
 impl AStarNode for SearchNode {
     type Cost = usize;
 
-    type NeighborIter = MoleculeNeighborIter;
-
     type AssociatedState = MoleculeState;
 
     fn heuristic(&self, goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
@@ -167,7 +165,7 @@ impl AStarNode for SearchNode {
         current_len - goal_len + 1
     }
 
-    fn neighbors(&self, state: &Self::AssociatedState) -> Self::NeighborIter {
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item=(Self, Self::Cost)> {
         let potentials = reverse_replacements(&state.data.rules, &self.compound)
             .into_iter()
             .filter(|potential| potential.len() <= state.data.target.len())
