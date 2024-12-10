@@ -248,7 +248,7 @@ impl AStarNode for TraversalState {
         dx + dy
     }
 
-    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item=(Self, Self::Cost)> {
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)> {
         // Remember that a "neighbor" is "a new state we could transition to". So, "don't move" is also a
         // valid neighbor. This is the routine where we actually need to check the blizzard conditions.
         let next_cycle = (self.cycle + 1) % state.cycle_modulo;
