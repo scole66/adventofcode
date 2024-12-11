@@ -122,7 +122,6 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc",
- "rayon",
 ]
 
 [[package]]

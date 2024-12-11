@@ -2,22 +2,30 @@
 //!
 //! Ref: [Advent of Code 2024 Day 11](https://adventofcode.com/2024/day/11)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+//! This module implements a solution for transforming numbers according to specific rules:
+//! - If the number is 0, it becomes 1
+//! - If the number has an odd number of digits, it splits into two parts
+//! - Otherwise, the number is multiplied by 2024
+//!
+//! The solution tracks how many chunks result after applying these transformations
+//! repeatedly for a given number of steps.
+
+use ahash::AHashMap;
+use anyhow::{Error, Result};
 use std::io::{self, Read};
 use std::str::FromStr;
-use rayon::prelude::*;
 
+/// Represents the parsed input containing initial numbers to transform
 struct Input {
+    /// Vector of integers to process
     nums: Vec<i64>,
 }
 impl FromStr for Input {
     type Err = Error;
 
+    /// Parses space-separated numbers from a string into the Input struct
     fn from_str(s: &str) -> Result<Self> {
         let nums = s
-            .trim()
             .split_whitespace()
             .map(str::parse)
             .collect::<Result<Vec<i64>, _>>()?;
@@ -25,6 +33,16 @@ impl FromStr for Input {
     }
 }
 
+/// Applies one step of the transformation rules to a single number
+///
+/// # Arguments
+/// * `num` - The number to transform
+///
+/// # Returns
+/// A vector containing the resulting number(s) after transformation:
+/// - Returns [1] if input is 0
+/// - Returns [`left_half`, `right_half`] if input has an even number of digits
+/// - Returns [`num` * 2024] otherwise
 fn one_step(num: i64) -> Vec<i64> {
     match num {
         0 => vec![1],
@@ -41,90 +59,76 @@ fn one_step(num: i64) -> Vec<i64> {
     }
 }
 
-fn step_rocks(rocks: &mut Vec<i64>) {
-    let mut idx = 0;
-    while idx < rocks.len() {
-        let current = rocks[idx];
-        match current {
-            0 => rocks[idx] = 1,
-            n if n.ilog10() % 2 == 1 => {
-                let total_digits = n.ilog10() + 1;
-                let divisor = 10_i64.pow(total_digits / 2);
-                let left = n / divisor;
-                let right = n % divisor;
-                rocks[idx] = left;
-                rocks.insert(idx + 1, right);
-                idx += 1;
-            }
-            n => {
-                rocks[idx] = n * 2024;
-            }
-        }
-        idx += 1;
+impl Input {
+    /// Runs the transformation process for a specified number of steps
+    ///
+    /// # Arguments
+    /// * `steps` - Number of transformation steps to perform
+    ///
+    /// # Returns
+    /// Total number of chunks after applying transformations to all initial numbers
+    fn run(&self, steps: i64) -> usize {
+        let rocks = &self.nums;
+        let mut cache = Cache::new();
+        rocks.iter().map(|&num| cache.chunks_after(num, steps)).sum()
     }
 }
 
-fn part1(input: &Input) -> usize {
-    let mut rocks = input.nums.clone();
-    for _ in 0..25 {
-        step_rocks(&mut rocks);
-    }
-    rocks.len()
-}
-
+/// Caches intermediate results to avoid redundant calculations
 struct Cache {
-    cache: AHashMap<(i64, i64), Vec<i64>>,
+    /// Maps (`number`, `remaining_steps`) to the count of resulting chunks
+    cache: AHashMap<(i64, i64), usize>,
 }
 
 impl Cache {
+    /// Creates a new empty cache
     fn new() -> Self {
         Cache { cache: AHashMap::new() }
     }
-    fn do_it(&mut self, num: i64, steps: i64) -> Vec<i64> {
-        if let Some(v) = self.cache.get(&(num, steps)) {
-            return v.clone();
+
+    /// Calculates the number of chunks that result from transforming a number
+    /// over a specified number of steps, using memoization for efficiency
+    ///
+    /// # Arguments
+    /// * `num` - Starting number
+    /// * `steps` - Number of remaining transformation steps
+    ///
+    /// # Returns
+    /// Total number of chunks after all transformations
+    fn chunks_after(&mut self, num: i64, steps: i64) -> usize {
+        if steps == 0 {
+            return 1;
         }
-        let mut steps = steps;
-        let mut rocks = vec![num];
-        while steps > 0 {
-            rocks = rocks
-                .iter()
-                .map(|&num| {
-                    let one_step = self.cache.get(&(num, 1)).cloned().unwrap_or_else(|| {
-                        let result = one_step(num);
-                        self.cache.insert((num, 1), result.clone());
-                        result
-                    });
-                    one_step
-                })
-                .flatten()
-                .collect::<Vec<_>>();
-            steps -= 1;
+        if let Some(&n) = self.cache.get(&(num, steps)) {
+            return n;
         }
-        todo!()
+        let rocks = one_step(num);
+        let result = rocks
+            .iter()
+            .map(|&num| self.chunks_after(num, steps - 1))
+            .sum::<usize>();
+        self.cache.insert((num, steps), result);
+        result
     }
 }
 
-fn part2x(input: &Input) -> usize {
-    let rocks = &input.nums;
-    let mut cache = Cache::new();
-    rocks.iter().map(|&num| cache.do_it(num, 25).len()).sum()
+/// Solves part 1 by running transformations for 25 steps
+fn part1(input: &Input) -> usize {
+    input.run(25)
 }
 
+/// Solves part 2 by running transformations for 75 steps
 fn part2(input: &Input) -> usize {
-    fn p2(rocks: &[i64], steps: i64) -> usize {
-        if steps == 1 { 
-            rocks.iter().map(|&num| one_step(num).len()).sum()
-         } else {
-            rocks.par_iter().map(|&num| {
-                p2(&one_step(num), steps - 1)
-            }).sum()
-         }
-    }
-    let rocks = input.nums.clone();
-    p2(&rocks, 75)
+    input.run(75)
 }
 
+/// Main function that reads input and solves both parts
+///
+/// # Errors
+///
+/// Returns an error if:
+/// * Failed to read from stdin
+/// * Failed to parse the input
 fn main() -> Result<()> {
     let stdin = io::stdin();
 
