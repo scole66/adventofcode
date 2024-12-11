@@ -2,14 +2,21 @@
 //!
 //! Ref: [Advent of Code 2024 Day 10](https://adventofcode.com/2024/day/10)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+//! This module implements a solution for finding paths through a height map grid where:
+//! - Each cell contains a height from 0-9
+//! - Valid paths must increase in height by exactly 1 at each step
+//! - Part 1 counts reachable paths from height 0 to height 9
+//! - Part 2 counts all possible valid paths from height 0 to height 9
+
+use ahash::AHashMap;
+use anyhow::{anyhow, Error, Result};
 use astar::{search_astar, AStarNode};
 use std::io::{self, Read};
 use std::str::FromStr;
 
+/// Represents the parsed input grid as a map of coordinates to heights
 struct Input {
+    /// Map of (row, col) coordinates to height values (0-9)
     topo: AHashMap<(i64, i64), i64>,
 }
 impl FromStr for Input {
@@ -43,39 +50,20 @@ impl FromStr for Input {
     }
 }
 
-struct World {
-    topo: AHashMap<(i64, i64), i64>,
-    width: i64,
-    height: i64,
-}
-
-impl From<Input> for World {
-    fn from(value: Input) -> Self {
-        let Input { topo } = value;
-        let (width, height) = {
-            let mut max_row = -1;
-            let mut max_col = -1;
-            for (row, col) in topo.keys() {
-                max_row = max_row.max(*row);
-                max_col = max_col.max(*col);
-            }
-            (max_col + 1, max_row + 1)
-        };
-        Self { topo, width, height }
-    }
-}
-
+/// Represents a position in the grid for pathfinding
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 struct Node {
+    /// Row coordinate
     row: i64,
+    /// Column coordinate
     col: i64,
 }
 
 impl AStarNode for Node {
     type Cost = i64;
-    type AssociatedState = World;
+    type AssociatedState = Input;
 
-    fn heuristic(&self, goal: &Self, state: &Self::AssociatedState) -> Self::Cost {
+    fn heuristic(&self, goal: &Self, _: &Self::AssociatedState) -> Self::Cost {
         (goal.row - self.row).abs() + (goal.col - self.col).abs()
     }
 
@@ -88,12 +76,13 @@ impl AStarNode for Node {
             .map(|(row, col)| (Node { row, col }, 1))
     }
 
-    fn goal_match(&self, goal: &Self, state: &Self::AssociatedState) -> bool {
+    fn goal_match(&self, goal: &Self, _: &Self::AssociatedState) -> bool {
         self.row == goal.row && self.col == goal.col
     }
 }
 
-impl World {
+impl Input {
+    /// Returns an iterator over all positions with the specified height
     fn all_of_height(&self, height: i64) -> impl Iterator<Item = Node> + '_ {
         self.topo.iter().filter_map(move |(pos, h)| {
             if *h == height {
@@ -104,28 +93,75 @@ impl World {
         })
     }
 
+    /// Returns an iterator over all positions with height 0
     fn zeros(&self) -> impl Iterator<Item = Node> + '_ {
         self.all_of_height(0)
     }
 
+    /// Returns an iterator over all positions with height 9
     fn nines(&self) -> impl Iterator<Item = Node> + '_ {
         self.all_of_height(9)
     }
 
+    /// Checks if there exists a valid path from start to goal
+    /// where each step increases height by exactly 1
     fn reachable_from(&self, start: &Node, goal: &Node) -> bool {
         search_astar(*start, *goal, self).is_some()
     }
 
-    fn all_paths_from(&self, start: &Node, goal: &Node) -> Vec<Vec<Node>> {
-        // This is wrong; this is only the shortest path:
-        match search_astar(*start, *goal, self) {
-            None => vec![],
-            Some(path) => vec![path]
+    /// Returns an iterator over all valid next positions that are exactly 1 height greater
+    fn one_up_from(&self, start: Node) -> impl Iterator<Item = Node> + '_ {
+        let current_height = self.topo.get(&(start.row, start.col));
+        [(-1, 0), (0, -1), (1, 0), (0, 1)]
+            .into_iter()
+            .filter_map(move |(delta_row, delta_col)| {
+                let coords = (start.row + delta_row, start.col + delta_col);
+                if self
+                    .topo
+                    .get(&coords)
+                    .is_some_and(|h| *h == current_height.copied().unwrap_or(-20) + 1)
+                {
+                    Some(Node {
+                        row: coords.0,
+                        col: coords.1,
+                    })
+                } else {
+                    None
+                }
+            })
+    }
+
+    /// Returns all valid paths from the start node to height 9,
+    /// where each step increases height by exactly 1
+    fn all_paths_from(&self, start: &Node) -> Vec<Vec<Node>> {
+        let current_height = self.topo.get(&(start.row, start.col));
+        if let Some(current_height) = current_height {
+            let current_height = *current_height;
+            if current_height == 9 {
+                return vec![vec![*start]];
+            }
+            let mut paths_from_here: Vec<Vec<Node>> = Vec::new();
+            let good_path_len = 9 - current_height;
+            for neighbor in self.one_up_from(*start) {
+                for next_path in self
+                    .all_paths_from(&neighbor)
+                    .into_iter()
+                    .filter(|path| i64::try_from(path.len()).unwrap() == good_path_len)
+                {
+                    let mut new_path = vec![*start];
+                    new_path.extend(next_path);
+                    paths_from_here.push(new_path);
+                }
+            }
+            paths_from_here
+        } else {
+            vec![]
         }
     }
 }
 
-fn part1(input: &World) -> usize {
+/// Solves part 1: Count how many height-9 positions are reachable from each height-0 position
+fn part1(input: &Input) -> usize {
     // For each zero, count the number of reachable 9's.
     input
         .zeros()
@@ -133,25 +169,29 @@ fn part1(input: &World) -> usize {
         .sum()
 }
 
-fn part2(input: &World) -> usize {
+/// Solves part 2: Count the total number of valid paths from height-0 to height-9 positions
+fn part2(input: &Input) -> usize {
     // For each 0/9 pair: sum the number of paths between them
-    input
-        .zeros()
-        .flat_map(|zero| input.nines().map(move |nine| input.all_paths_from(&zero, &nine).len()))
-        .sum()
+    input.zeros().map(|zero| input.all_paths_from(&zero).len()).sum()
 }
 
+/// Main function that reads input and solves both parts
+///
+/// # Errors
+///
+/// Returns an error if:
+/// * Failed to read from stdin
+/// * Failed to parse the input
 fn main() -> Result<()> {
     let stdin = io::stdin();
 
     let mut input = String::new();
     stdin.lock().read_to_string(&mut input)?;
     let input = input.parse::<Input>()?;
-    let world = World::from(input);
 
     let start_time = std::time::Instant::now();
-    let part1 = part1(&world);
-    let part2 = part2(&world);
+    let part1 = part1(&input);
+    let part2 = part2(&input);
     let elapsed = start_time.elapsed();
 
     println!("Part1: {part1}");
@@ -178,11 +218,11 @@ mod tests {
 
     #[test]
     fn part1_sample() {
-        assert_eq!(part1(&World::from(SAMPLE.parse::<Input>().unwrap())), 36);
+        assert_eq!(part1(&SAMPLE.parse::<Input>().unwrap()), 36);
     }
 
     #[test]
     fn part2_sample() {
-        assert_eq!(part2(&World::from(SAMPLE.parse::<Input>().unwrap())), 81);
+        assert_eq!(part2(&SAMPLE.parse::<Input>().unwrap()), 81);
     }
 }
