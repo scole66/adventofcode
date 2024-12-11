@@ -25,10 +25,7 @@ impl FromStr for Input {
 
     /// Parses space-separated numbers from a string into the Input struct
     fn from_str(s: &str) -> Result<Self> {
-        let nums = s
-            .split_whitespace()
-            .map(str::parse)
-            .collect::<Result<Vec<i64>, _>>()?;
+        let nums = s.split_whitespace().map(str::parse).collect::<Result<Vec<i64>, _>>()?;
         Ok(Input { nums })
     }
 }
