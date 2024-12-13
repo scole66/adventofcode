@@ -2,9 +2,8 @@
 //!
 //! Ref: [Advent of Code 2024 Day 12](https://adventofcode.com/2024/day/12)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
 use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{Error, Result};
 use std::io::{self, Read};
 use std::str::FromStr;
 
@@ -36,22 +35,108 @@ impl std::fmt::Display for Input {
         let mut col = 0;
         loop {
             let crop = self.grid.get(&(row, col));
-            match crop {
-                Some(crop) => {
-                    write!(f, "{crop}")?;
-                    col += 1;
+            if let Some(crop) = crop {
+                write!(f, "{crop}")?;
+                col += 1;
+            } else {
+                if col == 0 {
+                    break;
                 }
-                None => {
-                    if col == 0 {
-                        break;
-                    }
-                    write!(f, "\n")?;
-                    col = 0;
-                    row += 1;
-                }
+                writeln!(f)?;
+                col = 0;
+                row += 1;
             }
         }
         Ok(())
+    }
+}
+
+// Corner Patterns:
+// if A == 1 and X == 0, then each of these is a 4-bit number.
+// No Corners:
+// AA  AA  XX  XX  AX  XA
+// AA  XX  AA  XX  AX  XA
+// 0xF 0xC 0x3 0x0 0xA 0x5
+//
+// One Corner:
+// AX  XA  XX  XX  AA  AA  AX  XA
+// XX  XX  AX  XA  AX  XA  AA  AA
+// 0x8 0x4 0x2 0x1 0xE 0xD 0xB 0x7
+//
+// Two corners:
+// AX  XA
+// XA  AX
+// 0x9 0x6
+
+const CORNERS: [u8; 16] = [0, 1, 1, 0, 1, 0, 2, 1, 1, 2, 0, 1, 0, 1, 1, 0];
+
+struct Region {
+    crops: AHashSet<(i64, i64)>,
+    min_col: i64,
+    max_col: i64,
+    min_row: i64,
+    max_row: i64,
+}
+
+impl Region {
+    fn area(&self) -> usize {
+        self.crops.len()
+    }
+
+    fn perimeter(&self) -> usize {
+        self.crops
+            .iter()
+            .map(|(row, col)| {
+                [(-1, 0), (1, 0), (0, -1), (0, 1)]
+                    .iter()
+                    .filter(|(drow, dcol)| {
+                        let probe_row = *row + *drow;
+                        let probe_col = *col + *dcol;
+                        !self.crops.contains(&(probe_row, probe_col))
+                    })
+                    .count()
+            })
+            .sum()
+    }
+
+    fn full_price(&self) -> usize {
+        self.area() * self.perimeter()
+    }
+
+    fn corner_code(&self, topleft: (i64, i64)) -> usize {
+        let top_left_present = self.crops.contains(&(topleft));
+        let (row, col) = topleft;
+        let top_right_present = self.crops.contains(&(row, col + 1));
+        let bottom_left_present = self.crops.contains(&(row + 1, col));
+        let bottom_right_present = self.crops.contains(&(row + 1, col + 1));
+
+        usize::from(top_left_present) << 3
+            | usize::from(top_right_present) << 2
+            | usize::from(bottom_left_present) << 1
+            | usize::from(bottom_right_present)
+    }
+
+    fn corner_count(&self) -> usize {
+        let mut count = 0;
+        for row in self.min_row - 1..=self.max_row {
+            for col in self.min_col - 1..=self.max_col {
+                count += usize::from(CORNERS[self.corner_code((row, col))]);
+            }
+        }
+        count
+    }
+
+    fn discounted_price(&self) -> usize {
+        self.area() * self.corner_count()
+    }
+}
+
+fn pop_from_set(set: &mut AHashSet<(i64, i64)>) -> Option<(i64, i64)> {
+    if let Some(item) = set.iter().next() {
+        let item = *item;
+        set.take(&item)
+    } else {
+        None
     }
 }
 
@@ -60,38 +145,79 @@ impl Input {
         self.grid.values().copied().collect::<AHashSet<_>>().into_iter()
     }
 
-    fn area(&self, crop: char) -> usize {
-        self.grid.values().filter(|&in_grid| *in_grid == crop).count()
-    }
-
-    fn perimeter(&self, crop: char) -> usize {
-        self.grid
+    fn all_regions_for_crop(&self, crop: char) -> Vec<Region> {
+        let crops = self
+            .grid
             .iter()
-            .filter(|item| (*item).1 == &crop)
-            .map(|((row, col), crop)| {
-                [(-1, 0), (1, 0), (0, -1), (0, 1)]
-                    .iter()
-                    .filter(|(drow, dcol)| {
-                        let probe_row = *row + *drow;
-                        let probe_col = *col + *dcol;
-                        self.grid.get(&(probe_row, probe_col)) != Some(&crop)
-                    })
-                    .count()
-            })
-            .sum()
+            .filter_map(
+                |((row, col), in_grid)| {
+                    if crop == *in_grid {
+                        Some((*row, *col))
+                    } else {
+                        None
+                    }
+                },
+            )
+            .collect::<AHashSet<(i64, i64)>>();
+        let mut crops_to_place = crops.clone();
+        let mut regions = Vec::new();
+        while !crops_to_place.is_empty() {
+            let mut region = AHashSet::new();
+            let mut min_row = i64::MAX;
+            let mut min_col = i64::MAX;
+            let mut max_row = i64::MIN;
+            let mut max_col = i64::MIN;
+            let mut spots_to_check =
+                AHashSet::from([pop_from_set(&mut crops_to_place).expect("list should not be empty")]);
+            let mut already_checked = AHashSet::new();
+            while !spots_to_check.is_empty() {
+                let spot = pop_from_set(&mut spots_to_check).expect("list should not be empty");
+                already_checked.insert(spot);
+                if crops.contains(&spot) {
+                    max_row = max_row.max(spot.0);
+                    min_row = min_row.min(spot.0);
+                    max_col = max_col.max(spot.1);
+                    min_col = min_col.min(spot.1);
+                    region.insert(spot);
+                    spots_to_check.extend(
+                        [(1, 0), (-1, 0), (0, 1), (0, -1)]
+                            .iter()
+                            .map(|(drow, dcol)| (*drow + spot.0, *dcol + spot.1))
+                            .filter(|spot| !already_checked.contains(spot)),
+                    );
+                    crops_to_place.remove(&spot);
+                }
+            }
+
+            regions.push(Region {
+                crops: region,
+                min_col,
+                max_col,
+                min_row,
+                max_row,
+            });
+        }
+        regions
     }
 
-    fn price(&self, crop: char) -> usize {
-        self.area(crop) * self.perimeter(crop)
+    fn full_price(&self, crop: char) -> usize {
+        self.all_regions_for_crop(crop).iter().map(Region::full_price).sum()
+    }
+
+    fn discounted_price(&self, crop: char) -> usize {
+        self.all_regions_for_crop(crop)
+            .iter()
+            .map(Region::discounted_price)
+            .sum()
     }
 }
 
 fn part1(input: &Input) -> usize {
-    input.all_crops().map(|crop| input.price(crop)).sum()
+    input.all_crops().map(|crop| input.full_price(crop)).sum()
 }
 
 fn part2(input: &Input) -> usize {
-    todo!()
+    input.all_crops().map(|crop| input.discounted_price(crop)).sum()
 }
 
 fn main() -> Result<()> {
@@ -103,7 +229,7 @@ fn main() -> Result<()> {
 
     let start_time = std::time::Instant::now();
     let part1 = part1(&input);
-    let part2 = 0; //part2(&input);
+    let part2 = part2(&input);
     let elapsed = start_time.elapsed();
 
     println!("Part1: {part1}");
@@ -159,14 +285,14 @@ mod tests {
     #[test_case(SAMPLE2, 'O' => 36; "inclusion - O")]
     fn perimeter(input: &str, crop: char) -> usize {
         let grid = input.parse::<Input>().unwrap();
-        grid.perimeter(crop)
+        grid.all_regions_for_crop(crop).iter().map(Region::perimeter).sum()
     }
 
     #[test_case(SAMPLE2, 'X' => 4; "inclusion sample - X")]
     #[test_case(SAMPLE2, 'O' => 21; "inclusion sample - O")]
     fn area(input: &str, crop: char) -> usize {
         let grid = input.parse::<Input>().unwrap();
-        grid.area(crop)
+        grid.all_regions_for_crop(crop).iter().map(Region::area).sum()
     }
 
     #[test_case(SAMPLE2 => AHashSet::from(['O', 'X']); "inclusion")]
@@ -184,9 +310,30 @@ mod tests {
         part1(&inp.parse::<Input>().unwrap())
     }
 
-    #[test]
-    #[should_panic]
-    fn part2_sample() {
-        assert_eq!(part2(&SAMPLE1.parse::<Input>().unwrap()), 36);
+    static SAMPLE4: &str = indoc::indoc! {"
+        EEEEE
+        EXXXX
+        EEEEE
+        EXXXX
+        EEEEE
+    "};
+
+    static SAMPLE5: &str = indoc::indoc! {"
+        AAAAAA
+        AAABBA
+        AAABBA
+        ABBAAA
+        ABBAAA
+        AAAAAA
+    "};
+
+    #[test_case("A" => 4; "one char")]
+    #[test_case(SAMPLE1 => 80; "small sample")]
+    #[test_case(SAMPLE2 => 436; "inclusion sample")]
+    #[test_case(SAMPLE3 => 1206; "bigger sample")]
+    #[test_case(SAMPLE4 => 236; "e-shaped sample")]
+    #[test_case(SAMPLE5 => 368; "kitty corner sample")]
+    fn part2_sample(inp: &str) -> usize {
+        part2(&inp.parse::<Input>().unwrap())
     }
 }
