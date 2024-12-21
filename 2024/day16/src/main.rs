@@ -2,10 +2,11 @@
 //!
 //! Ref: [Advent of Code 2024 Day 16](https://adventofcode.com/2024/day/16)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
 use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{anyhow, bail, Error, Result};
 use astar::{search_astar, AStarNode};
+use std::cmp::{Ordering, Reverse};
+use std::collections::BinaryHeap;
 use std::io::{self, Read};
 use std::str::FromStr;
 
@@ -48,7 +49,7 @@ impl FromStr for Input {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Debug, Hash, Eq)]
+#[derive(Copy, Clone, PartialEq, Debug, Hash, Eq, PartialOrd, Ord)]
 enum Facing {
     North,
     South,
@@ -85,7 +86,7 @@ impl Facing {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Hash, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Hash, Eq, PartialOrd, Ord)]
 struct Node {
     row: i64,
     col: i64,
@@ -109,7 +110,7 @@ impl AStarNode for Node {
     type Cost = i64;
     type AssociatedState = Input;
 
-    fn heuristic(&self, goal: &Self, state: &Self::AssociatedState) -> Self::Cost {
+    fn heuristic(&self, goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
         (goal.row - self.row).abs() + (goal.col - self.col).abs()
     }
 
@@ -130,9 +131,13 @@ impl AStarNode for Node {
                     cost,
                 )
             })
+            .filter(|(_, cost)| {
+                // Filter out the "turn back on yourself" moves
+                *cost < 1500
+            })
     }
 
-    fn goal_match(&self, goal: &Self, state: &Self::AssociatedState) -> bool {
+    fn goal_match(&self, goal: &Self, _state: &Self::AssociatedState) -> bool {
         self.row == goal.row && self.col == goal.col
     }
 }
@@ -163,45 +168,130 @@ fn part1(input: &Input) -> i64 {
     path_cost(&path)
 }
 
-fn part2(input: &Input) -> usize {
-    let start = Node {
-        row: input.start.0,
-        col: input.start.1,
-        facing: Facing::East,
-    };
-    let goal = Node {
-        row: input.end.0,
-        col: input.end.1,
-        facing: Facing::East,
-    };
-    let first_path = search_astar(start, goal, input).unwrap();
-    let target_cost = path_cost(&first_path);
-    let mut good_seats = first_path.iter().map(|n| (n.row, n.col)).collect::<AHashSet<_>>();
-    let mut to_check = good_seats.clone();
-    let mut already_checked = AHashSet::from([input.start, input.end]);
-    to_check.remove(&input.start);
-    to_check.remove(&input.end);
-    // Ok: For each seat in to_check, other than the start or finish: Turn it into a wall. See if another path
-    // exists with the same cost. If so, add that other path to good_seats and add any spots not in
-    // already_checked to to_check.
-    while let Some(location) = to_check.iter().next().copied() {
-        already_checked.insert(location);
-        to_check.remove(&location);
-        let mut new_input = input.clone();
-        new_input.map.insert(location);
-        if let Some(new_path) = search_astar(start, goal, &new_input) {
-            let cost = path_cost(&new_path);
-            if cost == target_cost {
-                for Node { row, col, facing: _ } in new_path {
-                    if !already_checked.contains(&(row, col)) {
-                        good_seats.insert((row, col));
-                        to_check.insert((row, col));
+struct DijkstraResult {
+    distances: AHashMap<Node, i64>,
+    parents: AHashMap<Node, Vec<Node>>, // Stores closest parent for each node
+}
+
+impl DijkstraResult {
+    fn dijkstra(world: &Input) -> DijkstraResult {
+        let mut distances = AHashMap::<_, _>::new();
+        let mut heap = BinaryHeap::new();
+        let mut parents = AHashMap::<_, _>::new();
+        // The distance to the start node is zero. Any node not in the distances map has infinite distance.
+        let start = Node {
+            row: world.start.0,
+            col: world.start.1,
+            facing: Facing::East,
+        };
+        distances.insert(start, 0);
+        heap.push(Reverse((0, start)));
+
+        while let Some(Reverse((distance, node))) = heap.pop() {
+            let previously_known_distance = *distances.get(&node).unwrap_or(&i64::MAX);
+            if distance > previously_known_distance {
+                continue;
+            }
+
+            for (neighbor, cost) in node.neighbors(world) {
+                let new_target_distance = distance + cost;
+                let previous_target_distance = *distances.get(&neighbor).unwrap_or(&i64::MAX);
+                match new_target_distance.cmp(&previous_target_distance) {
+                    Ordering::Less => {
+                        distances.insert(neighbor, new_target_distance);
+                        parents.insert(neighbor, vec![node]);
+                        heap.push(Reverse((new_target_distance, neighbor)));
                     }
+                    Ordering::Equal => {
+                        parents
+                            .get_mut(&neighbor)
+                            .expect("parent vec should be there")
+                            .push(node);
+                    }
+                    Ordering::Greater => {}
                 }
             }
         }
+
+        DijkstraResult { distances, parents }
     }
-    good_seats.len()
+
+    fn reconstruct_paths(&self, source: Node, target: Node) -> Vec<Vec<Node>> {
+        let mut paths = Vec::new();
+        let mut current_path = Vec::new();
+        self.dfs_reconstruct(source, target, &mut current_path, &mut paths);
+        paths
+    }
+
+    fn dfs_reconstruct(&self, source: Node, current: Node, current_path: &mut Vec<Node>, paths: &mut Vec<Vec<Node>>) {
+        current_path.push(current);
+
+        if current == source {
+            let mut path = current_path.clone();
+            path.reverse();
+            paths.push(path);
+        } else if let Some(parents) = self.parents.get(&current) {
+            for &parent in parents {
+                self.dfs_reconstruct(source, parent, current_path, paths);
+            }
+        }
+
+        current_path.pop();
+    }
+}
+
+fn part2(world: &Input) -> Result<usize> {
+    let dj_res = DijkstraResult::dijkstra(world);
+
+    // We'll have up to four "goals" in that result (one for each facing), so pick the ones with the smallest distance.
+    let best_distance = [Facing::West, Facing::East, Facing::North, Facing::South]
+        .iter()
+        .filter_map(|f| {
+            let goal = Node {
+                row: world.end.0,
+                col: world.end.1,
+                facing: *f,
+            };
+            dj_res.distances.get(&goal).copied()
+        })
+        .min()
+        .ok_or_else(|| anyhow!("No paths to target"))?;
+
+    let targets = [Facing::West, Facing::East, Facing::North, Facing::South]
+        .iter()
+        .filter_map(|f| {
+            let goal = Node {
+                row: world.end.0,
+                col: world.end.1,
+                facing: *f,
+            };
+            if let Some(distance) = dj_res.distances.get(&goal).copied() {
+                if distance == best_distance {
+                    return Some(goal);
+                }
+            }
+            None
+        })
+        .collect::<Vec<_>>();
+
+    let source = Node {
+        row: world.start.0,
+        col: world.start.1,
+        facing: Facing::East,
+    };
+    let paths = targets
+        .iter()
+        .flat_map(|tgt| dj_res.reconstruct_paths(source, *tgt))
+        .collect::<Vec<_>>();
+
+    let mut good_seats = AHashSet::new();
+    for path in paths {
+        for seat in path {
+            good_seats.insert((seat.row, seat.col));
+        }
+    }
+
+    Ok(good_seats.len())
 }
 
 fn main() -> Result<()> {
@@ -213,7 +303,7 @@ fn main() -> Result<()> {
 
     let start_time = std::time::Instant::now();
     let part1 = part1(&input);
-    let part2 = part2(&input);
+    let part2 = part2(&input)?;
     let elapsed = start_time.elapsed();
 
     println!("Part1: {part1}");
@@ -274,7 +364,23 @@ mod tests {
 
     #[test_case(SAMPLE => 45; "first sample")]
     #[test_case(SAMPLE2 => 64; "second sample")]
+    #[test_case(indoc::indoc!("
+        ####
+        #SE#
+        ####
+    ") => 2; "one move - two good seats")]
+    #[test_case(indoc::indoc!("
+        ###
+        #E#
+        #S#
+        ###
+    ") => 2; "one move with turn - two good seats")]
+    #[test_case(indoc::indoc!("
+        #####
+        #S.E#
+        #####
+    ") => 3; "two moves - three good seats")]
     fn part2_sample(inp: &str) -> usize {
-        part2(&inp.parse::<Input>().unwrap())
+        part2(&inp.parse::<Input>().unwrap()).unwrap()
     }
 }
