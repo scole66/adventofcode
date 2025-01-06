@@ -2,24 +2,23 @@
 //!
 //! Ref: [Advent of Code 2024 Day 17](https://adventofcode.com/2024/day/17)
 //!
-use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{anyhow, bail, Error, Result};
 use itertools::Itertools;
 use rayon::prelude::*;
 use std::io::{self, Read};
 use std::str::FromStr;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-enum Instruction {
-    ADivide,     // adv
-    BXorLiteral, // bxl
-    BStore,      // bst
-    JumpNotZero, // jnz
-    BXorC,       // bxc
-    Output,      // out
-    BDivide,     // bdv
-    CDivide,     // cdv
-}
+//#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+//enum Instruction {
+//    ADivide,     // adv
+//    BXorLiteral, // bxl
+//    BStore,      // bst
+//    JumpNotZero, // jnz
+//    BXorC,       // bxc
+//    Output,      // out
+//    BDivide,     // bdv
+//    CDivide,     // cdv
+//}
 
 #[derive(Debug, Clone)]
 struct Input {
@@ -316,11 +315,11 @@ mod tests {
         Program: 0,3,5,4,3,0
     "};
 
-    #[test_case(SAMPLE2 => Ok(("".to_string(), 0, 1, 9)); "first insn example")]
+    #[test_case(SAMPLE2 => Ok((String::new(), 0, 1, 9)); "first insn example")]
     #[test_case(SAMPLE3 => Ok(("0,1,2".to_string(), 10, 0, 0)); "second insn example")]
     #[test_case(SAMPLE4 => Ok(("4,2,5,6,7,7,7,7,3,1,0".to_string(), 0, 0, 0)); "another example")]
-    #[test_case(SAMPLE5 => Ok(("".to_string(), 0, 26, 0)); "bxl example")]
-    #[test_case(SAMPLE6 => Ok(("".to_string(), 0, 44354, 43690)); "bxc example")]
+    #[test_case(SAMPLE5 => Ok((String::new(), 0, 26, 0)); "bxl example")]
+    #[test_case(SAMPLE6 => Ok((String::new(), 0, 44354, 43690)); "bxc example")]
     fn run(code: &str) -> Result<(String, i64, i64, i64), String> {
         let input = code.parse::<Input>().map_err(|e| e.to_string())?;
         let mut machine = Machine::from(input);
@@ -335,6 +334,6 @@ mod tests {
 
     #[test]
     fn part2_sample() {
-        assert_eq!(part2(&PART2_SAMPLE.parse::<Input>().unwrap()).unwrap(), 117440);
+        assert_eq!(part2(&PART2_SAMPLE.parse::<Input>().unwrap()).unwrap(), 117_440);
     }
 }
