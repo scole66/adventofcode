@@ -1,0 +1,12 @@
+[package]
+name = "day13"
+version = "0.1.0"
+edition = "2021"
+
+[lints.clippy]
+pedantic = "deny"
+
+[dependencies]
+anyhow = "1.0.94"
+indoc = "2.0.5"
+test-case = "3.3.1"

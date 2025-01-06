@@ -238,8 +238,6 @@ impl Iterator for NeighborIter {
 impl AStarNode for TraversalState {
     type Cost = i64;
 
-    type NeighborIter = NeighborIter;
-
     type AssociatedState = TraversalSharedInfo;
 
     fn heuristic(&self, goal: &Self, _: &Self::AssociatedState) -> Self::Cost {
@@ -250,7 +248,7 @@ impl AStarNode for TraversalState {
         dx + dy
     }
 
-    fn neighbors(&self, state: &Self::AssociatedState) -> Self::NeighborIter {
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)> {
         // Remember that a "neighbor" is "a new state we could transition to". So, "don't move" is also a
         // valid neighbor. This is the routine where we actually need to check the blizzard conditions.
         let next_cycle = (self.cycle + 1) % state.cycle_modulo;

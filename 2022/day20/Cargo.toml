@@ -7,5 +7,5 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.68"
-indoc = "1.0.8"
-test-case = "2.2.2"
+indoc = "2.0"
+test-case = "3.3"
