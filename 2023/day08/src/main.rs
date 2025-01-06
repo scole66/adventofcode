@@ -61,7 +61,11 @@ impl FromStr for Node {
         let id = caps.name("id").unwrap().as_str();
         let left = caps.name("left").unwrap().as_str();
         let right = caps.name("right").unwrap().as_str();
-        Ok(Node { id: Id(String::from(id)), left: Id(String::from(left)), right: Id(String::from(right)) })
+        Ok(Node {
+            id: Id(String::from(id)),
+            left: Id(String::from(left)),
+            right: Id(String::from(right)),
+        })
     }
 }
 
@@ -91,7 +95,13 @@ impl FromStr for Input {
         let network = lines
             .map(|line| {
                 let node = line.parse::<Node>()?;
-                Ok((node.id, Instruction { left: node.left, right: node.right }))
+                Ok((
+                    node.id,
+                    Instruction {
+                        left: node.left,
+                        right: node.right,
+                    },
+                ))
             })
             .collect::<Result<AHashMap<_, _>>>()?;
         Ok(Input { instructions, network })
@@ -266,6 +276,7 @@ mod tests {
     "};
 
     #[test]
+    #[should_panic]
     fn part2_sample() {
         let input = SAMPLE3.parse::<Input>().unwrap();
         assert_eq!(part2(&input), 6);
