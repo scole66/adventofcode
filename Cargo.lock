@@ -968,6 +968,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxiii_day8"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc 2.0.5",
+ "once_cell",
+ "regex",
+ "test-case",
+]
+
+[[package]]
 name = "mmxxiii_day9"
 version = "0.1.0"
 dependencies = [
