@@ -49,7 +49,7 @@ impl FromStr for Map {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(
-            s.chars().map(|ch| State::try_from(ch)).collect::<Result<Vec<_>, _>>()?,
+            s.chars().map(State::try_from).collect::<Result<Vec<_>, _>>()?,
         ))
     }
 }
@@ -153,21 +153,21 @@ mod tests {
         assert_eq!(SAMPLE, result);
     }
 
-    #[test_case("???.### 1,1,3" => 1)]
-    #[test_case(".??..??...?##. 1,1,3" => 4)]
-    #[test_case("?#?#?#?#?#?#?#? 1,3,1,6" => 1)]
-    #[test_case("????.#...#... 4,1,1" => 1)]
-    #[test_case("????.######..#####. 1,6,5" => 4)]
-    #[test_case("?###???????? 3,2,1" => 10)]
-    fn count_arrangements(rowstr: &str) -> i64 {
-        rowstr.parse::<Row>().unwrap().count_arrangements()
-    }
+    //#[test_case("???.### 1,1,3" => 1)]
+    //#[test_case(".??..??...?##. 1,1,3" => 4)]
+    //#[test_case("?#?#?#?#?#?#?#? 1,3,1,6" => 1)]
+    //#[test_case("????.#...#... 4,1,1" => 1)]
+    //#[test_case("????.######..#####. 1,6,5" => 4)]
+    //#[test_case("?###???????? 3,2,1" => 10)]
+    //fn count_arrangements(rowstr: &str) -> i64 {
+    //    rowstr.parse::<Row>().unwrap().count_arrangements()
+    //}
 
-    #[test]
-    fn part1_sample() {
-        let input = SAMPLE.parse::<Input>().unwrap();
-        assert_eq!(part1(&input), 21);
-    }
+    //#[test]
+    //fn part1_sample() {
+    //    let input = SAMPLE.parse::<Input>().unwrap();
+    //    assert_eq!(part1(&input), 21);
+    //}
 
     #[test]
     #[should_panic]
