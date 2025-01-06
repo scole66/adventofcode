@@ -5,9 +5,9 @@
 use ahash::{AHashMap, AHashSet};
 use anyhow::{anyhow, bail, Context, Error, Result};
 use itertools::Itertools;
+use rayon::prelude::*;
 use std::io::{self, Read};
 use std::str::FromStr;
-use rayon::prelude::*;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 enum Instruction {
@@ -227,7 +227,8 @@ fn part2(input: &Input) -> Result<i64> {
                     return Some(initial_reg_a + delta);
                 }
                 None
-            }).collect::<Vec<_>>();
+            })
+            .collect::<Vec<_>>();
         if let Some(result) = attempts.first() {
             return Ok(*result);
         }
