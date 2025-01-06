@@ -968,14 +968,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mmxxiii_day9"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "indoc 2.0.5",
-]
-
-[[package]]
 name = "mmxxiii_day8"
 version = "0.1.0"
 dependencies = [
@@ -984,7 +976,15 @@ dependencies = [
  "indoc 2.0.5",
  "once_cell",
  "regex",
- "test-case 3.3.1",
+ "test-case",
+]
+
+[[package]]
+name = "mmxxiii_day9"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "indoc 2.0.5",
 ]
 
 [[package]]
