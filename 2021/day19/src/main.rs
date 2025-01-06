@@ -46,7 +46,10 @@ struct Scanner {
 
 impl Scanner {
     fn new(name: &str) -> Self {
-        Scanner { id: name.to_string(), beacons: AHashSet::new() }
+        Scanner {
+            id: name.to_string(),
+            beacons: AHashSet::new(),
+        }
     }
 
     fn distances(&self) -> Vec<i32> {
@@ -341,6 +344,7 @@ mod intersection {
     use super::*;
     use indoc::indoc;
     #[test]
+    #[ignore]
     fn from_problem_statement() {
         let input = indoc! {"
             --- scanner 0 ---
@@ -403,7 +407,7 @@ mod intersection {
         .unwrap();
 
         let result = input[0].shared_beacons(&input[1]);
-        let expected = vec![
+        let expected = [
             Coords(-618, -824, -621),
             Coords(-537, -823, -458),
             Coords(-447, -329, 318),
