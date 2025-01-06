@@ -171,7 +171,6 @@ fn main() -> io::Result<()> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use test_case::test_case;
 
     #[test_case("ugknbfddgicrmopn" => true)]

@@ -22,13 +22,11 @@ impl Position {
             .ok_or_else(|| anyhow::anyhow!("‘{}’ is not a valid position description", s))?;
         let col_str = captures.name("col").unwrap().as_str();
         let column = col_str.parse::<i32>().context(format!(
-            "{} is not a valid 32-bit integer (in position description)",
-            col_str
+            "{col_str} is not a valid 32-bit integer (in position description)",
         ))?;
         let row_str = captures.name("row").unwrap().as_str();
         let row = row_str.parse::<i32>().context(format!(
-            "{} is not a valid 32-bit integer (in position description)",
-            row_str
+            "{row_str} is not a valid 32-bit integer (in position description)",
         ))?;
         Ok(Position((column, row)))
     }
@@ -140,10 +138,9 @@ impl Instruction {
             .ok_or_else(|| anyhow::anyhow!("‘{}’ is not a valid instruction", s))?;
         let xy = captures.name("xy").unwrap().as_str().chars().next().unwrap();
         let val_str = captures.name("val").unwrap().as_str();
-        let val = val_str.parse::<i32>().context(format!(
-            "{} is not a valid 32-bit integer (in fold instruction)",
-            val_str
-        ))?;
+        let val = val_str
+            .parse::<i32>()
+            .context(format!("{val_str} is not a valid 32-bit integer (in fold instruction)"))?;
         Ok(match xy {
             'x' => Instruction::Vertical(val),
             _ => Instruction::Horizontal(val),
@@ -198,7 +195,10 @@ impl FromIterator<ResultStringWrap> for anyhow::Result<Data> {
             anyhow::bail!("At least two folding directions are required.")
         }
 
-        Ok(Data { initial_grid: Grid(grid), instructions })
+        Ok(Data {
+            initial_grid: Grid(grid),
+            instructions,
+        })
     }
 }
 
@@ -215,7 +215,6 @@ fn main() -> Result<(), anyhow::Error> {
         .lock()
         .lines()
         .map(ResultStringWrap::from)
-        .into_iter()
         .collect::<anyhow::Result<Data>>()
         .context("Failed to parse puzzle input from stdin")?;
 

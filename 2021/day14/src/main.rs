@@ -211,7 +211,10 @@ impl FromIterator<ResultStringWrap> for anyhow::Result<Data> {
             anyhow::bail!("No rules detected in input stream");
         }
 
-        Ok(Data { template: template.unwrap(), rules: Rules(rules) })
+        Ok(Data {
+            template: template.unwrap(),
+            rules: Rules(rules),
+        })
     }
 }
 
@@ -228,7 +231,6 @@ fn main() -> Result<(), anyhow::Error> {
         .lock()
         .lines()
         .map(ResultStringWrap::from)
-        .into_iter()
         .collect::<anyhow::Result<Data>>()
         .context("Failed to parse puzzle input from stdin")?;
 

@@ -1,0 +1,9 @@
+[package]
+name = "mmxv_day20"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ahash = "0.8.11"
+anyhow = "1.0.94"
+indoc = "2.0.5"

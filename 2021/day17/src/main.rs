@@ -83,7 +83,12 @@ fn calculate(target: &Data) -> (i32, i32, i32) {
     let mut best_yvel = 0;
     for initial_x in min_x_velocity..=max_x_velocity {
         for initial_y in min_y_velocity..=max_y_velocity {
-            let mut state = Stats { xpos: 0, ypos: 0, xvel: initial_x, yvel: initial_y };
+            let mut state = Stats {
+                xpos: 0,
+                ypos: 0,
+                xvel: initial_x,
+                yvel: initial_y,
+            };
             let mut max_height = 0;
             while !state.beyond(target) {
                 if state.ypos > max_height {
@@ -110,7 +115,12 @@ fn possibilities(target: &Data) -> usize {
     let mut valid_count = 0;
     for initial_x in min_x_velocity..=max_x_velocity {
         for initial_y in min_y_velocity..=max_y_velocity {
-            let mut state = Stats { xpos: 0, ypos: 0, xvel: initial_x, yvel: initial_y };
+            let mut state = Stats {
+                xpos: 0,
+                ypos: 0,
+                xvel: initial_x,
+                yvel: initial_y,
+            };
             while !state.beyond(target) {
                 if state.in_target(target) {
                     valid_count += 1;
@@ -141,10 +151,7 @@ fn main() -> Result<(), anyhow::Error> {
         .context("Failed to parse puzzle input from stdin")?;
 
     let (highest_y, best_xvel, best_yvel) = calculate(&input);
-    println!(
-        "Part 1: With initial velocity ({}, {}), reached height of {}",
-        best_xvel, best_yvel, highest_y
-    );
+    println!("Part 1: With initial velocity ({best_xvel}, {best_yvel}), reached height of {highest_y}");
 
     println!(
         "Part 2: Number of potential initial velocities that reach the target: {}",

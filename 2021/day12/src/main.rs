@@ -102,7 +102,13 @@ impl FromIterator<PartialNode> for anyhow::Result<Network> {
                 let key = node.id.clone();
                 let mut connections = AHashSet::<Identifier>::new();
                 connections.insert(node.connection.clone());
-                hm.insert(key, Node { id: node.id.clone(), connections });
+                hm.insert(
+                    key,
+                    Node {
+                        id: node.id.clone(),
+                        connections,
+                    },
+                );
             }
             // Setup the "destination" node
             if let Some(node_ref) = hm.get_mut(&node.connection) {
@@ -113,7 +119,13 @@ impl FromIterator<PartialNode> for anyhow::Result<Network> {
                 let key = node.connection.clone();
                 let mut connections = AHashSet::<Identifier>::new();
                 connections.insert(node.id);
-                hm.insert(key, Node { id: node.connection, connections });
+                hm.insert(
+                    key,
+                    Node {
+                        id: node.connection,
+                        connections,
+                    },
+                );
             }
         }
         let result = Network { nodes: hm };
@@ -237,7 +249,10 @@ fn parse(s: String) -> anyhow::Result<PartialNode> {
         .ok_or_else(|| anyhow::anyhow!("{} is not a valid cavern description", s))?;
     let id = captures.name("node_name").unwrap().as_str().to_string(); // unwrap safe because match would have failed if name wasn't there
     let connection = captures.name("dest_name").unwrap().as_str().to_string(); // unwrap safe because match would have failed if name wasn't there
-    Ok(PartialNode { id: id.into(), connection: connection.into() })
+    Ok(PartialNode {
+        id: id.into(),
+        connection: connection.into(),
+    })
 }
 
 fn main() -> Result<(), anyhow::Error> {
