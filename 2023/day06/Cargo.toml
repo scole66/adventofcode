@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ahash = "0.8.6"
-anyhow = "1.0.75"
-indoc = "2.0.4"
+ahash = "0.8.11"
+anyhow = "1.0.95"
+indoc = "2.0.5"
 itertools = "0.13"
 test-case = "3.3.1"
