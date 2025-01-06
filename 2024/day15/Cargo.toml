@@ -8,6 +8,6 @@ pedantic = "deny"
 
 [dependencies]
 ahash = "0.8.11"
-anyhow = "1.0.94"
+anyhow = "1.0.95"
 indoc = "2.0.5"
 test-case = "3.3.1"
