@@ -116,6 +116,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "day12"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc 2.0.5",
+ "itertools 0.12.1",
+ "test-case",
+]
+
+[[package]]
 name = "day13"
 version = "0.1.0"
 dependencies = [
@@ -197,6 +208,15 @@ checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
 
 [[package]]
 name = "itertools"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
@@ -275,7 +295,7 @@ dependencies = [
  "anyhow",
  "combinations",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "once_cell",
  "regex",
 ]
@@ -317,7 +337,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
 ]
 
 [[package]]
@@ -326,7 +346,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "itertools",
+ "itertools 0.13.0",
 ]
 
 [[package]]
@@ -666,7 +686,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
 ]
 
 [[package]]
@@ -675,7 +695,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "test-case",
 ]
 
@@ -686,7 +706,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "test-case",
 ]
 
@@ -696,7 +716,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "once_cell",
  "regex",
  "test-case",
@@ -781,7 +801,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "once_cell",
  "regex",
  "test-case",
@@ -855,7 +875,7 @@ version = "0.1.0"
 dependencies = [
  "ahash",
  "anyhow",
- "itertools",
+ "itertools 0.13.0",
  "test-case",
 ]
 
@@ -866,7 +886,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
 ]
 
 [[package]]
@@ -918,7 +938,7 @@ dependencies = [
  "ahash",
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "test-case",
 ]
 
@@ -1060,7 +1080,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "indoc 2.0.5",
- "itertools",
+ "itertools 0.13.0",
  "rayon",
  "test-case",
  "thiserror",
