@@ -1039,7 +1039,6 @@ dependencies = [
 name = "mmxxiv_day17"
 version = "0.1.0"
 dependencies = [
- "ahash",
  "anyhow",
  "indoc",
  "itertools",
