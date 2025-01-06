@@ -51,10 +51,22 @@ impl FromStr for Map {
                 line.chars().enumerate().filter_map(move |(col, ch)| match ch {
                     ' ' => None,
                     '.' => Some((|| {
-                        Ok((Point { col: col.try_into()?, row: row.try_into()? }, Constraint::Free))
+                        Ok((
+                            Point {
+                                col: col.try_into()?,
+                                row: row.try_into()?,
+                            },
+                            Constraint::Free,
+                        ))
                     })()),
                     '#' => Some((|| {
-                        Ok((Point { col: col.try_into()?, row: row.try_into()? }, Constraint::Wall))
+                        Ok((
+                            Point {
+                                col: col.try_into()?,
+                                row: row.try_into()?,
+                            },
+                            Constraint::Wall,
+                        ))
                     })()),
                     _ => Some(Err(anyhow!("Bad character in map: {ch}"))),
                 })
@@ -168,7 +180,11 @@ impl FromStr for Map {
         .next()
         .ok_or_else(|| anyhow!("Map doesn't have a known fold"))?;
 
-        Ok(Map { points: map, face_size, folding_style })
+        Ok(Map {
+            points: map,
+            face_size,
+            folding_style,
+        })
     }
 }
 
@@ -190,7 +206,10 @@ impl Map {
             Facing::Left => (-1, 0),
             Facing::Right => (1, 0),
         };
-        let probe = Point { row: row + row_delta, col: col + column_delta };
+        let probe = Point {
+            row: row + row_delta,
+            col: col + column_delta,
+        };
         if self.points.contains_key(&probe) {
             return (probe, facing);
         }
@@ -221,47 +240,83 @@ impl Map {
             match (self.cube_face(from), facing, self.folding_style) {
                 (OneOfSix::One, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, 0);
-                    (Point { col: 3 * face_size - col - 1, row: face_size }, Facing::Down)
+                    (
+                        Point {
+                            col: 3 * face_size - col - 1,
+                            row: face_size,
+                        },
+                        Facing::Down,
+                    )
                 }
                 (OneOfSix::One, Facing::Down, FoldingStyle::Sample) => unreachable!(),
                 (OneOfSix::One, Facing::Left, FoldingStyle::Sample) => {
                     assert_eq!(col, face_size * 2);
-                    (Point { col: face_size + row, row: face_size }, Facing::Down)
+                    (
+                        Point {
+                            col: face_size + row,
+                            row: face_size,
+                        },
+                        Facing::Down,
+                    )
                 }
                 (OneOfSix::One, Facing::Right, FoldingStyle::Sample) => {
                     assert_eq!(col, face_size * 3 - 1);
                     (
-                        Point { col: face_size * 4 - 1, row: 3 * face_size - row - 1 },
+                        Point {
+                            col: face_size * 4 - 1,
+                            row: 3 * face_size - row - 1,
+                        },
                         Facing::Left,
                     )
                 }
                 (OneOfSix::Two, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, face_size);
-                    (Point { col: 3 * face_size - col - 1, row: 0 }, Facing::Down)
+                    (
+                        Point {
+                            col: 3 * face_size - col - 1,
+                            row: 0,
+                        },
+                        Facing::Down,
+                    )
                 }
                 (OneOfSix::Two, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, 2 * face_size - 1);
                     (
-                        Point { col: 3 * face_size - col - 1, row: 3 * face_size - 1 },
+                        Point {
+                            col: 3 * face_size - col - 1,
+                            row: 3 * face_size - 1,
+                        },
                         Facing::Up,
                     )
                 }
                 (OneOfSix::Two, Facing::Left, FoldingStyle::Sample) => {
                     assert_eq!(col, 0);
                     (
-                        Point { col: 5 * face_size - 1 - row, row: 3 * face_size - 1 },
+                        Point {
+                            col: 5 * face_size - 1 - row,
+                            row: 3 * face_size - 1,
+                        },
                         Facing::Up,
                     )
                 }
                 (OneOfSix::Two, Facing::Right, FoldingStyle::Sample) => unreachable!(),
                 (OneOfSix::Three, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, face_size);
-                    (Point { col: face_size * 2, row: col - face_size }, Facing::Right)
+                    (
+                        Point {
+                            col: face_size * 2,
+                            row: col - face_size,
+                        },
+                        Facing::Right,
+                    )
                 }
                 (OneOfSix::Three, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, 2 * face_size - 1);
                     (
-                        Point { col: 2 * face_size, row: 4 * face_size - col - 1 },
+                        Point {
+                            col: 2 * face_size,
+                            row: 4 * face_size - col - 1,
+                        },
                         Facing::Right,
                     )
                 }
@@ -274,20 +329,32 @@ impl Map {
                 }
                 (OneOfSix::Four, Facing::Right, FoldingStyle::Sample) => {
                     assert_eq!(col, 3 * face_size - 1);
-                    (Point { col: 5 * face_size - row - 1, row: 2 * face_size }, Facing::Down)
+                    (
+                        Point {
+                            col: 5 * face_size - row - 1,
+                            row: 2 * face_size,
+                        },
+                        Facing::Down,
+                    )
                 }
                 (OneOfSix::Five, Facing::Up, FoldingStyle::Sample) => unreachable!(),
                 (OneOfSix::Five, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, face_size * 3 - 1);
                     (
-                        Point { col: 3 * face_size - col - 1, row: 2 * face_size - 1 },
+                        Point {
+                            col: 3 * face_size - col - 1,
+                            row: 2 * face_size - 1,
+                        },
                         Facing::Up,
                     )
                 }
                 (OneOfSix::Five, Facing::Left, FoldingStyle::Sample) => {
                     assert_eq!(col, 2 * face_size);
                     (
-                        Point { col: 4 * face_size - row - 1, row: 2 * face_size - 1 },
+                        Point {
+                            col: 4 * face_size - row - 1,
+                            row: 2 * face_size - 1,
+                        },
                         Facing::Up,
                     )
                 }
@@ -295,83 +362,153 @@ impl Map {
                 (OneOfSix::Six, Facing::Up, FoldingStyle::Sample) => {
                     assert_eq!(row, 2 * face_size);
                     (
-                        Point { col: 3 * face_size - 1, row: 5 * face_size - col - 1 },
+                        Point {
+                            col: 3 * face_size - 1,
+                            row: 5 * face_size - col - 1,
+                        },
                         Facing::Left,
                     )
                 }
                 (OneOfSix::Six, Facing::Down, FoldingStyle::Sample) => {
                     assert_eq!(row, 3 * face_size - 1);
-                    (Point { col: 0, row: 5 * face_size - col - 1 }, Facing::Right)
+                    (
+                        Point {
+                            col: 0,
+                            row: 5 * face_size - col - 1,
+                        },
+                        Facing::Right,
+                    )
                 }
                 (OneOfSix::Six, Facing::Left, FoldingStyle::Sample) => unreachable!(),
                 (OneOfSix::Six, Facing::Right, FoldingStyle::Sample) => {
                     assert_eq!(col, 4 * face_size - 1);
                     (
-                        Point { col: 3 * face_size - 1, row: 3 * face_size - row - 1 },
+                        Point {
+                            col: 3 * face_size - 1,
+                            row: 3 * face_size - row - 1,
+                        },
                         Facing::Left,
                     )
                 }
                 (OneOfSix::One, Facing::Up, FoldingStyle::Actual) => {
                     assert_eq!(row, 0);
-                    (Point { col: 0, row: col + 2 * face_size }, Facing::Right)
+                    (
+                        Point {
+                            col: 0,
+                            row: col + 2 * face_size,
+                        },
+                        Facing::Right,
+                    )
                 }
                 (OneOfSix::One, Facing::Down, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::One, Facing::Left, FoldingStyle::Actual) => {
                     assert_eq!(col, face_size);
-                    (Point { col: 0, row: 3 * face_size - row - 1 }, Facing::Right)
+                    (
+                        Point {
+                            col: 0,
+                            row: 3 * face_size - row - 1,
+                        },
+                        Facing::Right,
+                    )
                 }
                 (OneOfSix::One, Facing::Right, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Two, Facing::Up, FoldingStyle::Actual) => {
                     assert_eq!(row, 0);
-                    (Point { col: col - 2 * face_size, row: 4 * face_size - 1 }, Facing::Up)
+                    (
+                        Point {
+                            col: col - 2 * face_size,
+                            row: 4 * face_size - 1,
+                        },
+                        Facing::Up,
+                    )
                 }
                 (OneOfSix::Two, Facing::Down, FoldingStyle::Actual) => {
                     assert_eq!(row, face_size - 1);
-                    (Point { col: 2 * face_size - 1, row: col - face_size }, Facing::Left)
+                    (
+                        Point {
+                            col: 2 * face_size - 1,
+                            row: col - face_size,
+                        },
+                        Facing::Left,
+                    )
                 }
                 (OneOfSix::Two, Facing::Left, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Two, Facing::Right, FoldingStyle::Actual) => {
                     let (lr, _lc) = (row, col - 2 * face_size);
-                    let to_offset = Point { row: 2 * face_size, col: face_size }; // face 4
+                    let to_offset = Point {
+                        row: 2 * face_size,
+                        col: face_size,
+                    }; // face 4
                     (
-                        Point { col: to_offset.col + face_size - 1, row: (face_size - 1 - lr) + to_offset.row },
+                        Point {
+                            col: to_offset.col + face_size - 1,
+                            row: (face_size - 1 - lr) + to_offset.row,
+                        },
                         Facing::Left,
                     )
                 }
                 (OneOfSix::Three, Facing::Up, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Three, Facing::Down, FoldingStyle::Actual) => unreachable!(),
-                (OneOfSix::Three, Facing::Left, FoldingStyle::Actual) => {
-                    (Point { col: row - face_size, row: 2 * face_size }, Facing::Down)
-                }
+                (OneOfSix::Three, Facing::Left, FoldingStyle::Actual) => (
+                    Point {
+                        col: row - face_size,
+                        row: 2 * face_size,
+                    },
+                    Facing::Down,
+                ),
                 (OneOfSix::Three, Facing::Right, FoldingStyle::Actual) => (
-                    Point { col: (row - face_size) + 2 * face_size, row: face_size - 1 },
+                    Point {
+                        col: (row - face_size) + 2 * face_size,
+                        row: face_size - 1,
+                    },
                     Facing::Up,
                 ),
                 (OneOfSix::Four, Facing::Up, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Four, Facing::Down, FoldingStyle::Actual) => {
                     let (_lr, lc) = (row - 2 * face_size, col - face_size);
-                    (Point { col: face_size - 1, row: lc + 3 * face_size }, Facing::Left)
+                    (
+                        Point {
+                            col: face_size - 1,
+                            row: lc + 3 * face_size,
+                        },
+                        Facing::Left,
+                    )
                 }
                 (OneOfSix::Four, Facing::Left, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Four, Facing::Right, FoldingStyle::Actual) => {
                     let (lr, _lc) = (row - 2 * face_size, col - face_size);
-                    let to_offset = Point { row: 0, col: 2 * face_size }; // face 2
+                    let to_offset = Point {
+                        row: 0,
+                        col: 2 * face_size,
+                    }; // face 2
                     (
-                        Point { col: to_offset.col + face_size - 1, row: (face_size - 1 - lr) + to_offset.row },
+                        Point {
+                            col: to_offset.col + face_size - 1,
+                            row: (face_size - 1 - lr) + to_offset.row,
+                        },
                         Facing::Left,
                     )
                 }
                 (OneOfSix::Five, Facing::Up, FoldingStyle::Actual) => {
                     let (_lr, lc) = (row - 2 * face_size, col);
                     let (to_ofs_row, to_ofs_col) = (face_size, face_size); // face 3
-                    (Point { col: to_ofs_col, row: lc + to_ofs_row }, Facing::Right)
+                    (
+                        Point {
+                            col: to_ofs_col,
+                            row: lc + to_ofs_row,
+                        },
+                        Facing::Right,
+                    )
                 }
                 (OneOfSix::Five, Facing::Down, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Five, Facing::Left, FoldingStyle::Actual) => {
                     let (lr, _lc) = (row - 2 * face_size, col);
                     let (to_ofs_row, to_ofs_col) = (0, face_size); // face 1
                     (
-                        Point { row: (face_size - 1 - lr) + to_ofs_row, col: to_ofs_col },
+                        Point {
+                            row: (face_size - 1 - lr) + to_ofs_row,
+                            col: to_ofs_col,
+                        },
                         Facing::Right,
                     )
                 }
@@ -379,19 +516,40 @@ impl Map {
                 (OneOfSix::Six, Facing::Up, FoldingStyle::Actual) => unreachable!(),
                 (OneOfSix::Six, Facing::Down, FoldingStyle::Actual) => {
                     let (_lr, lc) = (row - 3 * face_size, col);
-                    let to_offset = Point { row: 0, col: 2 * face_size }; // face 2
-                    (Point { row: to_offset.row, col: lc + to_offset.col }, Facing::Down)
+                    let to_offset = Point {
+                        row: 0,
+                        col: 2 * face_size,
+                    }; // face 2
+                    (
+                        Point {
+                            row: to_offset.row,
+                            col: lc + to_offset.col,
+                        },
+                        Facing::Down,
+                    )
                 }
                 (OneOfSix::Six, Facing::Left, FoldingStyle::Actual) => {
                     let (lr, _lc) = (row - 3 * face_size, col);
                     let to_offset = Point { row: 0, col: face_size }; // face 1
-                    (Point { row: to_offset.row, col: lr + to_offset.col }, Facing::Down)
+                    (
+                        Point {
+                            row: to_offset.row,
+                            col: lr + to_offset.col,
+                        },
+                        Facing::Down,
+                    )
                 }
                 (OneOfSix::Six, Facing::Right, FoldingStyle::Actual) => {
                     let (lr, _lc) = (row - 3 * face_size, col);
-                    let to_offset = Point { row: 2 * face_size, col: face_size }; // face 4
+                    let to_offset = Point {
+                        row: 2 * face_size,
+                        col: face_size,
+                    }; // face 4
                     (
-                        Point { row: to_offset.row + face_size - 1, col: lr + to_offset.col },
+                        Point {
+                            row: to_offset.row + face_size - 1,
+                            col: lr + to_offset.col,
+                        },
                         Facing::Up,
                     )
                 }
@@ -400,7 +558,10 @@ impl Map {
     }
 
     fn cube_face(&self, pt: Point) -> OneOfSix {
-        let normalized = Point { row: pt.row / self.face_size, col: pt.col / self.face_size };
+        let normalized = Point {
+            row: pt.row / self.face_size,
+            col: pt.col / self.face_size,
+        };
 
         static FACE_DEFINITIONS: Lazy<AHashMap<(Point, FoldingStyle), OneOfSix>> = Lazy::new(|| {
             AHashMap::from_iter([

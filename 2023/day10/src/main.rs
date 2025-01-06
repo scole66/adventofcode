@@ -106,7 +106,12 @@ impl FromStr for Grid {
                 }
             })
             .ok_or_else(|| anyhow!("Missing starting location"))?;
-        Ok(Self { cells: grid, width, height, start })
+        Ok(Self {
+            cells: grid,
+            width,
+            height,
+            start,
+        })
     }
 }
 

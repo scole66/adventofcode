@@ -155,9 +155,15 @@ fn parse_monkey(input: &mut impl Iterator<Item = RString>) -> anyhow::Result<Opt
     }
 
     let reaction = if first_state_truish {
-        Reaction { truish: first_target, falsish: second_target }
+        Reaction {
+            truish: first_target,
+            falsish: second_target,
+        }
     } else {
-        Reaction { truish: second_target, falsish: first_target }
+        Reaction {
+            truish: second_target,
+            falsish: first_target,
+        }
     };
 
     Ok(Some(Monkey {

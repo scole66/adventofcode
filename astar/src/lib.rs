@@ -28,8 +28,6 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
     /// this must implement [num::Zero], as we assume the cost of moving from a node back to itself is
     /// `T::Cost::zero()` (it's only used to set the path cost to the initial node).
     type Cost: Ord + Hash + Copy + Add<Output = Self::Cost> + Zero;
-    /// The iterator type to visit all the immediate neighbors of a particular node.
-    type NeighborIter: Iterator<Item = (Self, Self::Cost)>;
     /// An "associated data" type that can be used to store auxilliary data. The information here is not
     /// examined by the search itself, but rather passed opaquely to the helper functions. Essentially: this
     /// should hold the stuff needed to make decisions, but which doesn't uniquely identify a node and
@@ -43,7 +41,7 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
     /// like distance squared (which is much cheaper to calculate), the resulting path may not be optimal.)
     fn heuristic(&self, goal: &Self, state: &Self::AssociatedState) -> Self::Cost;
     /// Generates an iterator over all the neighbors of `self`, along with the costs to get to each of them.
-    fn neighbors(&self, state: &Self::AssociatedState) -> Self::NeighborIter;
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)>;
     /// Decides if a given node is a goal. In many uses of the search, this is just equality, but it may also
     /// deliberately avoid some of the node data to match a class of destinations. (Like: anything on the
     /// bottom row, or something.)
@@ -132,28 +130,9 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
 ///     }
 /// }
 ///
-/// struct NIter {
-///     info: Vec<(Node, i64)>,
-///     next_index: usize,
-/// }
-///
-/// impl Iterator for NIter {
-///     type Item = (Node, i64);
-///
-///     fn next(&mut self) -> Option<Self::Item> {
-///         if self.next_index >= self.info.len() {
-///             None
-///         } else {
-///             self.next_index += 1;
-///             Some(self.info[self.next_index - 1].clone())
-///         }
-///     }
-/// }
-///
 /// impl AStarNode for Node {
 ///     type Cost = i64;
 ///     type AssociatedState = World;
-///     type NeighborIter = NIter;
 ///
 ///     fn heuristic(&self, goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
 ///         (goal.row - self.row).abs() + (goal.col - self.col).abs()
@@ -163,23 +142,19 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
 ///         self.row == goal.row && self.col == goal.col
 ///     }
 ///
-///     fn neighbors(&self, state: &Self::AssociatedState) -> Self::NeighborIter {
+///     fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item=(Self, Self::Cost)> {
 ///         // Our neighbors are open squares (not walls) that are in-bounds.
-///         NIter {
-///             info: [(0, -1), (0, 1), (-1, 0), (1, 0)]
-///                 .into_iter()
-///                 .map(|(dy, dx)| (self.row + dy, self.col + dx))
-///                 .filter(|&(row, col)| {
-///                     row >= 0
-///                         && col >= 0
-///                         && row < state.height
-///                         && col < state.width
-///                         && !state.walls.contains(&(row, col))
-///                 })
-///                 .map(|(row, col)| (Node { row, col }, 1))
-///                 .collect::<Vec<_>>(),
-///             next_index: 0,
-///         }
+///         [(0, -1), (0, 1), (-1, 0), (1, 0)]
+///             .into_iter()
+///             .map(|(dy, dx)| (self.row + dy, self.col + dx))
+///             .filter(|&(row, col)| {
+///                 row >= 0
+///                     && col >= 0
+///                     && row < state.height
+///                     && col < state.width
+///                     && !state.walls.contains(&(row, col))
+///             })
+///             .map(|(row, col)| (Node { row, col }, 1))
 ///     }
 /// }
 ///

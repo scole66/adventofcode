@@ -43,7 +43,10 @@ impl From<GoodString> for String {
 
 impl From<GoodString> for BitStream {
     fn from(src: GoodString) -> Self {
-        BitStream { bits: String::from(src).chars().flat_map(char_to_bits).collect::<Vec<u8>>(), current: 0 }
+        BitStream {
+            bits: String::from(src).chars().flat_map(char_to_bits).collect::<Vec<u8>>(),
+            current: 0,
+        }
     }
 }
 impl BitStream {
@@ -71,23 +74,36 @@ impl BitStream {
 
 #[derive(Debug)]
 enum Packet {
-    Literal { version: u8, value: u64 },
-    Operator { version: u8, opcode: u8, sub_packets: Vec<Packet> },
+    Literal {
+        version: u8,
+        value: u64,
+    },
+    Operator {
+        version: u8,
+        opcode: u8,
+        sub_packets: Vec<Packet>,
+    },
 }
 impl Packet {
     fn version_sum(&self) -> u64 {
         match self {
             Packet::Literal { version, value: _ } => *version as u64,
-            Packet::Operator { version, opcode: _, sub_packets } => {
-                (*version as u64) + sub_packets.iter().map(|sp| sp.version_sum()).sum::<u64>()
-            }
+            Packet::Operator {
+                version,
+                opcode: _,
+                sub_packets,
+            } => (*version as u64) + sub_packets.iter().map(|sp| sp.version_sum()).sum::<u64>(),
         }
     }
 
     fn evaluate(&self) -> u64 {
         match self {
             Packet::Literal { version: _, value } => *value,
-            Packet::Operator { version: _, opcode, sub_packets } => match opcode {
+            Packet::Operator {
+                version: _,
+                opcode,
+                sub_packets,
+            } => match opcode {
                 0 => sub_packets.iter().map(|p| p.evaluate()).sum::<u64>(),
                 1 => sub_packets.iter().map(|p| p.evaluate()).product::<u64>(),
                 2 => sub_packets.iter().map(|p| p.evaluate()).min().unwrap(),
@@ -140,7 +156,14 @@ impl Packet {
                             }
                         }
                         consumed += sub_bits_consumed;
-                        Ok((Packet::Operator { version, opcode: id_code, sub_packets }, consumed))
+                        Ok((
+                            Packet::Operator {
+                                version,
+                                opcode: id_code,
+                                sub_packets,
+                            },
+                            consumed,
+                        ))
                     }
                     _ => {
                         let number_of_sub_packets = src.bits(11)?;
@@ -151,7 +174,14 @@ impl Packet {
                             consumed += sub_bits;
                             sub_packets.push(pkt);
                         }
-                        Ok((Packet::Operator { version, opcode: id_code, sub_packets }, consumed))
+                        Ok((
+                            Packet::Operator {
+                                version,
+                                opcode: id_code,
+                                sub_packets,
+                            },
+                            consumed,
+                        ))
                     }
                 }
             }

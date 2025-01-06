@@ -9,8 +9,8 @@ edition = "2021"
 regex = "1"
 lazy_static = "1.4"
 anyhow = "1.0"
-priority-queue = "1.2"
+priority-queue = "2.1"
 ahash = "0.8.2"
 
 [dev-dependencies]
-test-case = "1.2"
+test-case = "3.3"

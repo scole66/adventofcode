@@ -98,7 +98,10 @@ impl Iterator for Walker {
             None
         } else {
             let result = self.pos;
-            self.pos = Position { row: result.row + self.dy, col: result.col + self.dx };
+            self.pos = Position {
+                row: result.row + self.dy,
+                col: result.col + self.dx,
+            };
             self.remaining -= 1;
             Some(result)
         }
@@ -108,26 +111,54 @@ impl Iterator for Walker {
 impl Walker {
     fn new(vent: &VentDescription, diagonals_ok: bool) -> Self {
         match vent {
-            VentDescription::Horiz { row_value, col_start, col_end } => Self {
-                pos: Position { row: *row_value, col: *col_start },
+            VentDescription::Horiz {
+                row_value,
+                col_start,
+                col_end,
+            } => Self {
+                pos: Position {
+                    row: *row_value,
+                    col: *col_start,
+                },
                 dx: 1,
                 dy: 0,
                 remaining: *col_end - *col_start + 1,
             },
-            VentDescription::Vert { col_value, row_start, row_end } => Self {
-                pos: Position { row: *row_start, col: *col_value },
+            VentDescription::Vert {
+                col_value,
+                row_start,
+                row_end,
+            } => Self {
+                pos: Position {
+                    row: *row_start,
+                    col: *col_value,
+                },
                 dx: 0,
                 dy: 1,
                 remaining: *row_end - *row_start + 1,
             },
-            VentDescription::UpAndRight { col_start, row_start, length } => Self {
-                pos: Position { row: *row_start, col: *col_start },
+            VentDescription::UpAndRight {
+                col_start,
+                row_start,
+                length,
+            } => Self {
+                pos: Position {
+                    row: *row_start,
+                    col: *col_start,
+                },
                 dx: 1,
                 dy: -1,
                 remaining: if diagonals_ok { *length } else { 0 },
             },
-            VentDescription::DownAndRight { col_start, row_start, length } => Self {
-                pos: Position { row: *row_start, col: *col_start },
+            VentDescription::DownAndRight {
+                col_start,
+                row_start,
+                length,
+            } => Self {
+                pos: Position {
+                    row: *row_start,
+                    col: *col_start,
+                },
                 dx: 1,
                 dy: 1,
                 remaining: if diagonals_ok { *length } else { 0 },
@@ -138,10 +169,26 @@ impl Walker {
 
 #[derive(Debug)]
 enum VentDescription {
-    Horiz { row_value: i64, col_start: i64, col_end: i64 },
-    Vert { col_value: i64, row_start: i64, row_end: i64 },
-    UpAndRight { col_start: i64, row_start: i64, length: i64 },
-    DownAndRight { col_start: i64, row_start: i64, length: i64 },
+    Horiz {
+        row_value: i64,
+        col_start: i64,
+        col_end: i64,
+    },
+    Vert {
+        col_value: i64,
+        row_start: i64,
+        row_end: i64,
+    },
+    UpAndRight {
+        col_start: i64,
+        row_start: i64,
+        length: i64,
+    },
+    DownAndRight {
+        col_start: i64,
+        row_start: i64,
+        length: i64,
+    },
 }
 
 fn parse_line(line: &str) -> Option<VentDescription> {
@@ -156,17 +203,33 @@ fn parse_line(line: &str) -> Option<VentDescription> {
         let y2 = captures.name("y2").unwrap().as_str().parse::<i64>().unwrap();
         if x1 == x2 {
             let (top, bottom) = if y1 > y2 { (y2, y1) } else { (y1, y2) };
-            Some(VentDescription::Vert { col_value: x1, row_start: top, row_end: bottom })
+            Some(VentDescription::Vert {
+                col_value: x1,
+                row_start: top,
+                row_end: bottom,
+            })
         } else if y1 == y2 {
             let (left, right) = if x1 > x2 { (x2, x1) } else { (x1, x2) };
-            Some(VentDescription::Horiz { row_value: y1, col_start: left, col_end: right })
+            Some(VentDescription::Horiz {
+                row_value: y1,
+                col_start: left,
+                col_end: right,
+            })
         } else if (y1 - y2).abs() == (x1 - x2).abs() {
             let (top, bottom) = if y1 > y2 { (y2, y1) } else { (y1, y2) };
             let left = if x1 > x2 { x2 } else { x1 };
             if (y2 - y1).signum() != (x2 - x1).signum() {
-                Some(VentDescription::UpAndRight { col_start: left, row_start: bottom, length: (x1 - x2).abs() + 1 })
+                Some(VentDescription::UpAndRight {
+                    col_start: left,
+                    row_start: bottom,
+                    length: (x1 - x2).abs() + 1,
+                })
             } else {
-                Some(VentDescription::DownAndRight { col_start: left, row_start: top, length: (x1 - x2).abs() + 1 })
+                Some(VentDescription::DownAndRight {
+                    col_start: left,
+                    row_start: top,
+                    length: (x1 - x2).abs() + 1,
+                })
             }
         } else {
             None

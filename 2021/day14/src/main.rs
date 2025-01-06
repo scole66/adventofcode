@@ -211,7 +211,10 @@ impl FromIterator<ResultStringWrap> for anyhow::Result<Data> {
             anyhow::bail!("No rules detected in input stream");
         }
 
-        Ok(Data { template: template.unwrap(), rules: Rules(rules) })
+        Ok(Data {
+            template: template.unwrap(),
+            rules: Rules(rules),
+        })
     }
 }
 

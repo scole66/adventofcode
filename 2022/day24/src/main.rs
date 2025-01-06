@@ -56,7 +56,12 @@ impl FromStr for Input {
             if END_PATTERN.is_match(blizzards_or_end) {
                 let height = idx - 1;
                 let cycle_modulo = lcm(height, width);
-                return Ok(Input { width: width.try_into()?, height: height.try_into()?, blizzards, cycle_modulo });
+                return Ok(Input {
+                    width: width.try_into()?,
+                    height: height.try_into()?,
+                    blizzards,
+                    cycle_modulo,
+                });
             }
             let mut ch_iter = blizzards_or_end.chars().enumerate();
             let (_, left_wall) = ch_iter.next().ok_or_else(|| anyhow!("empty line"))?;
@@ -147,10 +152,18 @@ struct TraversalSharedInfo {
 }
 impl Input {
     fn start(&self, starting_cycle: usize) -> TraversalState {
-        TraversalState { cycle: starting_cycle, row: -1, col: 0 }
+        TraversalState {
+            cycle: starting_cycle,
+            row: -1,
+            col: 0,
+        }
     }
     fn goal(&self, starting_cycle: usize) -> TraversalState {
-        TraversalState { cycle: starting_cycle, row: self.height, col: self.width - 1 }
+        TraversalState {
+            cycle: starting_cycle,
+            row: self.height,
+            col: self.width - 1,
+        }
     }
     fn info(&self) -> TraversalSharedInfo {
         TraversalSharedInfo {
@@ -207,8 +220,16 @@ impl Iterator for NeighborIter {
         if self.next_index >= self.items.len() {
             None
         } else {
-            let rval = self.items[self.next_index]
-                .map(|pt| (TraversalState { cycle: self.cycle, row: pt.row, col: pt.col }, 1));
+            let rval = self.items[self.next_index].map(|pt| {
+                (
+                    TraversalState {
+                        cycle: self.cycle,
+                        row: pt.row,
+                        col: pt.col,
+                    },
+                    1,
+                )
+            });
             self.next_index += 1;
             rval
         }
@@ -216,8 +237,6 @@ impl Iterator for NeighborIter {
 }
 impl AStarNode for TraversalState {
     type Cost = i64;
-
-    type NeighborIter = NeighborIter;
 
     type AssociatedState = TraversalSharedInfo;
 
@@ -229,12 +248,15 @@ impl AStarNode for TraversalState {
         dx + dy
     }
 
-    fn neighbors(&self, state: &Self::AssociatedState) -> Self::NeighborIter {
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)> {
         // Remember that a "neighbor" is "a new state we could transition to". So, "don't move" is also a
         // valid neighbor. This is the routine where we actually need to check the blizzard conditions.
         let next_cycle = (self.cycle + 1) % state.cycle_modulo;
         let next_blizzard_locations = state.blizzard_spots(next_cycle);
-        let center = Point { col: self.col, row: self.row };
+        let center = Point {
+            col: self.col,
+            row: self.row,
+        };
         let mut idx = 0;
         let mut neighbor_buf: [Option<Point>; 5] = [None; 5];
         if !next_blizzard_locations.contains(&center) {
@@ -242,41 +264,60 @@ impl AStarNode for TraversalState {
             idx += 1;
         }
         if center.row > 0 {
-            let above = Point { col: center.col, row: center.row - 1 };
+            let above = Point {
+                col: center.col,
+                row: center.row - 1,
+            };
             if !next_blizzard_locations.contains(&above) {
                 neighbor_buf[idx] = Some(above);
                 idx += 1;
             }
         }
         if center.row < state.height - 1 {
-            let below = Point { col: center.col, row: center.row + 1 };
+            let below = Point {
+                col: center.col,
+                row: center.row + 1,
+            };
             if !next_blizzard_locations.contains(&below) {
                 neighbor_buf[idx] = Some(below);
                 idx += 1;
             }
         }
         if center.col > 0 && center.row >= 0 && center.row < state.height {
-            let to_the_left = Point { col: center.col - 1, row: center.row };
+            let to_the_left = Point {
+                col: center.col - 1,
+                row: center.row,
+            };
             if !next_blizzard_locations.contains(&to_the_left) {
                 neighbor_buf[idx] = Some(to_the_left);
                 idx += 1;
             }
         }
         if center.col < state.width - 1 && center.row >= 0 && center.row < state.height {
-            let to_the_right = Point { col: center.col + 1, row: center.row };
+            let to_the_right = Point {
+                col: center.col + 1,
+                row: center.row,
+            };
             if !next_blizzard_locations.contains(&to_the_right) {
                 neighbor_buf[idx] = Some(to_the_right);
                 idx += 1;
             }
         }
         if center.col == state.width - 1 && center.row == state.height - 1 {
-            neighbor_buf[idx] = Some(Point { col: state.width - 1, row: state.height });
+            neighbor_buf[idx] = Some(Point {
+                col: state.width - 1,
+                row: state.height,
+            });
             idx += 1;
         }
         if center.col == 0 && center.row == 0 {
             neighbor_buf[idx] = Some(Point { col: 0, row: -1 });
         }
-        NeighborIter { next_index: 0, cycle: next_cycle, items: neighbor_buf }
+        NeighborIter {
+            next_index: 0,
+            cycle: next_cycle,
+            items: neighbor_buf,
+        }
     }
 
     fn goal_match(&self, goal: &Self, _: &Self::AssociatedState) -> bool {

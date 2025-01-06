@@ -39,7 +39,16 @@ impl FromStr for Datum {
         let texture = caps["texture"].parse()?;
         let calories = caps["calories"].parse()?;
 
-        Ok(Datum { name, properties: Properties { capacity, durability, flavor, texture, calories } })
+        Ok(Datum {
+            name,
+            properties: Properties {
+                capacity,
+                durability,
+                flavor,
+                texture,
+                calories,
+            },
+        })
     }
 }
 

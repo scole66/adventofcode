@@ -109,7 +109,9 @@ impl TryFrom<String> for Step {
 
 impl FromIterator<Step> for Strategy {
     fn from_iter<T: IntoIterator<Item = Step>>(iter: T) -> Self {
-        Strategy { steps: iter.into_iter().collect() }
+        Strategy {
+            steps: iter.into_iter().collect(),
+        }
     }
 }
 

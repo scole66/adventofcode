@@ -26,11 +26,20 @@ impl Item {
         match self {
             Self::Symbol(_) => None,
             Self::Number { value, digit_len } => ((position.col - 1..=position.col + *digit_len as isize).any(|col| {
-                grid.has_symbol_at(&Position { row: position.row - 1, col })
-                    || grid.has_symbol_at(&Position { row: position.row + 1, col })
-            }) || grid
-                .has_symbol_at(&Position { row: position.row, col: position.col - 1 })
-                || grid.has_symbol_at(&Position { row: position.row, col: position.col + *digit_len as isize }))
+                grid.has_symbol_at(&Position {
+                    row: position.row - 1,
+                    col,
+                }) || grid.has_symbol_at(&Position {
+                    row: position.row + 1,
+                    col,
+                })
+            }) || grid.has_symbol_at(&Position {
+                row: position.row,
+                col: position.col - 1,
+            }) || grid.has_symbol_at(&Position {
+                row: position.row,
+                col: position.col + *digit_len as isize,
+            }))
             .then_some(*value),
         }
     }
@@ -40,7 +49,10 @@ impl Item {
             Self::Symbol('*') => {
                 let mut nearby = DELTAS
                     .iter()
-                    .map(|(dcol, drow)| Position { row: position.row + *drow, col: position.col + *dcol })
+                    .map(|(dcol, drow)| Position {
+                        row: position.row + *drow,
+                        col: position.col + *dcol,
+                    })
                     .filter_map(|p| grid.number_at(&p))
                     .collect::<Vec<_>>();
                 nearby.sort();

@@ -195,7 +195,10 @@ impl FromIterator<ResultStringWrap> for anyhow::Result<Data> {
             anyhow::bail!("At least two folding directions are required.")
         }
 
-        Ok(Data { initial_grid: Grid(grid), instructions })
+        Ok(Data {
+            initial_grid: Grid(grid),
+            instructions,
+        })
     }
 }
 
