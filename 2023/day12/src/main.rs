@@ -48,9 +48,7 @@ impl FromStr for Map {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
-            s.chars().map(State::try_from).collect::<Result<Vec<_>, _>>()?,
-        ))
+        Ok(Self(s.chars().map(State::try_from).collect::<Result<Vec<_>, _>>()?))
     }
 }
 impl fmt::Display for Map {
