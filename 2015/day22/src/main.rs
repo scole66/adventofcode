@@ -2,41 +2,38 @@
 //!
 //! Ref: [Advent of Code 2015 Day 22](https://adventofcode.com/2015/day/22)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{anyhow, bail, Error, Result};
+use astar::{search_astar, AStarNode};
 use std::io::{self, Read};
 use std::str::FromStr;
 
 struct Input {
     hit_points: i64,
-    damage: i64
+    damage: i64,
 }
 impl FromStr for Input {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        if let (Some(hit_points), Some(damage)) = s
-            .lines()
-            .try_fold((None, None), |acc, line| {
-                let (id, value) = line.split_once(": ").ok_or_else(|| anyhow!("Bad line {line}"))?;
-                let value = value.parse::<i64>()?;
-                if id == "Hit Points" {
-                    Ok((Some(value), acc.1))
-                } else if id == "Damage" {
-                    Ok((acc.0, Some(value)))
-                } else {
-                    bail!("Bad value id {id}")
-                }
-            })? {
-                Ok(Input{hit_points, damage})
+        if let (Some(hit_points), Some(damage)) = s.lines().try_fold((None, None), |acc, line| {
+            let (id, value) = line.split_once(": ").ok_or_else(|| anyhow!("Bad line {line}"))?;
+            let value = value.parse::<i64>()?;
+            if id == "Hit Points" {
+                Ok((Some(value), acc.1))
+            } else if id == "Damage" {
+                Ok((acc.0, Some(value)))
+            } else {
+                bail!("Bad value id {id}")
             }
-        else {
+        })? {
+            Ok(Input { hit_points, damage })
+        } else {
             bail!("Need both Hit Points and Damage")
         }
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 struct World {
     player_hit_points: i64,
     player_armor: i64,
@@ -49,7 +46,7 @@ struct World {
     loud: bool,
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 enum Spell {
     MagicMissile,
     Drain,
@@ -57,6 +54,25 @@ enum Spell {
     Poison,
     Recharge,
     Nothing,
+}
+
+impl Spell {
+    const fn cost(self) -> i64 {
+        match self {
+            Spell::MagicMissile => 53,
+            Spell::Drain => 73,
+            Spell::Shield => 113,
+            Spell::Poison => 173,
+            Spell::Recharge => 229,
+            Spell::Nothing => 0,
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+enum Mode {
+    Hard,
+    Easy,
 }
 
 macro_rules! diagnostic {
@@ -82,15 +98,18 @@ impl World {
         }
     }
 
-    fn make_loud(&mut self) {
-        self.loud = true;
-    }
-    fn make_quiet(&mut self) {        
+    fn make_quiet(&mut self) {
         self.loud = false;
     }
 
     fn print_combantant_status(&self) {
-        diagnostic!(self, "- Player has {} hit points, {} armor, {} mana", self.player_hit_points, self.player_armor, self.player_mana);
+        diagnostic!(
+            self,
+            "- Player has {} hit points, {} armor, {} mana",
+            self.player_hit_points,
+            self.player_armor,
+            self.player_mana
+        );
         diagnostic!(self, "- Boss has {} hit points", self.boss_hit_points);
     }
 
@@ -98,7 +117,7 @@ impl World {
         self.boss_hit_points -= amt;
         if self.boss_hit_points <= 0 {
             diagnostic!(self, "The boss has been killed; the player wins.");
-            return None
+            return None;
         }
         Some(())
     }
@@ -116,14 +135,18 @@ impl World {
             self.poison_timer -= 1;
             diagnostic!(self, "Poison deals 3 damage; its timer is now {}.", self.poison_timer);
             if self.poison_timer == 0 {
-                diagnostic!(self, "Poison wears off.")
+                diagnostic!(self, "Poison wears off.");
             }
             self.hurt_the_boss(3)?;
         }
         if self.recharge_timer > 0 {
             self.player_mana += 101;
             self.recharge_timer -= 1;
-            diagnostic!(self, "Recharge provides 101 mana; its timer is now {}.", self.recharge_timer);
+            diagnostic!(
+                self,
+                "Recharge provides 101 mana; its timer is now {}.",
+                self.recharge_timer
+            );
             if self.recharge_timer == 0 {
                 diagnostic!(self, "Recharge wears off.");
             }
@@ -135,43 +158,58 @@ impl World {
     fn cast_spell(&mut self, spell: Spell) -> Option<()> {
         match spell {
             Spell::MagicMissile => {
-                diagnostic!(self, "Player casts Magic Milssile, dealing 4 damage.");
-                self.player_mana -= 53;
+                diagnostic!(self, "Player casts Magic Missile, dealing 4 damage.");
+                self.player_mana -= spell.cost();
                 self.hurt_the_boss(4)?;
             }
             Spell::Drain => {
                 diagnostic!(self, "Player casts Drain, dealing 2 damage, and healing 2 hp.");
-                self.player_mana -= 73;
+                self.player_mana -= spell.cost();
                 self.hurt_the_boss(2)?;
                 self.player_hit_points += 2;
-            },
+            }
             Spell::Shield => {
                 diagnostic!(self, "Player casts Shield, increasing armor by 7.");
-                self.player_mana -= 113;
+                self.player_mana -= spell.cost();
                 self.player_armor += 7;
                 self.shield_timer = 6;
-            },
+            }
             Spell::Poison => {
                 diagnostic!(self, "Player casts Poison.");
-                self.player_mana -= 173;
+                self.player_mana -= spell.cost();
                 self.poison_timer = 6;
-            },
+            }
             Spell::Recharge => {
                 diagnostic!(self, "Player casts Recharge.");
-                self.player_mana -= 229;
+                self.player_mana -= spell.cost();
                 self.recharge_timer = 5;
             }
-            Spell::Nothing => {}
+            Spell::Nothing => {
+                diagnostic!(self, "Player does nothing.");
+            }
         }
         Some(())
     }
 
-    fn turn(&mut self, spell: Spell) -> Option<()> {
+    fn injure_player(&mut self, amount: i64) -> Option<()> {
+        self.player_hit_points -= amount;
+        if self.player_hit_points <= 0 {
+            diagnostic!(self, "Player dies. Boss wins.");
+            return None;
+        }
+        Some(())
+    }
+
+    fn turn(&mut self, spell: Spell, mode: Mode) -> Option<()> {
         diagnostic!(self, "-- Player turn --");
+        if mode == Mode::Hard {
+            diagnostic!(self, "Player loses one hp");
+            self.injure_player(1)?;
+        }
         self.print_combantant_status();
 
         self.advance_effects()?;
-        self.cast_spell(spell);
+        self.cast_spell(spell)?;
         diagnostic!(self, "");
 
         diagnostic!(self, "-- Boss turn --");
@@ -179,45 +217,100 @@ impl World {
         self.advance_effects()?;
 
         diagnostic!(self, "Boss attacks for {} damage!", self.boss_damage);
-        self.player_hit_points -= (self.boss_damage - self.player_armor).max(1);
-        if self.player_hit_points <= 0 {
-            diagnostic!(self, "Player dies. Boss wins.");
-            return None;
-        }
+        self.injure_player((self.boss_damage - self.player_armor).max(1))?;
         diagnostic!(self, "");
 
         Some(())
     }
 
     fn castable_spells(&self) -> Vec<Spell> {
-        let mut possible = Vec::new();
-        if self.player_mana >= 53 {
+        if self.player_hit_points <= 0 {
+            return Vec::new();
+        }
+        let mut possible = vec![];
+        if self.player_mana >= Spell::MagicMissile.cost() {
             possible.push(Spell::MagicMissile);
         }
-        if self.player_mana >= 73 {
+        if self.player_mana >= Spell::Drain.cost() {
             possible.push(Spell::Drain);
         }
-        if self.player_mana >= 113 && self.shield_timer <= 1 {
-            possible.push(Spell::Drain);
+        if self.player_mana >= Spell::Shield.cost() && self.shield_timer <= 1 {
+            possible.push(Spell::Shield);
         }
-        if self.player_mana >= 173 && self.poison_timer <= 1 {
+        if self.player_mana >= Spell::Poison.cost() && self.poison_timer <= 1 {
             possible.push(Spell::Poison);
         }
-        if self.player_mana >= 229 && self.recharge_timer <= 1 {
+        if self.player_mana >= Spell::Recharge.cost() && self.recharge_timer <= 1 {
             possible.push(Spell::Recharge);
         }
         possible
     }
 }
 
-fn part1(input: &Input) -> i64 {
-    let mut w = World::new(input, 50, 500);
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+struct SearchNode {
+    world: World,
+    arrived_by: Spell,
+}
 
-    
+impl AStarNode for SearchNode {
+    type Cost = i64;
+
+    type AssociatedState = Mode;
+
+    fn heuristic(&self, _goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
+        self.world.boss_hit_points
+    }
+
+    fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)> {
+        self.world.castable_spells().into_iter().map(|spell| {
+            let mut future = self.world;
+            future.turn(spell, *state);
+            (
+                SearchNode {
+                    world: future,
+                    arrived_by: spell,
+                },
+                spell.cost(),
+            )
+        })
+    }
+
+    fn goal_match(&self, _goal: &Self, _state: &Self::AssociatedState) -> bool {
+        self.world.boss_hit_points <= 0
+    }
+}
+
+fn find_cheapest_win(input: &Input, mode: Mode) -> i64 {
+    const INITIAL_MANA: i64 = 500;
+    let mut w = World::new(input, 50, INITIAL_MANA);
+    w.make_quiet();
+
+    let initial = SearchNode {
+        world: w,
+        arrived_by: Spell::Nothing,
+    };
+    let spells = search_astar(initial, initial, &mode)
+        .unwrap()
+        .into_iter()
+        .map(|sn| sn.arrived_by)
+        .collect::<Vec<_>>();
+    let winner = &spells[1..];
+
+    //let mut w = World::new(input, 50, INITIAL_MANA);
+    //for &spell in winner {
+    //    w.turn(spell, mode);
+    //}
+
+    winner.iter().map(|s| s.cost()).sum::<i64>()
+}
+
+fn part1(input: &Input) -> i64 {
+    find_cheapest_win(input, Mode::Easy)
 }
 
 fn part2(input: &Input) -> i64 {
-    todo!()
+    find_cheapest_win(input, Mode::Hard)
 }
 
 fn main() -> Result<()> {
@@ -229,7 +322,7 @@ fn main() -> Result<()> {
 
     let start_time = std::time::Instant::now();
     let part1 = part1(&input);
-    let part2 = 0; //part2(&input);
+    let part2 = part2(&input);
     let elapsed = start_time.elapsed();
 
     println!("Part1: {part1}");
@@ -237,23 +330,4 @@ fn main() -> Result<()> {
     println!("Time: {elapsed:?}");
 
     Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    static SAMPLE: &str = indoc::indoc! {"
-    "};
-
-    #[test]
-    fn part1_sample() {
-        assert_eq!(part1(&SAMPLE.parse::<Input>().unwrap()), 13);
-    }
-
-    #[test]
-    #[should_panic]
-    fn part2_sample() {
-        assert_eq!(part2(&SAMPLE.parse::<Input>().unwrap()), 36);
-    }
 }

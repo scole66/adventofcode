@@ -208,7 +208,7 @@ where
     while !open.is_empty() {
         let (current, _) = open.pop().unwrap();
         if current.goal_match(&goal, state) {
-            let mut result = vec![goal];
+            let mut result = vec![current.clone()];
             let mut current = current;
             while let Some(previous) = came_from.get(&current) {
                 result.push(previous.clone());

@@ -394,9 +394,9 @@ dependencies = [
 name = "mmxv_day22"
 version = "0.1.0"
 dependencies = [
- "ahash",
  "anyhow",
- "indoc",
+ "astar",
+ "indoc 2.0.5",
 ]
 
 [[package]]
