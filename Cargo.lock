@@ -408,6 +408,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxv_day24"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "indoc 2.0.5",
+]
+
+[[package]]
 name = "mmxv_day3"
 version = "0.1.0"
 dependencies = [
