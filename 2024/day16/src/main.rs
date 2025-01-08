@@ -109,6 +109,7 @@ impl Node {
 impl AStarNode for Node {
     type Cost = i64;
     type AssociatedState = Input;
+    type Goal = Node;
 
     fn heuristic(&self, goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
         (goal.row - self.row).abs() + (goal.col - self.col).abs()
@@ -164,7 +165,7 @@ fn part1(input: &Input) -> i64 {
         col: input.end.1,
         facing: Facing::East,
     };
-    let path = search_astar(start, goal, input).unwrap();
+    let path = search_astar(start, &goal, input).unwrap();
     path_cost(&path)
 }
 

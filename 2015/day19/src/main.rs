@@ -156,6 +156,7 @@ impl Iterator for MoleculeNeighborIter {
 
 impl AStarNode for SearchNode {
     type Cost = usize;
+    type Goal = SearchNode;
 
     type AssociatedState = MoleculeState;
 
@@ -194,7 +195,7 @@ fn part2(input: &str) -> Result<usize> {
         SearchNode {
             compound: state.data.target.clone(),
         },
-        SearchNode {
+        &SearchNode {
             compound: "e".to_string(),
         },
         &state,

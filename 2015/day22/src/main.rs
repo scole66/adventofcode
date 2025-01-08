@@ -255,10 +255,11 @@ struct SearchNode {
 
 impl AStarNode for SearchNode {
     type Cost = i64;
+    type Goal = ();
 
     type AssociatedState = Mode;
 
-    fn heuristic(&self, _goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
+    fn heuristic(&self, _goal: &Self::Goal, _state: &Self::AssociatedState) -> Self::Cost {
         self.world.boss_hit_points
     }
 
@@ -276,7 +277,7 @@ impl AStarNode for SearchNode {
         })
     }
 
-    fn goal_match(&self, _goal: &Self, _state: &Self::AssociatedState) -> bool {
+    fn goal_match(&self, _goal: &Self::Goal, _state: &Self::AssociatedState) -> bool {
         self.world.boss_hit_points <= 0
     }
 }
@@ -290,7 +291,7 @@ fn find_cheapest_win(input: &Input, mode: Mode) -> i64 {
         world: w,
         arrived_by: Spell::Nothing,
     };
-    let spells = search_astar(initial, initial, &mode)
+    let spells = search_astar(initial, &(), &mode)
         .unwrap()
         .into_iter()
         .map(|sn| sn.arrived_by)

@@ -62,6 +62,7 @@ struct Node {
 impl AStarNode for Node {
     type Cost = i64;
     type AssociatedState = Input;
+    type Goal = Node;
 
     fn heuristic(&self, goal: &Self, _: &Self::AssociatedState) -> Self::Cost {
         (goal.row - self.row).abs() + (goal.col - self.col).abs()
@@ -106,7 +107,7 @@ impl Input {
     /// Checks if there exists a valid path from start to goal
     /// where each step increases height by exactly 1
     fn reachable_from(&self, start: &Node, goal: &Node) -> bool {
-        search_astar(*start, *goal, self).is_some()
+        search_astar(*start, goal, self).is_some()
     }
 
     /// Returns an iterator over all valid next positions that are exactly 1 height greater
