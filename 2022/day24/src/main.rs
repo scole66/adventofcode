@@ -237,6 +237,7 @@ impl Iterator for NeighborIter {
 }
 impl AStarNode for TraversalState {
     type Cost = i64;
+    type Goal = TraversalState;
 
     type AssociatedState = TraversalSharedInfo;
 
@@ -331,18 +332,18 @@ impl AStarNode for TraversalState {
 fn part1(input: &str) -> anyhow::Result<usize> {
     let input = input.parse::<Input>()?;
     let info = input.info();
-    let path = search_astar(input.start(0), input.goal(0), &info).unwrap();
+    let path = search_astar(input.start(0), &input.goal(0), &info).unwrap();
     Ok(path.len() - 1)
 }
 
 fn part2(input: &str) -> anyhow::Result<usize> {
     let input = input.parse::<Input>()?;
     let info = input.info();
-    let first_path = search_astar(input.start(0), input.goal(0), &info).unwrap();
+    let first_path = search_astar(input.start(0), &input.goal(0), &info).unwrap();
     let second_start_time = first_path.len() - 1;
-    let second_path = search_astar(input.goal(second_start_time), input.start(0), &info).unwrap();
+    let second_path = search_astar(input.goal(second_start_time), &input.start(0), &info).unwrap();
     let third_start_time = first_path.len() + second_path.len() - 2;
-    let third_path = search_astar(input.start(third_start_time), input.goal(0), &info).unwrap();
+    let third_path = search_astar(input.start(third_start_time), &input.goal(0), &info).unwrap();
     Ok(first_path.len() + second_path.len() + third_path.len() - 3)
 }
 

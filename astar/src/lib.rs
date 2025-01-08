@@ -33,19 +33,23 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
     /// should hold the stuff needed to make decisions, but which doesn't uniquely identify a node and
     /// shouldn't be hashed.
     type AssociatedState;
+    /// Info stored for the target of the pathfinding. Often, this is the same thing as the node itself, but
+    /// sometimes, you're doing something else ("find the fastest way to the ground"), and we don't strictly
+    /// need the same type.
+    type Goal;
     /// The A* "heuristic" function. This function is what drives the search towards its destination. It is an
     /// _optimistic_ gauge of the cost to the destination. More explicitly: it must return a value which is
     /// _less or equal_ to the minimum cost path to the destination. A typical choice (in a grid pathfind) is
     /// the linear distance (or [Manhattan distance](https://en.wikipedia.org/wiki/Taxicab_geometry)) to the
     /// destination. (Note that the units of this value must match the units of cost; if you use something
     /// like distance squared (which is much cheaper to calculate), the resulting path may not be optimal.)
-    fn heuristic(&self, goal: &Self, state: &Self::AssociatedState) -> Self::Cost;
+    fn heuristic(&self, goal: &Self::Goal, state: &Self::AssociatedState) -> Self::Cost;
     /// Generates an iterator over all the neighbors of `self`, along with the costs to get to each of them.
     fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)>;
     /// Decides if a given node is a goal. In many uses of the search, this is just equality, but it may also
     /// deliberately avoid some of the node data to match a class of destinations. (Like: anything on the
     /// bottom row, or something.)
-    fn goal_match(&self, goal: &Self, state: &Self::AssociatedState) -> bool;
+    fn goal_match(&self, goal: &Self::Goal, state: &Self::AssociatedState) -> bool;
 }
 
 /// Use a heuristic-based search from a start node to a destination class of nodes in a graph
@@ -133,12 +137,13 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
 /// impl AStarNode for Node {
 ///     type Cost = i64;
 ///     type AssociatedState = World;
+///     type Goal = Node;
 ///
-///     fn heuristic(&self, goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
+///     fn heuristic(&self, goal: &Self::Goal, _state: &Self::AssociatedState) -> Self::Cost {
 ///         (goal.row - self.row).abs() + (goal.col - self.col).abs()
 ///     }
 ///
-///     fn goal_match(&self, goal: &Self, _state: &Self::AssociatedState) -> bool {
+///     fn goal_match(&self, goal: &Self::Goal, _state: &Self::AssociatedState) -> bool {
 ///         self.row == goal.row && self.col == goal.col
 ///     }
 ///
@@ -172,7 +177,7 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
 /// ];
 /// let world = map.join("\n").parse::<World>().unwrap();
 ///
-/// let path = search_astar(world.start.clone(), world.finish.clone(), &world).unwrap();
+/// let path = search_astar(world.start.clone(), &world.finish, &world).unwrap();
 /// let vis = world.path_visualization(&path);
 /// let expected = &[
 ///     "**...#..............***.......",
@@ -189,7 +194,7 @@ pub trait AStarNode: Clone + PartialEq + Eq + Hash {
 ///
 /// assert_eq!(vis, expected);
 /// ```
-pub fn search_astar<T>(initial: T, goal: T, state: &T::AssociatedState) -> Option<Vec<T>>
+pub fn search_astar<T>(initial: T, goal: &T::Goal, state: &T::AssociatedState) -> Option<Vec<T>>
 where
     T: AStarNode,
 {
@@ -200,14 +205,14 @@ where
     let mut came_from: AHashMap<T, T> = AHashMap::new();
 
     g_score.insert(initial.clone(), T::Cost::zero());
-    let fitness = initial.heuristic(&goal, state);
+    let fitness = initial.heuristic(goal, state);
     f_score.insert(initial.clone(), fitness);
 
     open.push(initial, Reverse(fitness));
 
     while !open.is_empty() {
         let (current, _) = open.pop().unwrap();
-        if current.goal_match(&goal, state) {
+        if current.goal_match(goal, state) {
             let mut result = vec![current.clone()];
             let mut current = current;
             while let Some(previous) = came_from.get(&current) {
@@ -221,7 +226,7 @@ where
             if g_score.get(&neighbor).map_or(true, |&previous| tentative < previous) {
                 came_from.insert(neighbor.clone(), current.clone());
                 g_score.insert(neighbor.clone(), tentative);
-                let new_fscore = tentative + neighbor.heuristic(&goal, state);
+                let new_fscore = tentative + neighbor.heuristic(goal, state);
                 f_score.insert(neighbor.clone(), new_fscore);
                 open.push(neighbor, Reverse(new_fscore));
             }
