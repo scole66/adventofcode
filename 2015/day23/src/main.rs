@@ -2,9 +2,7 @@
 //!
 //! Ref: [Advent of Code 2015 Day 23](https://adventofcode.com/2015/day/23)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
-use ahash::{AHashMap, AHashSet};
-use anyhow::{anyhow, bail, Context, Error, Result};
+use anyhow::{anyhow, bail, Error, Result};
 use std::io::{self, Read};
 use std::str::FromStr;
 

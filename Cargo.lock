@@ -403,7 +403,6 @@ dependencies = [
 name = "mmxv_day23"
 version = "0.1.0"
 dependencies = [
- "ahash",
  "anyhow",
  "indoc 2.0.5",
 ]
