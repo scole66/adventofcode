@@ -3,5 +3,8 @@ name = "mmxv_day4"
 version = "0.1.0"
 edition = "2021"
 
+[lints.clippy]
+pedantic = "deny"
+
 [dependencies]
 md-5 = "0.10.6"

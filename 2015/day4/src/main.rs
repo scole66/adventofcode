@@ -1,6 +1,5 @@
 use md5::{Digest, Md5};
 use std::env;
-//use std::error::Error;
 
 fn six_zeroes(a: u8, b: u8, c: u8) -> bool {
     a == 0 && b == 0 && c == 0

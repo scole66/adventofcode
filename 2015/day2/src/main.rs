@@ -48,11 +48,11 @@ impl TryFrom<&String> for ElfBox {
 }
 
 fn part1(boxes: &[ElfBox]) -> u32 {
-    boxes.iter().map(|eb| eb.paper_needed()).sum()
+    boxes.iter().map(ElfBox::paper_needed).sum()
 }
 
 fn part2(boxes: &[ElfBox]) -> u32 {
-    boxes.iter().map(|eb| eb.ribbon_needed()).sum()
+    boxes.iter().map(ElfBox::ribbon_needed).sum()
 }
 
 fn run_app() -> io::Result<()> {
@@ -80,7 +80,7 @@ fn run_app() -> io::Result<()> {
 
 fn main() {
     std::process::exit(match run_app() {
-        Ok(_) => 0,
+        Ok(()) => 0,
         Err(err) => {
             eprintln!("error: {err:?}");
             1

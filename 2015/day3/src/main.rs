@@ -36,7 +36,7 @@ impl Position {
     }
 }
 
-fn input_valid(line: &&String) -> bool {
+fn input_valid(line: &str) -> bool {
     lazy_static! {
         static ref VALIDATE: Regex = Regex::new("^[<>^v]+$").unwrap();
     }
@@ -44,12 +44,12 @@ fn input_valid(line: &&String) -> bool {
 }
 
 fn part1(lines: &[String]) -> usize {
-    let mut map: AHashMap<Position, i64> = Default::default();
-    let mut position = Default::default();
+    let mut map: AHashMap<Position, i64> = AHashMap::default();
+    let mut position = Position::default();
 
     *map.entry(position).or_insert(0) += 1;
 
-    for line in lines.iter().filter(input_valid) {
+    for line in lines.iter().filter(|s| input_valid(s)) {
         for ch in line.chars() {
             position = match ch {
                 '^' => position.north(),
@@ -65,9 +65,9 @@ fn part1(lines: &[String]) -> usize {
 }
 
 fn part2(lines: &[String]) -> usize {
-    let mut map: AHashMap<Position, i64> = Default::default();
-    let mut santa_position = Default::default();
-    let mut robot_position = Default::default();
+    let mut map: AHashMap<Position, i64> = AHashMap::default();
+    let mut santa_position = Position::default();
+    let mut robot_position = Position::default();
 
     *map.entry(santa_position).or_insert(0) += 1;
     *map.entry(robot_position).or_insert(0) += 1;
@@ -75,7 +75,7 @@ fn part2(lines: &[String]) -> usize {
     let spots = &mut [&mut santa_position, &mut robot_position];
     let mut spot_index = 0;
 
-    for line in lines.iter().filter(input_valid) {
+    for line in lines.iter().filter(|s| input_valid(s)) {
         for ch in line.chars() {
             let current = *spots[spot_index];
             let next_position = match ch {
