@@ -24,7 +24,7 @@
 //! * `turn on 0,0 through 999,999` would turn on (or leave on) every light.
 //! * `toggle 0,0 through 999,0` would toggle the first line of 1000 lights, turning off the ones that were on, and
 //!   turning on the ones that were off.
-//! * turn off 499,499 through 500,500` would turn off (or leave off) the middle four lights.
+//! * `turn off 499,499 through 500,500` would turn off (or leave off) the middle four lights.
 //!
 //! After following the instructions, **how many lights are lit?**
 //!
@@ -56,11 +56,11 @@ use regex::Regex;
 use std::io;
 use std::ops::{Index, IndexMut};
 
-struct Lights(Box<[u32; 1_000_000]>);
+struct Lights(Box<[u32]>);
 
 impl Lights {
     pub fn new() -> Self {
-        Lights(Box::new([0; 1_000_000]))
+        Lights(vec![0_u32; 1_000_000].into_boxed_slice())
     }
 
     fn to_index(pos: (u32, u32)) -> usize {
