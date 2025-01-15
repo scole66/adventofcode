@@ -4,7 +4,6 @@
 //!
 use anyhow::{anyhow, bail, Error, Result};
 use itertools::Itertools;
-use rayon::prelude::*;
 use std::io::{self, Read};
 use std::str::FromStr;
 
@@ -129,7 +128,7 @@ impl Machine {
         match insn {
             0 => {
                 // adv
-                self.register_a = self.register_a >> self.combo_operand(operand)?;
+                self.register_a >>= self.combo_operand(operand)?;
                 self.instruction_pointer += 2;
             }
             1 => {
