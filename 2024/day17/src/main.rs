@@ -129,10 +129,7 @@ impl Machine {
         match insn {
             0 => {
                 // adv
-                let numerator = self.register_a;
-                let denominator = 1_i64 << self.combo_operand(operand)?;
-                let result = numerator.div_euclid(denominator);
-                self.register_a = result;
+                self.register_a = self.register_a >> self.combo_operand(operand)?;
                 self.instruction_pointer += 2;
             }
             1 => {
@@ -143,7 +140,7 @@ impl Machine {
             }
             2 => {
                 // bst
-                let result = self.combo_operand(operand)?.rem_euclid(8);
+                let result = self.combo_operand(operand)? & 7;
                 self.register_b = result;
                 self.instruction_pointer += 2;
             }
@@ -163,24 +160,18 @@ impl Machine {
             }
             5 => {
                 // out
-                let result = self.combo_operand(operand)?.rem_euclid(8);
+                let result = self.combo_operand(operand)? & 7;
                 output = Some(result);
                 self.instruction_pointer += 2;
             }
             6 => {
                 // bdv
-                let numerator = self.register_a;
-                let denominator = 1_i64 << self.combo_operand(operand)?;
-                let result = numerator.div_euclid(denominator);
-                self.register_b = result;
+                self.register_b = self.register_a >> self.combo_operand(operand)?;
                 self.instruction_pointer += 2;
             }
             7 => {
                 // cdv
-                let numerator = self.register_a;
-                let denominator = 1_i64 << self.combo_operand(operand)?;
-                let result = numerator.div_euclid(denominator);
-                self.register_c = result;
+                self.register_c = self.register_a >> self.combo_operand(operand)?;
                 self.instruction_pointer += 2;
             }
             _ => return Err(ExecutionError::BadOpcode),
@@ -213,16 +204,19 @@ fn part1(input: &Input) -> Result<String> {
     machine.run_program().map_err(Error::from)
 }
 
-fn part2(input: &Input) -> Result<i64> {
-    let mut initial_reg_a = 0;
+fn part2_wrong(input: &Input, initial_a: i64) -> Result<i64> {
+    let mut initial_reg_a = initial_a;
+    let target = input.program.iter().map(u8::to_string).join(",");
     loop {
         let attempts = [0, 1, 2, 3, 4, 5, 6, 7]
-            .par_iter()
+            .iter() //.par_iter()
             .filter_map(|delta| {
                 let mut machine = Machine::from(input.clone());
                 machine.register_a = initial_reg_a + delta;
+                let sv = machine.register_a;
                 let output = machine.run_program().unwrap();
-                if output == machine.program.iter().map(u8::to_string).join(",") {
+                println!("Initial regA: {sv:#o}; Output: {output}; trying for {target}");
+                if output == target {
                     return Some(initial_reg_a + delta);
                 }
                 None
@@ -233,6 +227,28 @@ fn part2(input: &Input) -> Result<i64> {
         }
         initial_reg_a += 8;
     }
+}
+
+fn part2(input: &Input) -> Result<i64> {
+    // Find the ADV
+    let machine = Machine::from(input.clone());
+    let bits_per_loop = machine
+        .program
+        .iter()
+        .copied()
+        .tuples()
+        .filter_map(|(insn, operand)| {
+            if insn == 0 && (0..=3).contains(&operand) {
+                Some(usize::from(operand))
+            } else {
+                None
+            }
+        })
+        .sum::<usize>();
+    let program_len_in_bits = 3 * machine.program.len();
+    let minimum_starting_digits = program_len_in_bits / bits_per_loop;
+    let minimum_starting_value = 1_i64 << (3 * (minimum_starting_digits - 1));
+    part2_wrong(input, minimum_starting_value)
 }
 
 fn main() -> Result<()> {
