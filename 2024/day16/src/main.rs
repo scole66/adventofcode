@@ -2,6 +2,8 @@
 //!
 //! Ref: [Advent of Code 2024 Day 16](https://adventofcode.com/2024/day/16)
 //!
+#![warn(missing_docs)]
+
 use ahash::{AHashMap, AHashSet};
 use anyhow::{anyhow, bail, Error, Result};
 use astar::{search_astar, AStarNode};
@@ -10,16 +12,51 @@ use std::collections::BinaryHeap;
 use std::io::{self, Read};
 use std::str::FromStr;
 
+/// Represents the maze puzzle input
+///
+/// Contains:
+/// * The maze layout where '#' represents walls
+/// * Start position (S) coordinates
+/// * End position (E) coordinates
+///
+/// Example maze format:
+/// ```text
+/// ###############
+/// #.......#....E#
+/// #.#.###.#.###.#
+/// #.....#.#...#.#
+/// #.###.#####.#.#
+/// #S..#.........#
+/// ###############
+/// ```
 #[derive(Clone)]
 struct Input {
+    /// Set of wall coordinates in the maze
     map: AHashSet<(i64, i64)>,
+    /// Starting position coordinates (row, column)
     start: (i64, i64),
+    /// Ending position coordinates (row, column)
     end: (i64, i64),
 }
 
 impl FromStr for Input {
     type Err = Error;
 
+    /// Parses a maze string into an Input structure
+    ///
+    /// The input string should contain:
+    /// * Exactly one 'S' character marking the start position
+    /// * Exactly one 'E' character marking the end position
+    /// * '#' characters for walls
+    /// * '.' characters for open spaces
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// * The input contains invalid characters
+    /// * No start position 'S' is found
+    /// * No end position 'E' is found
+    /// * Row or column numbers cannot be converted to i64
     fn from_str(s: &str) -> Result<Self> {
         let mut start = None;
         let mut end = None;
@@ -49,6 +86,7 @@ impl FromStr for Input {
     }
 }
 
+/// Represents the cardinal directions that can be faced
 #[derive(Copy, Clone, PartialEq, Debug, Hash, Eq, PartialOrd, Ord)]
 enum Facing {
     North,
@@ -57,6 +95,7 @@ enum Facing {
     West,
 }
 impl Facing {
+    /// Rotates the current facing 90 degrees clockwise
     fn clockwise(self) -> Self {
         match self {
             Facing::North => Facing::East,
@@ -66,6 +105,7 @@ impl Facing {
         }
     }
 
+    /// Rotates the current facing 90 degrees counter-clockwise
     fn counter_clockwise(self) -> Self {
         match self {
             Facing::North => Facing::West,
@@ -75,6 +115,12 @@ impl Facing {
         }
     }
 
+    /// Calculates the cost of turning from the current facing to a new facing
+    ///
+    /// Returns:
+    /// * 0 for no turn (same direction)
+    /// * 1000 for a 90-degree turn
+    /// * 2000 for a 180-degree turn
     fn turn_cost(self, new_facing: Self) -> i64 {
         if self == new_facing {
             0
@@ -86,6 +132,7 @@ impl Facing {
     }
 }
 
+/// Represents a position and direction in the maze
 #[derive(Debug, Copy, Clone, PartialEq, Hash, Eq, PartialOrd, Ord)]
 struct Node {
     row: i64,
@@ -94,6 +141,11 @@ struct Node {
 }
 
 impl Node {
+    /// Determines which direction would need to be faced to move to a new position
+    ///
+    /// # Panics
+    ///
+    /// Panics if the new position is not adjacent to the current position
     fn needed_facing(&self, new_spot: (i64, i64)) -> Facing {
         let (row, col) = new_spot;
         match (row - self.row, col - self.col) {
@@ -111,11 +163,23 @@ impl AStarNode for Node {
     type AssociatedState = Input;
     type Goal = Node;
 
+    /// Estimates the minimum cost to reach the goal from this node
+    /// Returns the Manhattan distance between current position and goal
     fn heuristic(&self, goal: &Self, _state: &Self::AssociatedState) -> Self::Cost {
         (goal.row - self.row).abs() + (goal.col - self.col).abs()
     }
 
+    /// Returns all valid neighboring positions and their costs
+    ///
+    /// Cost includes:
+    /// * Base movement cost of 1
+    /// * Turn cost based on direction change
+    ///
+    /// Filters out:
+    /// * Positions containing walls
+    /// * Moves that would require turning back (cost >= 1500)
     fn neighbors(&self, state: &Self::AssociatedState) -> impl Iterator<Item = (Self, Self::Cost)> {
+        // Check all four adjacent positions: North, South, East, West
         [(-1, 0), (1, 0), (0, 1), (0, -1)]
             .into_iter()
             .map(|(dx, dy)| (self.row + dx, self.col + dy))
@@ -138,11 +202,14 @@ impl AStarNode for Node {
             })
     }
 
+    /// Determines if this node matches the goal position
+    /// Only checks row and column coordinates, ignoring facing direction
     fn goal_match(&self, goal: &Self, _state: &Self::AssociatedState) -> bool {
         self.row == goal.row && self.col == goal.col
     }
 }
 
+/// Calculates the total cost of a path including movement and turning costs
 fn path_cost(path: &[Node]) -> i64 {
     path.windows(2)
         .map(|items| {
@@ -154,6 +221,7 @@ fn path_cost(path: &[Node]) -> i64 {
         .sum()
 }
 
+/// Solves part 1 of the puzzle by finding the shortest path from start to end
 fn part1(input: &Input) -> i64 {
     let start = Node {
         row: input.start.0,
@@ -169,16 +237,22 @@ fn part1(input: &Input) -> i64 {
     path_cost(&path)
 }
 
+/// Results from running Dijkstra's algorithm on the maze
 struct DijkstraResult {
+    /// Maps each node to its shortest distance from the start
     distances: AHashMap<Node, i64>,
-    parents: AHashMap<Node, Vec<Node>>, // Stores closest parent for each node
+    /// Maps each node to its possible parent nodes in shortest paths
+    parents: AHashMap<Node, Vec<Node>>,
 }
 
 impl DijkstraResult {
+    /// Runs Dijkstra's algorithm to find all shortest paths through the maze
     fn dijkstra(world: &Input) -> DijkstraResult {
+        // Initialize data structures for Dijkstra's algorithm
         let mut distances = AHashMap::<_, _>::new();
         let mut heap = BinaryHeap::new();
         let mut parents = AHashMap::<_, _>::new();
+
         // The distance to the start node is zero. Any node not in the distances map has infinite distance.
         let start = Node {
             row: world.start.0,
@@ -189,26 +263,31 @@ impl DijkstraResult {
         heap.push(Reverse((0, start)));
 
         while let Some(Reverse((distance, node))) = heap.pop() {
+            // Skip if we already found a better path to this node
             let previously_known_distance = *distances.get(&node).unwrap_or(&i64::MAX);
             if distance > previously_known_distance {
                 continue;
             }
 
+            // Process each neighbor, updating distances and parents for shorter paths
             for (neighbor, cost) in node.neighbors(world) {
                 let new_target_distance = distance + cost;
-                let previous_target_distance = *distances.get(&neighbor).unwrap_or(&i64::MAX);
+                let previous_target_distance = distances.get(&neighbor).copied().unwrap_or(i64::MAX);
                 match new_target_distance.cmp(&previous_target_distance) {
+                    // Found a shorter path to neighbor
                     Ordering::Less => {
                         distances.insert(neighbor, new_target_distance);
                         parents.insert(neighbor, vec![node]);
                         heap.push(Reverse((new_target_distance, neighbor)));
                     }
+                    // Found an equal-length alternative path
                     Ordering::Equal => {
                         parents
                             .get_mut(&neighbor)
                             .expect("parent vec should be there")
                             .push(node);
                     }
+                    // Found a longer path, ignore it
                     Ordering::Greater => {}
                 }
             }
@@ -217,6 +296,7 @@ impl DijkstraResult {
         DijkstraResult { distances, parents }
     }
 
+    /// Reconstructs all possible shortest paths from source to target
     fn reconstruct_paths(&self, source: Node, target: Node) -> Vec<Vec<Node>> {
         let mut paths = Vec::new();
         let mut current_path = Vec::new();
@@ -224,6 +304,7 @@ impl DijkstraResult {
         paths
     }
 
+    /// Helper function for path reconstruction using depth-first search
     fn dfs_reconstruct(&self, source: Node, current: Node, current_path: &mut Vec<Node>, paths: &mut Vec<Vec<Node>>) {
         current_path.push(current);
 
@@ -241,6 +322,7 @@ impl DijkstraResult {
     }
 }
 
+/// Solves part 2 of the puzzle by finding all possible shortest paths and counting unique positions
 fn part2(world: &Input) -> Result<usize> {
     let dj_res = DijkstraResult::dijkstra(world);
 
