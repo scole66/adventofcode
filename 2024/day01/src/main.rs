@@ -49,10 +49,7 @@ fn part1(input: &Input) -> usize {
     let mut right = input.data.iter().map(|(_, right)| *right).collect::<Vec<_>>();
     left.sort_unstable();
     right.sort_unstable();
-    left.into_iter()
-        .zip(right)
-        .map(|(a, b)| if a > b { a - b } else { b - a })
-        .sum::<usize>()
+    left.into_iter().zip(right).map(|(a, b)| a.abs_diff(b)).sum::<usize>()
 }
 
 fn part2(input: &Input) -> usize {

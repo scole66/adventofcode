@@ -2,10 +2,10 @@
 //!
 //! Ref: [Advent of Code 2015 Day 6](https://adventofcode.com/2015/day/6)
 use anyhow::{self};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::io;
 use std::ops::{Index, IndexMut};
+use std::sync::LazyLock;
 
 struct Lights(Box<[u32]>);
 
@@ -117,7 +117,7 @@ impl TryFrom<&str> for LightAction {
             "turn on" => Ok(LightAction::Lighten),
             "turn off" => Ok(LightAction::Darken),
             "toggle" => Ok(LightAction::Toggle),
-            _ => Err(anyhow::anyhow!("This is not a valid action: {}", item)),
+            _ => Err(anyhow::anyhow!("This is not a valid action: {item}")),
         }
     }
 }
@@ -129,12 +129,10 @@ struct Instruction {
 }
 
 fn process(lines: &[String]) -> Vec<Instruction> {
-    lazy_static! {
-        static ref INSTRUCTION_RE: Regex = Regex::new(
-            r"^(?P<action>turn on|turn off|toggle) (?P<x1>\d+),(?P<y1>\d+) through (?P<x2>\d+),(?P<y2>\d+)\s*$"
-        )
-        .unwrap();
-    }
+    static INSTRUCTION_RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"^(?P<action>turn on|turn off|toggle) (?P<x1>\d+),(?P<y1>\d+) through (?P<x2>\d+),(?P<y2>\d+)\s*$")
+            .unwrap()
+    });
     lines
         .iter()
         .filter_map(|line| INSTRUCTION_RE.captures(line.as_str()))

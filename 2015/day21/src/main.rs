@@ -5,10 +5,10 @@
 #![allow(dead_code, unused_imports, unused_variables)]
 use ahash::{AHashMap, AHashSet};
 use anyhow::{anyhow, bail, Context, Error, Result};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use std::io::{self, Read};
 use std::str::FromStr;
+use std::sync::LazyLock as Lazy;
 
 const EXPECT_RE: &str = "compiled patterns shouldn't fail";
 

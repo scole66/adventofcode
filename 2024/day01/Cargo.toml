@@ -8,5 +8,5 @@ pedantic = "deny"
 
 [dependencies]
 anyhow = "1.0.95"
-counter = "0.6.0"
+counter = "0.7.0"
 indoc = "2.0.5"

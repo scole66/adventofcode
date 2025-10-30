@@ -107,7 +107,7 @@ fn dirparse(cmds: &mut Peekable<impl Iterator<Item = String>>, curdir: &mut Dire
 
 impl Directory {
     fn size(&self) -> usize {
-        self.0.iter().map(|(_, entry)| entry.size()).sum()
+        self.0.values().map(|entry| entry.size()).sum()
     }
 }
 

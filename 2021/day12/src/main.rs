@@ -6,9 +6,9 @@
 use ahash::AHashMap;
 use ahash::AHashSet;
 use anyhow::{self, Context};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::io::{self, BufRead};
+use std::sync::LazyLock;
 
 /// Marker for cavern size
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
@@ -240,10 +240,9 @@ impl Network {
 ///
 /// Returns an `Err` if the input line fails validation (doesn't look like identifier - dash - identifier)
 fn parse(s: String) -> anyhow::Result<PartialNode> {
-    lazy_static! {
-        static ref NODE_PATTERN: Regex =
-            Regex::new("^(?P<node_name>[a-z]+|[A-Z]+)-(?P<dest_name>[a-z]+|[A-Z]+)$").unwrap();
-    }
+    static NODE_PATTERN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new("^(?P<node_name>[a-z]+|[A-Z]+)-(?P<dest_name>[a-z]+|[A-Z]+)$").unwrap());
+
     let captures = NODE_PATTERN
         .captures(s.as_str())
         .ok_or_else(|| anyhow::anyhow!("{} is not a valid cavern description", s))?;
