@@ -1,7 +1,7 @@
 use ahash::AHashMap;
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::io;
+use std::sync::LazyLock;
 
 #[derive(Debug, Default, PartialEq, Eq, Hash, Copy, Clone)]
 struct Position {
@@ -37,9 +37,7 @@ impl Position {
 }
 
 fn input_valid(line: &str) -> bool {
-    lazy_static! {
-        static ref VALIDATE: Regex = Regex::new("^[<>^v]+$").unwrap();
-    }
+    static VALIDATE: LazyLock<Regex> = LazyLock::new(|| Regex::new("^[<>^v]+$").unwrap());
     VALIDATE.is_match(line)
 }
 

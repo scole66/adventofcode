@@ -49,7 +49,7 @@ impl EnergyMap {
         }
         // everthing >9 flashes.
         let mut flashed = AHashSet::<(i32, i32)>::new();
-        while do_flash.len() > 0 {
+        while !do_flash.is_empty() {
             let loc = *do_flash.iter().next().unwrap();
             do_flash.remove(&loc);
 

@@ -223,7 +223,7 @@ where
         }
         for (neighbor, neighbor_cost) in current.neighbors(state) {
             let tentative = g_score[&current] + neighbor_cost;
-            if g_score.get(&neighbor).map_or(true, |&previous| tentative < previous) {
+            if g_score.get(&neighbor).is_none_or(|&previous| tentative < previous) {
                 came_from.insert(neighbor.clone(), current.clone());
                 g_score.insert(neighbor.clone(), tentative);
                 let new_fscore = tentative + neighbor.heuristic(goal, state);

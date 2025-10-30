@@ -1,16 +1,14 @@
 use ahash::AHashSet;
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::io::{self, BufRead};
+use std::sync::LazyLock;
 
 type SegmentPattern = String;
 type OutputValue = String;
 
 fn parse_line(line: &str) -> Option<(Vec<SegmentPattern>, Vec<OutputValue>)> {
-    lazy_static! {
-        static ref VALIDATE: Regex =
-            Regex::new(r"^(?P<patterns>(?:[a-g]{2,7} ){10})\|(?P<values>(?: [a-g]{2,7}){4})$").unwrap();
-    }
+    static VALIDATE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^(?P<patterns>(?:[a-g]{2,7} ){10})\|(?P<values>(?: [a-g]{2,7}){4})$").unwrap());
     VALIDATE.captures(line).map(|caps| {
         (
             caps.name("patterns")

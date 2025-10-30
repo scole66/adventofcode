@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 ahash = "0.8.11"
 anyhow = "1.0.95"
-itertools = "0.13"
+itertools = "0.14.0"

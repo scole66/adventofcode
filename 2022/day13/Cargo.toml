@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.95"
 indoc = "2.0"
-itertools = "0.13"
+itertools = "0.14.0"
 test-case = "3.3"

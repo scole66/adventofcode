@@ -3,10 +3,10 @@
 //! Ref: [Advent of Code 2015 Day 25](https://adventofcode.com/2015/day/25)
 
 use anyhow::{anyhow, Error, Result};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use std::io::{self, Read};
 use std::str::FromStr;
+use std::sync::LazyLock as Lazy;
 
 struct Input {
     row: i64,

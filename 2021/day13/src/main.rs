@@ -5,18 +5,17 @@
 
 use ahash::AHashSet;
 use anyhow::{self, Context};
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::fmt;
 use std::io::{self, BufRead};
+use std::sync::LazyLock;
 
 #[derive(Debug, Eq, PartialEq, Hash, Copy, Clone)]
 struct Position((i32, i32));
 impl Position {
     fn parse(s: &str) -> anyhow::Result<Self> {
-        lazy_static! {
-            static ref POS_PATTERN: Regex = Regex::new("^(?P<col>0|[1-9][0-9]*),(?P<row>0|[1-9][0-9]*)$").unwrap();
-        }
+        static POS_PATTERN: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new("^(?P<col>0|[1-9][0-9]*),(?P<row>0|[1-9][0-9]*)$").unwrap());
         let captures = POS_PATTERN
             .captures(s)
             .ok_or_else(|| anyhow::anyhow!("‘{}’ is not a valid position description", s))?;
@@ -74,7 +73,7 @@ impl Grid {
     }
 
     fn extents(&self) -> Option<(i32, i32, i32, i32)> {
-        if self.0.len() == 0 {
+        if self.0.is_empty() {
             None
         } else {
             let mut min_col = i32::MAX;
@@ -130,9 +129,8 @@ enum Instruction {
 
 impl Instruction {
     fn parse(s: &str) -> anyhow::Result<Self> {
-        lazy_static! {
-            static ref INST_PATTERN: Regex = Regex::new("^fold along (?P<xy>x|y)=(?P<val>0|[1-9][0-9]*)$").unwrap();
-        }
+        static INST_PATTERN: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new("^fold along (?P<xy>x|y)=(?P<val>0|[1-9][0-9]*)$").unwrap());
         let captures = INST_PATTERN
             .captures(s)
             .ok_or_else(|| anyhow::anyhow!("‘{}’ is not a valid instruction", s))?;
@@ -188,7 +186,7 @@ impl FromIterator<ResultStringWrap> for anyhow::Result<Data> {
             }
         }
 
-        if grid.len() == 0 {
+        if grid.is_empty() {
             anyhow::bail!("No positions detected! At least one is required.");
         }
         if instructions.len() <= 1 {

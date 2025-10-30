@@ -3,10 +3,10 @@
 //! Ref: [Advent of Code 2024 Day 3](https://adventofcode.com/2024/day/3)
 //!
 use anyhow::{bail, Context, Error, Result};
-use once_cell::sync::Lazy;
 use regex::Regex;
 use std::io::{self, Read};
 use std::str::FromStr;
+use std::sync::LazyLock;
 
 struct Input {
     s: String,
@@ -19,8 +19,8 @@ impl FromStr for Input {
 }
 
 fn part1(input: &Input) -> Result<usize> {
-    static PATTERN: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"mul\((\d+),(\d+)\)").expect("compiled patterns shouldn't fail"));
+    static PATTERN: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"mul\((\d+),(\d+)\)").expect("compiled patterns shouldn't fail"));
     PATTERN
         .captures_iter(&input.s)
         .map(|cap| {
@@ -41,7 +41,7 @@ struct Accumulator {
 }
 
 fn part2(input: &Input) -> Result<usize> {
-    static PATTERN: Lazy<Regex> = Lazy::new(|| {
+    static PATTERN: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"(do\(\))|(don't\(\))|(mul\((\d+),(\d+)\))").expect("compiled patterns shouldn't fail")
     });
     Ok(PATTERN

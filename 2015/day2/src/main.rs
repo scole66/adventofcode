@@ -1,6 +1,6 @@
-use lazy_static::lazy_static;
 use regex::Regex;
 use std::io;
+use std::sync::LazyLock;
 
 struct ElfBox {
     width: u32,
@@ -33,10 +33,8 @@ impl ElfBox {
 impl TryFrom<&String> for ElfBox {
     type Error = &'static str;
     fn try_from(src: &String) -> Result<Self, Self::Error> {
-        lazy_static! {
-            static ref ELFBOX_RE: Regex =
-                Regex::new(r"^(?P<width>[0-9]+)x(?P<height>[0-9]+)x(?P<depth>[0-9]+)\s*$").unwrap();
-        }
+        static ELFBOX_RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"^(?P<width>[0-9]+)x(?P<height>[0-9]+)x(?P<depth>[0-9]+)\s*$").unwrap());
         ELFBOX_RE.captures(src).map_or(Err("Malformed box dimensions"), |caps| {
             Ok(ElfBox {
                 width: caps.name("width").unwrap().as_str().parse::<u32>().unwrap(),

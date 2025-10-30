@@ -58,7 +58,7 @@ impl HeightMap {
         to_do.insert((row, col));
         let mut done: AHashSet<(i32, i32)> = Default::default();
 
-        while to_do.len() > 0 {
+        while !to_do.is_empty() {
             let (row, col) = *to_do.iter().next().unwrap();
             to_do.remove(&(row, col));
             let current_height = *self.map.get(&(row, col)).unwrap();
