@@ -17,9 +17,8 @@ impl FromStr for Input {
             instructions: s
                 .lines()
                 .map(|line| {
-                    let (direction_str, amount_str) = line
-                        .split_at_checked(1)
-                        .ok_or(anyhow!("Invalid instruction: {line}"))?;
+                    let (direction_str, amount_str) =
+                        line.split_at_checked(1).ok_or(anyhow!("Invalid instruction: {line}"))?;
                     let amount = amount_str.parse::<i64>()?;
                     match direction_str {
                         "L" => Ok(-amount),
