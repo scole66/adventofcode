@@ -33,10 +33,7 @@ impl FromStr for Input {
 
     fn from_str(s: &str) -> Result<Self> {
         Ok(Input {
-            pairs: s
-                .split(',')
-                .map(|line| line.parse::<Pair>())
-                .collect::<Result<Vec<_>>>()?,
+            pairs: s.split(',').map(str::parse::<Pair>).collect::<Result<Vec<_>>>()?,
         })
     }
 }
