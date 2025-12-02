@@ -33,10 +33,7 @@ impl FromStr for Input {
 
     fn from_str(s: &str) -> Result<Self> {
         Ok(Input {
-            pairs: s
-                .split(',')
-                .map(|line| line.parse::<Pair>())
-                .collect::<Result<Vec<_>>>()?,
+            pairs: s.split(',').map(str::parse::<Pair>).collect::<Result<Vec<_>>>()?,
         })
     }
 }
@@ -146,11 +143,11 @@ mod tests {
 
     #[test]
     fn part1_sample() {
-        assert_eq!(part1(&SAMPLE.parse::<Input>().unwrap()), 1227775554);
+        assert_eq!(part1(&SAMPLE.parse::<Input>().unwrap()), 1_227_775_554);
     }
 
     #[test]
     fn part2_sample() {
-        assert_eq!(part2(&SAMPLE.parse::<Input>().unwrap()), 4174379265);
+        assert_eq!(part2(&SAMPLE.parse::<Input>().unwrap()), 4_174_379_265);
     }
 }

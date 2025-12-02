@@ -3,6 +3,9 @@ name = "mmxxv_day2"
 version = "0.1.0"
 edition = "2024"
 
+[lints.clippy]
+pedantic = "deny"
+
 [dependencies]
 anyhow = "1.0.100"
 indoc = "2.0.7"
