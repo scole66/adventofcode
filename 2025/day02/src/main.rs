@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn part1_sample() {
-        assert_eq!(part1(&SAMPLE.parse::<Input>().unwrap()), 122_777_554);
+        assert_eq!(part1(&SAMPLE.parse::<Input>().unwrap()), 1_227_775_554);
     }
 
     #[test]
