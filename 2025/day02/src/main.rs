@@ -38,79 +38,48 @@ impl FromStr for Input {
     }
 }
 
-fn divisors(n: usize) -> Vec<usize> {
-    let mut divs = Vec::new();
-    for i in 1..=n {
-        if n.is_multiple_of(i) {
-            divs.push(i);
-        }
-    }
-    divs
+fn exclusive_divisors(n: usize) -> impl Iterator<Item = usize> {
+    (1..n).filter(move |&i| n.is_multiple_of(i))
 }
 
 impl Pair {
-    fn invalid_ids(&self) -> Vec<i64> {
-        let mut invalids = Vec::new();
-        for id in self.start..=self.end {
+    fn invalid_ids(&self) -> impl Iterator<Item = i64> {
+        (self.start..=self.end).filter(|id| {
             let id_str = id.to_string();
             let num_digits = id_str.len();
             if !id_str.is_empty() && num_digits % 2 == 0 {
                 let (left, right) = id_str.split_at(num_digits / 2);
-                if left == right {
-                    invalids.push(id);
-                }
+                left == right
+            } else {
+                false
             }
-        }
-        invalids
+        })
     }
 
-    fn truly_invalid_ids(&self) -> Vec<i64> {
-        let mut invalids = Vec::new();
-        for id in self.start..=self.end {
+    fn truly_invalid_ids(&self) -> impl Iterator<Item = i64> {
+        (self.start..=self.end).filter(|id| {
             let id_str = id.to_string();
             let num_digits = id_str.len();
-            for window_size in divisors(num_digits) {
-                if window_size == num_digits {
-                    continue;
-                }
-                let mut all_match = true;
-                for start in (0..num_digits).step_by(window_size) {
-                    let end = start + window_size;
-                    let slice = &id_str[start..end];
-                    let next_start = end;
-                    let next_end = next_start + window_size;
-                    if next_end > num_digits {
-                        continue;
-                    }
-                    if &id_str[next_start..next_end] != slice {
-                        all_match = false;
-                        break;
-                    }
-                }
-
-                if all_match {
-                    invalids.push(id);
-                    break;
-                }
-            }
-        }
-        invalids
+            exclusive_divisors(num_digits).any(|window_size| {
+                let slice = &id_str[0..window_size];
+                (window_size..num_digits).step_by(window_size).all(|comparison_start| {
+                    let end = comparison_start + window_size;
+                    &id_str[comparison_start..end] == slice
+                })
+            })
+        })
     }
 }
 
 fn part1(input: &Input) -> i64 {
-    input
-        .pairs
-        .iter()
-        .map(|pair| pair.invalid_ids().iter().sum::<i64>())
-        .sum()
+    input.pairs.iter().map(|pair| pair.invalid_ids().sum::<i64>()).sum()
 }
 
 fn part2(input: &Input) -> i64 {
     input
         .pairs
         .iter()
-        .map(|pair| pair.truly_invalid_ids().iter().sum::<i64>())
+        .map(|pair| pair.truly_invalid_ids().sum::<i64>())
         .sum()
 }
 
