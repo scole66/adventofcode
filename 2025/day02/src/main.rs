@@ -47,7 +47,7 @@ impl Pair {
         (self.start..=self.end).filter(|id| {
             let id_str = id.to_string();
             let num_digits = id_str.len();
-            if !id_str.is_empty() && num_digits % 2 == 0 {
+            if !id_str.is_empty() && num_digits.is_multiple_of(2) {
                 let (left, right) = id_str.split_at(num_digits / 2);
                 left == right
             } else {
