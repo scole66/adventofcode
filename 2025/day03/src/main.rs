@@ -3,6 +3,7 @@
 //! Ref: [Advent of Code 2025 Day 3](https://adventofcode.com/2025/day/3)
 //!
 use anyhow::{Error, Result, anyhow};
+use std::cmp::min;
 use std::io::{self, Read};
 use std::str::FromStr;
 
@@ -51,7 +52,6 @@ impl Bank {
     ///
     /// # Panics
     ///
-    /// - If the slice range is invalid (e.g. `battery_count` is larger than `self.batteries.len()`).
     /// - If an index conversion fails (should not happen unless battery list is excessively large).
     ///
     /// # Example
@@ -63,26 +63,23 @@ impl Bank {
     /// ```
     fn maximum_joltage(&self, battery_count: usize) -> i64 {
         let num_batteries = self.batteries.len();
-        let mut joltage = 0;
-        let mut batteries_to_process = battery_count;
-        let mut prior_location = 0;
-        while batteries_to_process > 0 {
-            let (location, &largest_digit) = self.batteries[prior_location..=num_batteries - batteries_to_process]
-                .iter()
-                .enumerate()
-                .max_by_key(|(idx, val)| {
-                    (
-                        **val,
-                        -(i64::try_from(*idx).expect("we should have a reasonable number of batteries")),
-                    )
-                })
-                .expect("there should be batteries");
-            let digit = i64::from(largest_digit);
-            joltage = joltage * 10 + digit;
-            prior_location += location + 1;
-            batteries_to_process -= 1;
-        }
-        joltage
+        (1..=min(num_batteries, battery_count))
+            .rev()
+            .fold((0, 0), |(prior_location, joltage), batteries_to_process| {
+                let (location, &largest_digit) = self.batteries[prior_location..=num_batteries - batteries_to_process]
+                    .iter()
+                    .enumerate()
+                    .max_by_key(|(idx, val)| {
+                        (
+                            **val,
+                            -(i64::try_from(*idx).expect("we should have a reasonable number of batteries")),
+                        )
+                    })
+                    .expect("there should be batteries");
+                let digit = i64::from(largest_digit);
+                (prior_location + location + 1, joltage * 10 + digit)
+            })
+            .1
     }
 }
 
