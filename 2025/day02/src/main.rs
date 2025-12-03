@@ -57,16 +57,16 @@ impl FromStr for Input {
 /// assert_eq!(divisors, vec![1, 2, 3, 4, 6]);
 /// ```
 fn exclusive_divisors(n: usize) -> impl Iterator<Item = usize> {
-    (1..=n/2).filter(move |&i| n.is_multiple_of(i))
+    (1..=n / 2).filter(move |&i| n.is_multiple_of(i))
 }
 
 impl Pair {
     /// Returns an iterator over all invalid IDs within this `Pair`'s inclusive range.
     ///
-    /// The range is defined by `self.start..=self.end`.  
+    /// The range is defined by `self.start..=self.end`.
     /// An ID is considered *invalid* if:
-    /// - It contains an even number of digits, and  
-    /// - The first half of its digits are exactly the same as the second half.  
+    /// - It contains an even number of digits, and
+    /// - The first half of its digits are exactly the same as the second half.
     ///
     /// For example, `1212`, `4444`, and `9898` are invalid because their digit
     /// sequences repeat in two equal halves.
@@ -119,7 +119,7 @@ impl Pair {
     /// let truly_invalid: Vec<_> = pair.truly_invalid_ids().collect();
     ///
     /// assert_eq!(truly_invalid, vec![1111, 1212, 1313, 1414, 1515, 1616]);
-    /// 
+    ///
     /// let pair = Pair { start: 121100, end: 123300 };
     /// let truly_invalid: Vec<_> = pair.truly_invalid_ids().collect();
     /// assert_eq!(truly_invalid, vec![121121, 121212, 122122, 123123]);
@@ -144,6 +144,7 @@ impl Pair {
 /// For each `Pair` in the input, this function:
 /// - Finds all *invalid* IDs within the pair's range using [`Pair::invalid_ids`], and
 /// - Sums those IDs,
+///
 /// Then it returns the total sum across all pairs.
 ///
 /// An ID is considered *invalid* if:
@@ -184,11 +185,12 @@ fn part1(input: &Input) -> i64 {
 /// For each `Pair` in the input, this function:
 /// - Identifies all truly invalid IDs using [`Pair::truly_invalid_ids`], and
 /// - Sums those IDs,
+///
 /// Then it returns the total sum across all pairs.
 ///
 /// An ID is considered *truly invalid* if its digit string can be evenly divided
 /// into repeating substrings of equal length. The substring length must be a proper
-/// divisor of the number of digits.  
+/// divisor of the number of digits.
 /// Examples:
 /// - `1212` → `"12"` repeated
 /// - `123123` → `"123"` repeated
