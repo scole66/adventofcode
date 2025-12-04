@@ -116,6 +116,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "day04"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc 2.0.7",
+]
+
+[[package]]
 name = "day12"
 version = "0.1.0"
 dependencies = [
