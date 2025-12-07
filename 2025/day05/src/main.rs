@@ -4,7 +4,7 @@
 //!
 use ahash::{HashSet, HashSetExt};
 use anyhow::{Error, Result, anyhow};
-use std::cmp::max;
+use std::cmp::{max, min};
 use std::io::{self, Read};
 use std::str::FromStr;
 
@@ -47,17 +47,9 @@ impl Input {
     }
 }
 
-fn merge(left: &(i64, i64), right: &(i64, i64)) -> Option<(i64, i64)> {
-    let (first_start, first_end, second_start, second_end) = if left.0 < right.0 {
-        (left.0, left.1, right.0, right.1)
-    } else {
-        (right.0, right.1, left.0, left.1)
-    };
-    if first_end < second_start - 1 {
-        None
-    } else {
-        Some((first_start, max(first_end, second_end)))
-    }
+fn merge_unchecked(left: &(i64, i64), right: &(i64, i64)) -> (i64, i64) {
+    // assumes left & right overlap or are adjacent
+    (min(left.0, right.0), max(left.1, right.1))
 }
 
 fn ranges_joinable(left: &(i64, i64), right: &(i64, i64)) -> bool {
@@ -66,7 +58,8 @@ fn ranges_joinable(left: &(i64, i64), right: &(i64, i64)) -> bool {
     } else {
         (right.1, left.0)
     };
-    first_end >= second_start - 1
+    // window between is 0 (or less, indicating overlap)
+    second_start - first_end <= 1
 }
 
 fn normalize_ranges(range_list: &Vec<(i64, i64)>) -> Vec<(i64, i64)> {
@@ -80,7 +73,7 @@ fn normalize_ranges(range_list: &Vec<(i64, i64)>) -> Vec<(i64, i64)> {
             .collect::<Vec<_>>();
         let mut merged = *r;
         for pair in overlaps {
-            merged = merge(&merged, &pair).expect("these should merge");
+            merged = merge_unchecked(&merged, &pair);
             result.remove(&pair);
         }
         result.insert(merged);
