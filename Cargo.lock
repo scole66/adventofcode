@@ -1217,6 +1217,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "mmxxv_day06"
+version = "0.1.0"
+dependencies = [
+ "ahash",
+ "anyhow",
+ "indoc 2.0.7",
+]
+
+[[package]]
 name = "mmxxv_day2"
 version = "0.1.0"
 dependencies = [
