@@ -2,9 +2,8 @@
 //!
 //! Ref: [Advent of Code 2025 Day 7](https://adventofcode.com/2025/day/7)
 //!
-#![allow(dead_code, unused_imports, unused_variables)]
 use ahash::{HashMap, HashMapExt, HashSet, HashSetExt};
-use anyhow::{Context, Error, Result, anyhow, bail};
+use anyhow::{Error, Result, anyhow, bail};
 use std::io::{self, Read};
 use std::str::FromStr;
 
@@ -37,7 +36,7 @@ impl FromStr for Input {
             })
             .collect::<HashMap<(usize, usize), Kind>>();
         let starts = items
-            .extract_if(|k, v| match v {
+            .extract_if(|_, v| match v {
                 Kind::Splitter => false,
                 Kind::Start => true,
             })
