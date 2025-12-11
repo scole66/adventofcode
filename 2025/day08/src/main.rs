@@ -124,8 +124,7 @@ impl State {
                 let circuit1 = &mut left[low];
                 let circuit2 = &mut right[0];
                 // Now: we'd rather copy as few items as possible, so let's reassign into "big circuit" and "little circuit"
-                let (big_circuit, little_circuit) = 
-                if circuit1.connected_boxes.len() < circuit2.connected_boxes.len() {
+                let (big_circuit, little_circuit) = if circuit1.connected_boxes.len() < circuit2.connected_boxes.len() {
                     (circuit2, circuit1)
                 } else {
                     (circuit1, circuit2)
