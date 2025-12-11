@@ -114,9 +114,26 @@ impl State {
             if let (Some(cir1), Some(cir2)) = (cir1, cir2)
                 && cir1 != cir2
             {
-                let circuit2 = self.circuits[cir2].connected_boxes.clone();
-                self.circuits[cir1].connected_boxes.extend(circuit2);
-                self.circuits[cir2].connected_boxes = Vec::new();
+                let (low, high) = if cir1 < cir2 { (cir1, cir2) } else { (cir2, cir1) };
+
+                // `split_at_mut(high)` gives:
+                // - `left`: elements 0..high, so `left[low]` is at index `low`
+                // - `right`: elements high.., so `right[0]` is at index `high`
+                let (left, right) = self.circuits.split_at_mut(high);
+
+                let circuit1 = &mut left[low];
+                let circuit2 = &mut right[0];
+                // Now: we'd rather copy as few items as possible, so let's reassign into "big circuit" and "little circuit"
+                let (big_circuit, little_circuit) = 
+                if circuit1.connected_boxes.len() < circuit2.connected_boxes.len() {
+                    (circuit2, circuit1)
+                } else {
+                    (circuit1, circuit2)
+                };
+
+                let drained = little_circuit.connected_boxes.drain(..);
+                big_circuit.connected_boxes.extend(drained);
+
                 last_connection = Some((*pt1, *pt2));
             }
         }
